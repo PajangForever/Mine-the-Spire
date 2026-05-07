@@ -1,5 +1,8 @@
 {
+  "enchantment.pjfmod.ethereal": "Ethereal",
+  "enchantment.pjfmod.exhaust": "Exhaust",
+  "enchantment.pjfmod.innate": "Innate",
+  "enchantment.pjfmod.retain": "Retain",
   "group.pjfmod.main": "Main",
-  "item.pjfmod.dark_shuriken": "Dark Shuriken",
-  "text.pjfmod.unknown.4957e653": "unknown 4957e653"
+  "item.pjfmod.dark_shuriken": "Dark Shuriken"
 }

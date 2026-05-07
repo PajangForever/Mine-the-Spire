@@ -1,10 +1,10 @@
 {
   "anvil_cost": 8,
   "description": {
-    "translate": "enchantment.pjfmod.ethereal"
+    "translate": "enchantment.pjfmod.exhaust"
   },
   "effects": {
-    "pjfmod:ethereal": {}
+    "pjfmod:exhaust": {}
   },
   "max_cost": {
     "base": 30,
@@ -19,6 +19,6 @@
   "slots": [
     "any"
   ],
-  "supported_items": [],
+  "supported_items": "#minecraft:enchantable/durability",
   "weight": 10
 }

@@ -2,7 +2,13 @@
   "required": true,
   "package": "forever.pajang.pjfmod.mixin",
   "compatibilityLevel": "JAVA_25",
-  "mixins": [],
+  "mixins": [
+    "EquippableMixin",
+    "InventoryMixin",
+    "ItemMixin",
+    "ItemStackMixin",
+    "SlotMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   },

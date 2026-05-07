@@ -1,10 +1,18 @@
 {
   "anvil_cost": 8,
   "description": {
-    "translate": "enchantment.pjfmod.ethereal"
+    "translate": "enchantment.pjfmod.innate"
   },
   "effects": {
-    "pjfmod:ethereal": {}
+    "pjfmod:innate": {
+      "restore_counter": 0,
+      "uuid": [
+        1339129612,
+        1085813862,
+        -1312812908,
+        -1266813009
+      ]
+    }
   },
   "max_cost": {
     "base": 30,

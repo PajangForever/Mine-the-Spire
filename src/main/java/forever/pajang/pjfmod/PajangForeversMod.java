@@ -1,7 +1,11 @@
 package forever.pajang.pjfmod;
 
+import forever.pajang.pjfmod.content.ModAttachments;
+import forever.pajang.pjfmod.content.ModDataComponents;
+import forever.pajang.pjfmod.content.ModEnchantments;
 import forever.pajang.pjfmod.content.ModItems;
 import forever.pajang.pjfmod.register.RegisterCore;
+import net.minecraft.resources.Identifier;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -37,11 +41,21 @@ public class PajangForeversMod {
 
     public PajangForeversMod(IEventBus modEventBus, ModContainer modContainer) {
         modEventBus.addListener(this::commonSetup);
-        REG.text().register();
         ModItems.register();
+        ModAttachments.register();
+        ModDataComponents.register();
+        ModEnchantments.register();
         REG.register(modEventBus);
         NeoForge.EVENT_BUS.register(this);
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+    }
+
+    public static Identifier id(String path) {
+        return Identifier.fromNamespaceAndPath(MODID, path);
+    }
+
+    public static void debug() {
+        LOGGER.debug("Triggered!");
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {

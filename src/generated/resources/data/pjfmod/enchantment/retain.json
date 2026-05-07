@@ -1,10 +1,7 @@
 {
   "anvil_cost": 8,
   "description": {
-    "translate": "enchantment.pjfmod.ethereal"
-  },
-  "effects": {
-    "pjfmod:ethereal": {}
+    "translate": "enchantment.pjfmod.retain"
   },
   "max_cost": {
     "base": 30,
