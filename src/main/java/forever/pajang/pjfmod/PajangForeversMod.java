@@ -54,6 +54,7 @@ public class PajangForeversMod {
         return Identifier.fromNamespaceAndPath(MODID, path);
     }
 
+    @Deprecated
     public static void debug() {
         LOGGER.debug("Triggered!");
     }

@@ -1,15 +1,15 @@
 {
   "values": [
     {
-      "id": "pjfmod:ethereal",
-      "required": false
-    },
-    {
       "id": "pjfmod:innate",
       "required": false
     },
     {
       "id": "pjfmod:retain",
+      "required": false
+    },
+    {
+      "id": "pjfmod:ethereal",
       "required": false
     }
   ]
