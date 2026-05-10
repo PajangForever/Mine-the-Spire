@@ -32,21 +32,6 @@ public final class ModItems {
             .model((i, g) -> flatItemWithTexture(i, g, PajangForeversMod.id("item/mark_bloom")))
             .register();
 
-    public static final DeferredItem<GreatswordItem> GREATSWORD = REG.item("greatsword", GreatswordItem::new).in("main")
-            .properties(p -> p.sword(ToolMaterial.DIAMOND, 15, -3.5f)
-                    .delayedComponent(DataComponents.BLOCKS_ATTACKS, context -> new BlocksAttacks(
-                                    0.25F,
-                                    1.0F,
-                                    List.of(new BlocksAttacks.DamageReduction(90.0F, Optional.empty(), 0.0F, 1.0F)),
-                                    new BlocksAttacks.ItemDamageFunction(3.0F, 1.0F, 1.0F),
-                                    Optional.of(context.getOrThrow(DamageTypeTags.BYPASSES_SHIELD)),
-                                    Optional.of(SoundEvents.SHIELD_BLOCK),
-                                    Optional.of(SoundEvents.SHIELD_BREAK)
-                            )
-                    ).durability(60))
-            .model((i, g) -> flatItemWithTexture(i, g, Identifier.withDefaultNamespace("item/diamond_sword")))
-            .register();
-
     public static void register() {
     }
 
