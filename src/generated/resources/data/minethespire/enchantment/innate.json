@@ -1,0 +1,24 @@
+{
+  "anvil_cost": 8,
+  "description": {
+    "translate": "enchantment.minethespire.innate"
+  },
+  "effects": {
+    "minethespire:innate": {}
+  },
+  "max_cost": {
+    "base": 30,
+    "per_level_above_first": 0
+  },
+  "max_level": 1,
+  "min_cost": {
+    "base": 10,
+    "per_level_above_first": 0
+  },
+  "primary_items": [],
+  "slots": [
+    "any"
+  ],
+  "supported_items": [],
+  "weight": 10
+}
