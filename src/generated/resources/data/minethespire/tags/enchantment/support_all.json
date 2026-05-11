@@ -1,0 +1,16 @@
+{
+  "values": [
+    {
+      "id": "minethespire:retain",
+      "required": false
+    },
+    {
+      "id": "minethespire:ethereal",
+      "required": false
+    },
+    {
+      "id": "minethespire:innate",
+      "required": false
+    }
+  ]
+}

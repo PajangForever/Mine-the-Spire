@@ -40,7 +40,7 @@ authors="PajangForever"
 
 # The description text for the mod (multi line!) (#mandatory)
 description='''
-It's by me, PajangForever! Containing something interesting ... ?
+A mod for Minecraft, adding funny features from Slay the Spire
 '''
 
 # The [[mixins]] block allows you to declare your mixin config to FML so that it gets loaded.
