@@ -2,9 +2,12 @@ package forever.pajang.minethespire;
 
 import forever.pajang.minethespire.content.ModAttachments;
 import forever.pajang.minethespire.content.ModDataComponents;
+import forever.pajang.minethespire.content.ModEffects;
 import forever.pajang.minethespire.content.ModEnchantments;
 import forever.pajang.minethespire.content.ModItems;
+import forever.pajang.minethespire.content.ModEntityTypes;
 import forever.pajang.minethespire.register.RegisterCore;
+import forever.pajang.minethespire.network.ModNetworking;
 import net.minecraft.resources.Identifier;
 import org.slf4j.Logger;
 
@@ -30,9 +33,12 @@ public class MineTheSpire {
     public MineTheSpire(IEventBus modEventBus, ModContainer modContainer) {
         modEventBus.addListener(this::commonSetup);
         ModItems.register();
+        ModEntityTypes.register();
+        ModEffects.register();
         ModAttachments.register();
         ModDataComponents.register();
         ModEnchantments.register();
+        modEventBus.addListener(ModNetworking::register);
         REG.register(modEventBus);
         NeoForge.EVENT_BUS.register(this);
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);

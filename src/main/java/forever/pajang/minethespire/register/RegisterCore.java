@@ -15,6 +15,10 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Unit;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -43,6 +47,8 @@ public class RegisterCore {
     final DeferredRegister<CreativeModeTab> groups;
     final DeferredRegister.Blocks blocks;
     final DeferredRegister.Items items;
+    final DeferredRegister.Entities entities;
+    final DeferredRegister<MobEffect> effects;
     final DeferredRegister.DataComponents dataComponents;
     final DeferredRegister.DataComponents enchantmentComponents;
     final DeferredRegister<AttachmentType<?>> attachmentTypes;
@@ -65,6 +71,8 @@ public class RegisterCore {
         this.groups = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, modid);
         this.blocks = DeferredRegister.createBlocks(modid);
         this.items = DeferredRegister.createItems(modid);
+        this.entities = DeferredRegister.createEntities(modid);
+        this.effects = DeferredRegister.create(Registries.MOB_EFFECT, modid);
         this.attachmentTypes = DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, modid);
         this.dataComponents = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, modid);
         this.enchantmentComponents = DeferredRegister.createDataComponents(Registries.ENCHANTMENT_EFFECT_COMPONENT_TYPE, modid);
@@ -116,6 +124,14 @@ public class RegisterCore {
         return new ItemBuilder<>(this, path, constructor);
     }
 
+    public <T extends Entity> DeferredHolder<EntityType<?>, EntityType<T>> entity(String path, EntityType.EntityFactory<T> factory, MobCategory category, UnaryOperator<EntityType.Builder<T>> builder) {
+        return entities.registerEntityType(path, factory, category, builder);
+    }
+
+    public <T extends MobEffect> DeferredHolder<MobEffect, T> effect(String path, Supplier<T> constructor) {
+        return effects.register(path, constructor);
+    }
+
     public EnchantmentBuilder enchantment(String path) {
         return new EnchantmentBuilder(this, path);
     }
@@ -139,6 +155,8 @@ public class RegisterCore {
     public void register(IEventBus modEventBus) {
         blocks.register(modEventBus);
         items.register(modEventBus);
+        entities.register(modEventBus);
+        effects.register(modEventBus);
         for (Map.Entry<String, CreativeModeTab.Builder> entry : namedGroups.entrySet()) {
             groups.register(entry.getKey(), entry.getValue()::build);
         }
