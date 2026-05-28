@@ -1,11 +1,14 @@
 package forever.pajang.minethespire.client;
 
 import forever.pajang.minethespire.MineTheSpire;
+import forever.pajang.minethespire.content.ModAttachments;
 import forever.pajang.minethespire.content.ModItems;
-import forever.pajang.minethespire.content.item.DarkShurikenItem;
+import forever.pajang.minethespire.impl.DarkShurikenChargeState;
 import forever.pajang.minethespire.mixin.client.GameRendererAccessor;
 import forever.pajang.minethespire.network.DarkShurikenChargePayload;
 import net.minecraft.client.Minecraft;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -17,8 +20,8 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 @EventBusSubscriber(modid = MineTheSpire.MODID, value = Dist.CLIENT)
 public final class ClientEventListeners {
-    private static boolean chargingDarkShuriken;
-    private static int darkShurikenChargeTicks;
+    private ClientEventListeners() {
+    }
 
     @SubscribeEvent
     public static void onInput(InputEvent.InteractionKeyMappingTriggered event) {
@@ -44,53 +47,77 @@ public final class ClientEventListeners {
     public static void onClientTick(ClientTickEvent.Post event) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) {
-            chargingDarkShuriken = false;
-            darkShurikenChargeTicks = 0;
             return;
         }
-        if (!chargingDarkShuriken) {
+
+        DarkShurikenChargeState state = mc.player.getData(ModAttachments.DARK_SHURIKEN_CHARGE_STATE);
+        if (state == null) {
             return;
         }
-        if (mc.screen != null || !mc.options.keyAttack.isDown() || !mc.player.getMainHandItem().is(ModItems.DARK_SHURIKEN.get())) {
-            endCharge(mc, true);
-            return;
+
+        if (state.isCharging()) {
+            if (mc.screen != null || !mc.options.keyAttack.isDown() || !mc.player.getMainHandItem().is(ModItems.DARK_SHURIKEN.get())) {
+                abortCharge(mc, state);
+            }
+            else {
+                if (!mc.player.isUsingItem()) {
+                    mc.player.startUsingItem(InteractionHand.MAIN_HAND);
+                }
+                if (state.tickCharge()) {
+                    if (mc.player.getUsedItemHand() == InteractionHand.MAIN_HAND) {
+                        mc.player.stopUsingItem();
+                    }
+                    if (mc.getConnection() != null) {
+                        ClientPacketDistributor.sendToServer(DarkShurikenChargePayload.INSTANCE);
+                    }
+                    state.startBellRings();
+                    playBell(mc);
+                }
+            }
         }
-        if (!mc.player.isUsingItem()) {
-            mc.player.startUsingItem(InteractionHand.MAIN_HAND);
-        }
-        if (darkShurikenChargeTicks < DarkShurikenItem.MIND_BLOOM_CHARGE_TICKS) {
-            darkShurikenChargeTicks++;
-        }
-        else if (mc.player.getUsedItemHand() == InteractionHand.MAIN_HAND) {
-            mc.player.stopUsingItem();
+
+        if (state.tickBell()) {
+            playBell(mc);
         }
     }
 
     private static void beginCharge(Minecraft mc) {
-        if (chargingDarkShuriken) {
+        if (mc.player == null) {
             return;
         }
-        chargingDarkShuriken = true;
-        darkShurikenChargeTicks = 0;
+
+        DarkShurikenChargeState state = mc.player.getData(ModAttachments.DARK_SHURIKEN_CHARGE_STATE);
+        if (state == null || state.isCharging()) {
+            return;
+        }
+
+        state.beginCharge();
         mc.player.startUsingItem(InteractionHand.MAIN_HAND);
         mc.gameRenderer.displayItemActivation(mc.player.getMainHandItem().copyWithCount(1));
-        if (mc.getConnection() != null) {
-            ClientPacketDistributor.sendToServer(new DarkShurikenChargePayload(true));
-        }
     }
 
-    private static void endCharge(Minecraft mc, boolean notifyServer) {
-        if (!chargingDarkShuriken) {
+    private static void abortCharge(Minecraft mc, DarkShurikenChargeState state) {
+        if (mc.player == null || state == null || !state.isCharging()) {
             return;
         }
-        chargingDarkShuriken = false;
-        darkShurikenChargeTicks = 0;
+
+        state.abortCharge();
         if (mc.player.isUsingItem() && mc.player.getUsedItemHand() == InteractionHand.MAIN_HAND) {
             mc.player.stopUsingItem();
         }
         ((GameRendererAccessor) mc.gameRenderer).minethespire$getScreenEffectRenderer().resetItemActivation();
-        if (notifyServer && mc.getConnection() != null) {
-            ClientPacketDistributor.sendToServer(new DarkShurikenChargePayload(false));
+    }
+
+    private static void playBell(Minecraft mc) {
+        if (mc.player != null && mc.level != null) {
+            mc.level.playLocalSound(mc.player, SoundEvents.BELL_BLOCK, SoundSource.PLAYERS, 1.0F, 1.0F);
+        }
+    }
+
+    public static void displayLizardTailActivation() {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player != null) {
+            mc.gameRenderer.displayItemActivation(ModItems.LIZARD_TAIL.get().getDefaultInstance());
         }
     }
 }

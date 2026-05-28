@@ -1,9 +1,11 @@
 package forever.pajang.minethespire.content;
 
 import forever.pajang.minethespire.MineTheSpire;
+import forever.pajang.minethespire.content.effect.FairyBlessingEffect;
 import forever.pajang.minethespire.content.effect.MindBloomEffect;
+import forever.pajang.minethespire.content.effect.NoEntityEffect;
+import forever.pajang.minethespire.content.effect.QuickBlockEffect;
 import forever.pajang.minethespire.register.RegisterCore;
-import net.minecraft.util.Util;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -11,10 +13,19 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 public final class ModEffects {
     private static final RegisterCore REG = MineTheSpire.REG;
 
-    public static final DeferredHolder<MobEffect, MindBloomEffect> MIND_BLOOM = REG.effect(
-            "mind_bloom", () -> new MindBloomEffect(MobEffectCategory.HARMFUL, 0x461255));
+    public static final DeferredHolder<MobEffect, MindBloomEffect> MIND_BLOOM = REG.effect("mind_bloom", () -> new MindBloomEffect(MobEffectCategory.HARMFUL, 0x461255))
+            .en("Mind Bloom")
+            .register();
+    public static final DeferredHolder<MobEffect, FairyBlessingEffect> FAIRY_BLESSING = REG.effect("fairy_blessing", () -> new FairyBlessingEffect(MobEffectCategory.BENEFICIAL, 0x17D8B3))
+            .en("Fairy Blessing")
+            .register();
+    public static final DeferredHolder<MobEffect, NoEntityEffect> NO_ENTITY = REG.effect("no_entity", () -> new NoEntityEffect(MobEffectCategory.BENEFICIAL, 0x74F0C8))
+            .en("Intangible")
+            .register();
+    public static final DeferredHolder<MobEffect, QuickBlockEffect> QUICK_BLOCK = REG.effect("quick_block", () -> new QuickBlockEffect(MobEffectCategory.BENEFICIAL, 0x70836F))
+            .en("Quick Block")
+            .register();
 
     public static void register() {
-        REG.text(Util.makeDescriptionId("effect", MineTheSpire.id("mind_bloom"))).en("Mind Bloom").register();
     }
 }

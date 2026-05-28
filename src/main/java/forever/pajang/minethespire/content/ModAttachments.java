@@ -1,6 +1,7 @@
 package forever.pajang.minethespire.content;
 
 import forever.pajang.minethespire.MineTheSpire;
+import forever.pajang.minethespire.impl.DarkShurikenChargeState;
 import forever.pajang.minethespire.impl.PlayerInnateTracker;
 import forever.pajang.minethespire.register.RegisterCore;
 import net.neoforged.neoforge.attachment.AttachmentType;
@@ -12,6 +13,8 @@ public final class ModAttachments {
 
     public static final Supplier<AttachmentType<PlayerInnateTracker>> INNATE_TRACKER = REG.attachmentType("innate_tracker", _ -> new PlayerInnateTracker(0),
             builder -> builder.serialize(PlayerInnateTracker.CODEC).copyOnDeath());
+    public static final Supplier<AttachmentType<DarkShurikenChargeState>> DARK_SHURIKEN_CHARGE_STATE = REG.attachmentType("dark_shuriken_charge_state", _ -> new DarkShurikenChargeState(),
+            builder -> {});
 
     public static void register() {}
 }

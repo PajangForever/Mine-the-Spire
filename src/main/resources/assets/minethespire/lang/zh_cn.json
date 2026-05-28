@@ -1,9 +1,24 @@
 {
+  "attribute.minethespire.overheal": "过量治疗",
+  "attribute.minethespire.overheal_change_rate": "过量治疗变化率",
+  "config.jade.plugin_minethespire.overheal": "过量治疗",
+  "curios.identifier.tail": "尾巴",
+  "effect.minethespire.fairy_blessing": "精灵庇护",
+  "effect.minethespire.mind_bloom": "心灵绽放",
+  "effect.minethespire.no_entity": "无实体",
+  "effect.minethespire.quick_block": "快速格挡",
   "enchantment.minethespire.ethereal": "虚无",
   "enchantment.minethespire.exhaust": "消耗",
   "enchantment.minethespire.innate": "固有",
   "enchantment.minethespire.retain": "保留",
   "group.minethespire.main": "主分类",
+  "item.minecraft.lingering_potion.effect.blocking": "滞留型格挡药水",
+  "item.minecraft.lingering_potion.effect.bottled_fairy": "滞留型瓶中精灵",
+  "item.minecraft.potion.effect.blocking": "格挡药水",
+  "item.minecraft.potion.effect.bottled_fairy": "瓶中精灵",
+  "item.minecraft.splash_potion.effect.blocking": "喷溅型格挡药水",
+  "item.minecraft.splash_potion.effect.bottled_fairy": "喷溅型瓶中精灵",
   "item.minethespire.dark_shuriken": "暗黑手里剑",
-  "effect.minethespire.mind_bloom": "心灵绽放"
+  "item.minethespire.lizard_tail": "蜥蜴尾巴",
+  "item.minethespire.spirit": "灵体"
 }

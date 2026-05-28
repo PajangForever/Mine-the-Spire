@@ -1,0 +1,18 @@
+{
+  "entities": [
+    "#curios:player_like"
+  ],
+  "slots": [
+    {
+      "slot": {
+        "icon": "curios:slot/empty_curio_slot",
+        "id": "tail",
+        "order": 260,
+        "size": 1,
+        "validators": [
+          "curios:tag"
+        ]
+      }
+    }
+  ]
+}

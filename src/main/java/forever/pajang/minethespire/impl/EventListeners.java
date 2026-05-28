@@ -6,13 +6,25 @@ import forever.pajang.minethespire.content.ModDataComponents;
 import forever.pajang.minethespire.content.ModEffects;
 import forever.pajang.minethespire.content.ModEnchantments;
 import forever.pajang.minethespire.content.ModItems;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.AnvilUpdateEvent;
+import net.neoforged.neoforge.event.brewing.RegisterBrewingRecipesEvent;
 import net.neoforged.neoforge.event.entity.item.ItemTossEvent;
+import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingHealEvent;
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 import net.neoforged.neoforge.event.entity.living.LivingUseTotemEvent;
@@ -20,13 +32,22 @@ import net.neoforged.neoforge.event.entity.player.PlayerEnchantItemEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
-import forever.pajang.minethespire.impl.DarkShurikenChargeTracker;
 
 @EventBusSubscriber(modid = MineTheSpire.MODID)
 public final class EventListeners {
+
+    @SubscribeEvent
+    public static void onRegisterBrewingRecipes(RegisterBrewingRecipesEvent event) {
+        MineTheSpire.REG.registerBrewingRecipes(event);
+    }
+
+    @SubscribeEvent
+    public static void onEntityAttributeModification(EntityAttributeModificationEvent event) {
+        MineTheSpire.REG.addEntityAttributes(event);
+    }
 
     @SubscribeEvent
     public static void onServerToStart(ServerAboutToStartEvent event) {
@@ -36,8 +57,6 @@ public final class EventListeners {
     @SubscribeEvent
     public static void onServerStopped(ServerStoppedEvent event) {
         PlayerInnateTracker.TRACKER.clear();
-        DarkShurikenChargeTracker.CHARGES.clear();
-        DarkShurikenChargeTracker.BELL_RINGS.clear();
     }
 
     @SubscribeEvent
@@ -72,9 +91,42 @@ public final class EventListeners {
     }
 
     @SubscribeEvent
+    public static void onLivingDamagePre(LivingDamageEvent.Pre event) {
+        if (event.getEntity().hasEffect(ModEffects.NO_ENTITY)
+                && !event.getSource().is(DamageTypes.GENERIC_KILL)
+                && !event.getSource().is(DamageTypes.FELL_OUT_OF_WORLD)
+                && event.getNewDamage() > 1.0F) {
+            event.setNewDamage(1.0F);
+        }
+        OverhealHandler.onDamage(event.getEntity(), event);
+    }
+
+    @SubscribeEvent
     public static void onLivingUseTotem(LivingUseTotemEvent event) {
-        if (event.getEntity().hasEffect(ModEffects.MIND_BLOOM)) {
+        if (event.getEntity().hasEffect(ModEffects.MIND_BLOOM) || event.getEntity().hasEffect(ModEffects.FAIRY_BLESSING)) {
             event.setCanceled(true);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onLivingDeath(LivingDeathEvent event) {
+        if (event.getEntity().level() instanceof ServerLevel level && event.getEntity().hasEffect(ModEffects.FAIRY_BLESSING)) {
+            event.setCanceled(true);
+            event.getEntity().removeEffect(ModEffects.FAIRY_BLESSING);
+            event.getEntity().setHealth(event.getEntity().getMaxHealth() * 0.3F);
+            event.getEntity().addEffect(new MobEffectInstance(MobEffects.RESISTANCE, 2 * 20, 3));
+            level.playSound(null, event.getEntity().getX(), event.getEntity().getY(), event.getEntity().getZ(), SoundEvents.TOTEM_USE, SoundSource.PLAYERS, 1.0F, 1.0F);
+            level.sendParticles(ParticleTypes.TOTEM_OF_UNDYING,
+                    event.getEntity().getX(), event.getEntity().getY() + event.getEntity().getBbHeight() * 0.5D, event.getEntity().getZ(),
+                    80, 0.75D, event.getEntity().getBbHeight() * 0.45D, 0.75D, 0.35D);
+            level.sendParticles(ParticleTypes.HAPPY_VILLAGER,
+                    event.getEntity().getX(), event.getEntity().getY() + event.getEntity().getBbHeight() * 0.5D, event.getEntity().getZ(),
+                    60, 0.9D, event.getEntity().getBbHeight() * 0.55D, 0.9D, 0.25D);
+            return;
+        }
+
+        if (LizardTailHandler.tryPreventDeath(event)) {
+            return;
         }
     }
 
@@ -93,9 +145,9 @@ public final class EventListeners {
     }
 
     @SubscribeEvent
-    public static void onPlayerTick(PlayerTickEvent.Post event) {
-        if (!event.getEntity().level().isClientSide()) {
-            DarkShurikenChargeTracker.tick(event.getEntity());
+    public static void onEntityTick(EntityTickEvent.Post event) {
+        if (event.getEntity() instanceof LivingEntity living) {
+            OverhealHandler.tick(living);
         }
     }
 
@@ -126,18 +178,11 @@ public final class EventListeners {
     public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
         Player player = event.getEntity();
         if (!player.level().isClientSide()) {
-            DarkShurikenChargeTracker.stop(player);
-            DarkShurikenChargeTracker.BELL_RINGS.remove(player.getUUID());
             PlayerInnateTracker tracker = player.getData(ModAttachments.INNATE_TRACKER);
             tracker.restoreCounter().increment();
             tracker.innateStacks().forEach(i -> player.addItem(i.copy()));
             player.setData(ModAttachments.INNATE_TRACKER, tracker);
         }
-    }
-
-    @SubscribeEvent
-    public static void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
-        DarkShurikenChargeTracker.clear(event.getEntity());
     }
 
 }

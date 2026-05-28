@@ -1,9 +1,24 @@
 {
+  "attribute.minethespire.overheal": "Overheal",
+  "attribute.minethespire.overheal_change_rate": "Overheal Change Rate",
+  "config.jade.plugin_minethespire.overheal": "Overheal",
+  "curios.identifier.tail": "Tail",
+  "effect.minethespire.fairy_blessing": "Fairy Blessing",
   "effect.minethespire.mind_bloom": "Mind Bloom",
+  "effect.minethespire.no_entity": "Intangible",
+  "effect.minethespire.quick_block": "Quick Block",
   "enchantment.minethespire.ethereal": "Ethereal",
   "enchantment.minethespire.exhaust": "Exhaust",
   "enchantment.minethespire.innate": "Innate",
   "enchantment.minethespire.retain": "Retain",
   "group.minethespire.main": "Main",
-  "item.minethespire.dark_shuriken": "Dark Shuriken"
+  "item.minecraft.lingering_potion.effect.blocking": "Lingering Potion of Blocking",
+  "item.minecraft.lingering_potion.effect.bottled_fairy": "Lingering Bottled Fairy",
+  "item.minecraft.potion.effect.blocking": "Potion of Blocking",
+  "item.minecraft.potion.effect.bottled_fairy": "Bottled Fairy",
+  "item.minecraft.splash_potion.effect.blocking": "Splash Potion of Blocking",
+  "item.minecraft.splash_potion.effect.bottled_fairy": "Splash Bottled Fairy",
+  "item.minethespire.dark_shuriken": "Dark Shuriken",
+  "item.minethespire.lizard_tail": "Lizard Tail",
+  "item.minethespire.spirit": "Spirit"
 }

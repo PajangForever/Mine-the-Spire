@@ -1,7 +1,7 @@
 {
   "values": [
     {
-      "id": "minethespire:retain",
+      "id": "minethespire:innate",
       "required": false
     },
     {
@@ -9,7 +9,7 @@
       "required": false
     },
     {
-      "id": "minethespire:innate",
+      "id": "minethespire:retain",
       "required": false
     }
   ]

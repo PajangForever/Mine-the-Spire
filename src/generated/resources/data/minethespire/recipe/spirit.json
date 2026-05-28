@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "a": "minecraft:totem_of_undying",
+    "o": "minecraft:slime_ball"
+  },
+  "pattern": [
+    " o ",
+    "oao",
+    " o "
+  ],
+  "result": {
+    "id": "minethespire:spirit"
+  }
+}

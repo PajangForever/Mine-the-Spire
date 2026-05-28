@@ -1,0 +1,11 @@
+{
+  "type": "neoforge:add_table",
+  "conditions": [
+    {
+      "condition": "neoforge:loot_table_id",
+      "loot_table_id": "minecraft:chests/village/village_fletcher"
+    }
+  ],
+  "priority": 0,
+  "table": "minethespire:chests/spirit"
+}

@@ -1,12 +1,13 @@
 package forever.pajang.minethespire.register;
 
+import net.minecraft.core.HolderGetter;
 import net.minecraft.client.data.models.ItemModelGenerators;
+import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.registries.DeferredItem;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -19,6 +20,7 @@ public class ItemBuilder<T extends Item> extends RegisterCore.Builder {
     protected UnaryOperator<Item.Properties> properties = UnaryOperator.identity();
     protected String group = null;
     protected BiConsumer<Supplier<T>, Supplier<ItemModelGenerators>> modelGen = (_, _) -> {};
+    protected Function<Supplier<T>, BiConsumer<HolderGetter<Item>, RecipeOutput>> recipeGen = _ -> (_, _) -> {};
     protected String en = null;
     protected final Set<TagKey<Item>> tags = new HashSet<>();
 
@@ -43,6 +45,19 @@ public class ItemBuilder<T extends Item> extends RegisterCore.Builder {
         return this;
     }
 
+    public ItemBuilder<T> recipe(Function<Supplier<T>, BiConsumer<HolderGetter<Item>, RecipeOutput>> recipeGen) {
+        Function<Supplier<T>, BiConsumer<HolderGetter<Item>, RecipeOutput>> previous = this.recipeGen;
+        this.recipeGen = item -> {
+            BiConsumer<HolderGetter<Item>, RecipeOutput> prior = previous.apply(item);
+            BiConsumer<HolderGetter<Item>, RecipeOutput> next = recipeGen.apply(item);
+            return (provider, output) -> {
+                prior.accept(provider, output);
+                next.accept(provider, output);
+            };
+        };
+        return this;
+    }
+
     public ItemBuilder<T> en(String en) {
         this.en = en;
         return this;
@@ -55,9 +70,14 @@ public class ItemBuilder<T extends Item> extends RegisterCore.Builder {
 
     public DeferredItem<T> register() {
         DeferredItem<T> item = registerCore.items.registerItem(name, constructor, properties);
-        (group == null ? registerCore.getCurrentGroup() : registerCore.getGroup(group)).displayItems(Collections.singleton(item));
+        if (group == null) {
+            registerCore.addToGroup(registerCore.getCurrentGroupName(), item);
+        } else {
+            registerCore.addToGroup(group, item);
+        }
         if (registerCore.runningDataGen()){
             registerCore.itemModels.add(gen -> modelGen.accept(item, gen));
+            registerCore.itemRecipes.add(recipeGen.apply(item));
             if (this.en == null) this.en = RegisterCore.getDisplayTitle(this.name);
             registerCore.deferredLang.put(() -> item.get().getDescriptionId(), en);
             this.tags.forEach(tag -> registerCore.itemTags.computeIfAbsent(tag, _ -> new HashSet<>()).add(item));

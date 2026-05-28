@@ -11,24 +11,33 @@ import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.EnchantmentTagsProvider;
 import net.minecraft.data.tags.TagAppender;
+import net.minecraft.data.recipes.RecipeOutput;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Unit;
+import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.level.ItemLike;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.attachment.IAttachmentHolder;
 import net.neoforged.neoforge.common.data.ItemTagsProvider;
 import net.neoforged.neoforge.common.data.LanguageProvider;
 import net.neoforged.neoforge.data.loading.DatagenModLoader;
+import net.neoforged.neoforge.event.brewing.RegisterBrewingRecipesEvent;
+import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -49,19 +58,31 @@ public class RegisterCore {
     final DeferredRegister.Items items;
     final DeferredRegister.Entities entities;
     final DeferredRegister<MobEffect> effects;
+    final DeferredRegister<Potion> potions;
     final DeferredRegister.DataComponents dataComponents;
     final DeferredRegister.DataComponents enchantmentComponents;
+    final DeferredRegister<Attribute> attributes;
     final DeferredRegister<AttachmentType<?>> attachmentTypes;
     final RegistrySetBuilder registrySetBuilder = new RegistrySetBuilder();
 
     private final boolean runningDataGen = DatagenModLoader.isRunningDataGen();
     protected final Set<BiFunction<PackOutput, CompletableFuture<HolderLookup.Provider>, ? extends DataProvider>> dataProviders = new HashSet<>();
     protected final Map<String, CreativeModeTab.Builder> namedGroups = new HashMap<>();
+    protected final Map<String, Set<Supplier<? extends ItemLike>>> groupItems = new HashMap<>();
+    protected final Map<String, Set<Supplier<ItemStack>>> groupStacks = new HashMap<>();
     protected CreativeModeTab.Builder currentGroup;
+    protected String currentGroupName;
     protected final Map<String, String> lang = new HashMap<>();
     protected final Map<Supplier<String>, String> deferredLang = new HashMap<>();
+    protected final Map<DeferredHolder<Attribute, ? extends Attribute>, Double> livingEntityAttributes = new LinkedHashMap<>();
     protected final Set<Consumer<Supplier<ItemModelGenerators>>> itemModels = new HashSet<>();
+    protected final Set<BiConsumer<HolderGetter<Item>, RecipeOutput>> itemRecipes = new LinkedHashSet<>();
     protected final Map<ResourceKey<Enchantment>, Function<EnchantmentBuilder.LookupGetter, Enchantment>> enchantments = new HashMap<>();
+    protected final Set<LootTableBuilder> lootTables = new LinkedHashSet<>();
+    protected final Set<LootModifierBuilder> lootModifiers = new LinkedHashSet<>();
+    protected final Set<CuriosBuilder> curiosBuilders = new LinkedHashSet<>();
+    protected final List<Consumer<RegisterBrewingRecipesEvent>> brewingRecipes = new ArrayList<>();
+    protected final List<BrewingRecipeDisplay> brewingRecipeDisplays = new ArrayList<>();
 
     protected final Map<TagKey<Item>, Set<DeferredItem<? extends Item>>> itemTags = new HashMap<>();
     protected final Map<TagKey<Enchantment>, Set<ResourceKey<Enchantment>>> enchantmentTags = new HashMap<>();
@@ -73,6 +94,8 @@ public class RegisterCore {
         this.items = DeferredRegister.createItems(modid);
         this.entities = DeferredRegister.createEntities(modid);
         this.effects = DeferredRegister.create(Registries.MOB_EFFECT, modid);
+        this.potions = DeferredRegister.create(Registries.POTION, modid);
+        this.attributes = DeferredRegister.create(Registries.ATTRIBUTE, modid);
         this.attachmentTypes = DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, modid);
         this.dataComponents = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, modid);
         this.enchantmentComponents = DeferredRegister.createDataComponents(Registries.ENCHANTMENT_EFFECT_COMPONENT_TYPE, modid);
@@ -97,8 +120,19 @@ public class RegisterCore {
     }
 
     public CreativeModeTab.Builder setGroup(String name) {
+        currentGroupName = name;
         currentGroup = getGroup(name);
         return currentGroup;
+    }
+
+    public void addToGroup(String name, Supplier<? extends ItemLike> item) {
+        getGroup(name);
+        groupItems.computeIfAbsent(name, _ -> new LinkedHashSet<>()).add(item);
+    }
+
+    public void addStackToGroup(String name, Supplier<ItemStack> stack) {
+        getGroup(name);
+        groupStacks.computeIfAbsent(name, _ -> new LinkedHashSet<>()).add(stack);
     }
 
     protected CreativeModeTab.Builder getCurrentGroup() {
@@ -106,6 +140,11 @@ public class RegisterCore {
             setGroup(modid);
         }
         return currentGroup;
+    }
+
+    protected String getCurrentGroupName() {
+        getCurrentGroup();
+        return currentGroupName;
     }
 
     public LangBuilder.FixedKey text(String key) {
@@ -128,12 +167,32 @@ public class RegisterCore {
         return entities.registerEntityType(path, factory, category, builder);
     }
 
-    public <T extends MobEffect> DeferredHolder<MobEffect, T> effect(String path, Supplier<T> constructor) {
-        return effects.register(path, constructor);
+    public <T extends MobEffect> EffectBuilder<T> effect(String path, Supplier<T> constructor) {
+        return new EffectBuilder<>(this, path, constructor);
+    }
+
+    public AttributeBuilder attribute(String path) {
+        return new AttributeBuilder(this, path);
+    }
+
+    public PotionBuilder potion(String path) {
+        return new PotionBuilder(this, path);
     }
 
     public EnchantmentBuilder enchantment(String path) {
         return new EnchantmentBuilder(this, path);
+    }
+
+    public LootTableBuilder lootTable(String path) {
+        return new LootTableBuilder(this, path);
+    }
+
+    public LootModifierBuilder lootModifier(String name) {
+        return new LootModifierBuilder(this, name);
+    }
+
+    public CuriosBuilder curios(String name) {
+        return new CuriosBuilder(this, name);
     }
 
     public DeferredHolder<DataComponentType<?>, DataComponentType<Unit>> enchantmentComponent(String path) {
@@ -157,7 +216,23 @@ public class RegisterCore {
         items.register(modEventBus);
         entities.register(modEventBus);
         effects.register(modEventBus);
+        attributes.register(modEventBus);
+        potions.register(modEventBus);
         for (Map.Entry<String, CreativeModeTab.Builder> entry : namedGroups.entrySet()) {
+            String groupName = entry.getKey();
+            entry.getValue().displayItems((parameters, output) -> {
+                groupItems.getOrDefault(groupName, Collections.emptySet()).stream()
+                        .map(Supplier::get)
+                        .map(ItemLike::asItem)
+                        .filter(item -> item != Items.AIR)
+                        .filter(item -> item.isEnabled(parameters.enabledFeatures()))
+                        .forEach(output::accept);
+                groupStacks.getOrDefault(groupName, Collections.emptySet()).stream()
+                        .map(Supplier::get)
+                        .filter(stack -> !stack.isEmpty())
+                        .filter(stack -> stack.getItem().isEnabled(parameters.enabledFeatures()))
+                        .forEach(output::accept);
+            });
             groups.register(entry.getKey(), entry.getValue()::build);
         }
         groups.register(modEventBus);
@@ -173,8 +248,10 @@ public class RegisterCore {
             dataProviders.add((out, _) -> new LanguageProvider(out, modid, "en_us") {
                 @Override
                 protected void addTranslations() {
-                    lang.forEach(this::add);
-                    deferredLang.forEach((k, v) -> add(k.get(), v));
+                    Map<String, String> translations = new LinkedHashMap<>();
+                    lang.forEach((key, value) -> addTranslation(translations, key, value));
+                    deferredLang.forEach((key, value) -> addTranslation(translations, key.get(), value));
+                    translations.forEach(this::add);
                 }
             });
             dataProviders.add((out, _) -> new ModelProvider(out, modid) {
@@ -201,6 +278,39 @@ public class RegisterCore {
         }
     }
 
+    public void addEntityAttributes(EntityAttributeModificationEvent event) {
+        livingEntityAttributes.forEach((attribute, defaultValue) -> {
+            for (EntityType<? extends LivingEntity> entityType : event.getTypes()) {
+                if (!event.has(entityType, attribute)) {
+                    event.add(entityType, attribute, defaultValue);
+                }
+            }
+        });
+    }
+
+    public void registerBrewingRecipes(RegisterBrewingRecipesEvent event) {
+        brewingRecipes.forEach(recipe -> recipe.accept(event));
+    }
+
+    public void brewingRecipeDisplay(String uidPath, Supplier<ItemStack> ingredient, Supplier<ItemStack> input, Supplier<ItemStack> output) {
+        brewingRecipeDisplayVariants(uidPath, () -> List.of(ingredient.get()), () -> List.of(input.get()), output);
+    }
+
+    public void brewingRecipeDisplayVariants(String uidPath, Supplier<List<ItemStack>> ingredients, Supplier<List<ItemStack>> inputs, Supplier<ItemStack> output) {
+        brewingRecipeDisplays.add(new BrewingRecipeDisplay(uidPath, ingredients, inputs, output));
+    }
+
+    public List<BrewingRecipeDisplay> getBrewingRecipeDisplays() {
+        return List.copyOf(brewingRecipeDisplays);
+    }
+
+    private static void addTranslation(Map<String, String> translations, String key, String value) {
+        String previous = translations.putIfAbsent(key, value);
+        if (previous != null && !Objects.equals(previous, value)) {
+            throw new IllegalStateException("Conflicting translation key " + key + ": " + previous + " / " + value);
+        }
+    }
+
     public static @NonNull String getDisplayTitle(String path) {
         return Arrays.stream(path.split("_")).map(s ->
                 s.isEmpty() ? s : Character.toUpperCase(s.charAt(0)) + s.substring(1)).collect(Collectors.joining(" "));
@@ -215,6 +325,32 @@ public class RegisterCore {
             this.name = name;
         }
 
+    }
+
+    public record BrewingRecipeDisplay(
+            String uidPath,
+            Supplier<List<ItemStack>> ingredientSupplier,
+            Supplier<List<ItemStack>> inputSupplier,
+            Supplier<ItemStack> outputSupplier
+    ) {
+        public List<ItemStack> ingredients() {
+            return copyStacks(ingredientSupplier.get());
+        }
+
+        public List<ItemStack> inputs() {
+            return copyStacks(inputSupplier.get());
+        }
+
+        public ItemStack output() {
+            return outputSupplier.get().copy();
+        }
+
+        private static List<ItemStack> copyStacks(List<ItemStack> stacks) {
+            return stacks.stream()
+                    .filter(stack -> !stack.isEmpty())
+                    .map(ItemStack::copy)
+                    .toList();
+        }
     }
 
 }

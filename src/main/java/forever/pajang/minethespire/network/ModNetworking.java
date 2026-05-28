@@ -7,6 +7,8 @@ public final class ModNetworking {
     }
 
     public static void register(RegisterPayloadHandlersEvent event) {
-        event.registrar("1").playToServer(DarkShurikenChargePayload.TYPE, DarkShurikenChargePayload.STREAM_CODEC, DarkShurikenChargePayload::handle);
+        event.registrar("1")
+                .playToServer(DarkShurikenChargePayload.TYPE, DarkShurikenChargePayload.STREAM_CODEC, DarkShurikenChargePayload::handle)
+                .playToClient(LizardTailActivationPayload.TYPE, LizardTailActivationPayload.STREAM_CODEC, LizardTailActivationPayload::handle);
     }
 }
