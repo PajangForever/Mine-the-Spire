@@ -1,5 +1,6 @@
 package forever.pajang.minethespire.impl;
 
+import forever.pajang.minethespire.compat.curios.CuriosCompat;
 import forever.pajang.minethespire.content.ModItems;
 import forever.pajang.minethespire.network.LizardTailActivationPayload;
 import net.minecraft.core.particles.DustParticleOptions;
@@ -8,12 +9,8 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
-import top.theillusivec4.curios.api.CuriosApi;
-import top.theillusivec4.curios.api.SlotResult;
-import top.theillusivec4.curios.api.type.capability.ICuriosItemHandler;
 
 public final class LizardTailHandler {
     private static final DustParticleOptions ORANGE_PARTICLE = new DustParticleOptions(0xFF7A00, 1.35F);
@@ -29,26 +26,13 @@ public final class LizardTailHandler {
             return false;
         }
 
-        ICuriosItemHandler curios = CuriosApi.getCuriosInventoryOrNull(entity);
-        if (curios == null) {
+        if (!CuriosCompat.consumeFirstCurio(entity, stack -> stack.is(ModItems.LIZARD_TAIL.get()))) {
             return false;
         }
 
-        SlotResult tail = curios.findFirstCurio(stack -> stack.is(ModItems.LIZARD_TAIL.get())).orElse(null);
-        if (tail == null) {
-            return false;
-        }
-
-        consumeTail(curios, tail);
         applyProtection(entity);
         event.setCanceled(true);
         return true;
-    }
-
-    private static void consumeTail(ICuriosItemHandler curios, SlotResult tail) {
-        ItemStack stack = tail.stack().copy();
-        stack.shrink(1);
-        curios.setEquippedCurio(tail.slotContext().identifier(), tail.slotContext().index(), stack);
     }
 
     private static void applyProtection(LivingEntity entity) {

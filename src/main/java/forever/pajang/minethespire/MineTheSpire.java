@@ -1,6 +1,6 @@
 package forever.pajang.minethespire;
 
-import forever.pajang.minethespire.compat.curios.MineTheSpireCurios;
+import forever.pajang.minethespire.compat.curios.CuriosCompat;
 import forever.pajang.minethespire.compat.jade.OverhealJade;
 import forever.pajang.minethespire.content.ModAttachments;
 import forever.pajang.minethespire.content.ModAttributes;
@@ -18,14 +18,11 @@ import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
 
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.world.level.block.Blocks;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 
@@ -36,7 +33,6 @@ public class MineTheSpire {
     public static final RegisterCore REG = RegisterCore.create(MODID);
 
     public MineTheSpire(IEventBus modEventBus, ModContainer modContainer) {
-        modEventBus.addListener(this::commonSetup);
         ModItems.register();
         ModEntityTypes.register();
         ModEffects.register();
@@ -45,7 +41,7 @@ public class MineTheSpire {
         ModAttributes.register();
         ModDataComponents.register();
         ModEnchantments.register();
-        MineTheSpireCurios.register();
+        CuriosCompat.registerEventsIfLoaded();
         OverhealJade.register();
         ModDataProviders.register(REG);
         modEventBus.addListener(ModNetworking::register);
@@ -61,15 +57,6 @@ public class MineTheSpire {
     @Deprecated
     public static void debug() {
         LOGGER.debug("Triggered!");
-    }
-
-    private void commonSetup(FMLCommonSetupEvent event) {
-        LOGGER.info("HELLO FROM COMMON SETUP");
-        if (Config.LOG_DIRT_BLOCK.getAsBoolean()) {
-            LOGGER.info("DIRT BLOCK >> {}", BuiltInRegistries.BLOCK.getKey(Blocks.DIRT));
-        }
-        LOGGER.info("{}{}", Config.MAGIC_NUMBER_INTRODUCTION.get(), Config.MAGIC_NUMBER.getAsInt());
-        Config.ITEM_STRINGS.get().forEach((item) -> LOGGER.info("ITEM >> {}", item));
     }
 
     @SubscribeEvent

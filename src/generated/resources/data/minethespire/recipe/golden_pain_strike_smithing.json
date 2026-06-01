@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": "minecraft:rotten_flesh",
+  "base": "minecraft:golden_axe",
+  "result": {
+    "id": "minethespire:golden_pain_strike"
+  }
+}

@@ -2,7 +2,13 @@ package forever.pajang.minethespire.register;
 
 import net.minecraft.core.HolderGetter;
 import net.minecraft.client.data.models.ItemModelGenerators;
+import net.minecraft.client.data.models.model.ItemModelUtils;
+import net.minecraft.client.data.models.model.ModelLocationUtils;
+import net.minecraft.client.data.models.model.ModelTemplates;
+import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.data.recipes.RecipeOutput;
+import net.minecraft.client.resources.model.sprite.Material;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -45,6 +51,18 @@ public class ItemBuilder<T extends Item> extends RegisterCore.Builder {
         return this;
     }
 
+    public ItemBuilder<T> flatModel(Identifier texture) {
+        return model((i, g) -> g.get().itemModelOutput.accept(i.get(),
+                ItemModelUtils.plainModel(ModelTemplates.FLAT_ITEM.create(
+                        ModelLocationUtils.getModelLocation(i.get()),
+                        TextureMapping.layer0(new Material(texture)),
+                        g.get().modelOutput))));
+    }
+
+    public ItemBuilder<T> defaultModel() {
+        return flatModel(registerCore.id("item/" + name));
+    }
+
     public ItemBuilder<T> recipe(Function<Supplier<T>, BiConsumer<HolderGetter<Item>, RecipeOutput>> recipeGen) {
         Function<Supplier<T>, BiConsumer<HolderGetter<Item>, RecipeOutput>> previous = this.recipeGen;
         this.recipeGen = item -> {
@@ -70,6 +88,7 @@ public class ItemBuilder<T extends Item> extends RegisterCore.Builder {
 
     public DeferredItem<T> register() {
         DeferredItem<T> item = registerCore.items.registerItem(name, constructor, properties);
+        registerCore.registeredItems.add(item);
         if (group == null) {
             registerCore.addToGroup(registerCore.getCurrentGroupName(), item);
         } else {
@@ -84,4 +103,5 @@ public class ItemBuilder<T extends Item> extends RegisterCore.Builder {
         }
         return item;
     }
+
 }

@@ -9,9 +9,13 @@
     },
     "has_totem_of_undying": {
       "conditions": {
-        "recipe": "minethespire:spirit"
+        "items": [
+          {
+            "items": "minecraft:totem_of_undying"
+          }
+        ]
       },
-      "trigger": "minecraft:recipe_unlocked"
+      "trigger": "minecraft:inventory_changed"
     }
   },
   "requirements": [

@@ -35,8 +35,113 @@ public final class ModPotions {
             .brewFrom(Potions.AWKWARD, Items.COPPER_INGOT)
             .en("Potion of Blocking")
             .register();
+    public static final DeferredHolder<Potion, Potion> VULNERABLE = REG.potion("vulnerable")
+            .effect(ModEffects.VULNERABLE, 3 * 60 * 20)
+            .brewFrom(Potions.AWKWARD, Items.ROTTEN_FLESH)
+            .en("Vulnerable")
+            .register();
+    public static final DeferredHolder<Potion, Potion> LONG_VULNERABLE = REG.potion("long_vulnerable")
+            .effect(ModEffects.VULNERABLE, 8 * 60 * 20)
+            .brewFrom(VULNERABLE, Items.REDSTONE)
+            .en("Long Vulnerable")
+            .register();
+    public static final DeferredHolder<Potion, Potion> STRONG_VULNERABLE = REG.potion("strong_vulnerable")
+            .effect(ModEffects.VULNERABLE, 3 * 60 * 20, 1)
+            .brewFrom(VULNERABLE, Items.GLOWSTONE_DUST)
+            .en("Strong Vulnerable")
+            .register();
 
     static {
+        REG.brewingRecipeDisplay(
+                "brewing/vulnerable_from_awkward",
+                Items.ROTTEN_FLESH::getDefaultInstance,
+                () -> potionStack(Items.POTION, Potions.AWKWARD),
+                () -> potionStack(Items.POTION, VULNERABLE)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/splash_vulnerable_from_awkward",
+                Items.ROTTEN_FLESH::getDefaultInstance,
+                () -> potionStack(Items.SPLASH_POTION, Potions.AWKWARD),
+                () -> potionStack(Items.SPLASH_POTION, VULNERABLE)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/lingering_vulnerable_from_awkward",
+                Items.ROTTEN_FLESH::getDefaultInstance,
+                () -> potionStack(Items.LINGERING_POTION, Potions.AWKWARD),
+                () -> potionStack(Items.LINGERING_POTION, VULNERABLE)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/long_vulnerable_from_redstone",
+                Items.REDSTONE::getDefaultInstance,
+                () -> potionStack(Items.POTION, VULNERABLE),
+                () -> potionStack(Items.POTION, LONG_VULNERABLE)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/splash_long_vulnerable_from_redstone",
+                Items.REDSTONE::getDefaultInstance,
+                () -> potionStack(Items.SPLASH_POTION, VULNERABLE),
+                () -> potionStack(Items.SPLASH_POTION, LONG_VULNERABLE)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/lingering_long_vulnerable_from_redstone",
+                Items.REDSTONE::getDefaultInstance,
+                () -> potionStack(Items.LINGERING_POTION, VULNERABLE),
+                () -> potionStack(Items.LINGERING_POTION, LONG_VULNERABLE)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/strong_vulnerable_from_glowstone",
+                Items.GLOWSTONE_DUST::getDefaultInstance,
+                () -> potionStack(Items.POTION, VULNERABLE),
+                () -> potionStack(Items.POTION, STRONG_VULNERABLE)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/splash_strong_vulnerable_from_glowstone",
+                Items.GLOWSTONE_DUST::getDefaultInstance,
+                () -> potionStack(Items.SPLASH_POTION, VULNERABLE),
+                () -> potionStack(Items.SPLASH_POTION, STRONG_VULNERABLE)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/lingering_strong_vulnerable_from_glowstone",
+                Items.GLOWSTONE_DUST::getDefaultInstance,
+                () -> potionStack(Items.LINGERING_POTION, VULNERABLE),
+                () -> potionStack(Items.LINGERING_POTION, STRONG_VULNERABLE)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/splash_vulnerable",
+                Items.GUNPOWDER::getDefaultInstance,
+                () -> potionStack(Items.POTION, VULNERABLE),
+                () -> potionStack(Items.SPLASH_POTION, VULNERABLE)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/lingering_vulnerable",
+                Items.DRAGON_BREATH::getDefaultInstance,
+                () -> potionStack(Items.SPLASH_POTION, VULNERABLE),
+                () -> potionStack(Items.LINGERING_POTION, VULNERABLE)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/splash_long_vulnerable",
+                Items.GUNPOWDER::getDefaultInstance,
+                () -> potionStack(Items.POTION, LONG_VULNERABLE),
+                () -> potionStack(Items.SPLASH_POTION, LONG_VULNERABLE)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/lingering_long_vulnerable",
+                Items.DRAGON_BREATH::getDefaultInstance,
+                () -> potionStack(Items.SPLASH_POTION, LONG_VULNERABLE),
+                () -> potionStack(Items.LINGERING_POTION, LONG_VULNERABLE)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/splash_strong_vulnerable",
+                Items.GUNPOWDER::getDefaultInstance,
+                () -> potionStack(Items.POTION, STRONG_VULNERABLE),
+                () -> potionStack(Items.SPLASH_POTION, STRONG_VULNERABLE)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/lingering_strong_vulnerable",
+                Items.DRAGON_BREATH::getDefaultInstance,
+                () -> potionStack(Items.SPLASH_POTION, STRONG_VULNERABLE),
+                () -> potionStack(Items.LINGERING_POTION, STRONG_VULNERABLE)
+        );
         REG.brewingRecipeDisplay(
                 "brewing/bottled_fairy_from_regeneration",
                 Items.TOTEM_OF_UNDYING::getDefaultInstance,

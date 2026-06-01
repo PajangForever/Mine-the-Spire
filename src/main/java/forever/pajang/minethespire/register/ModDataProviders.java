@@ -1,17 +1,17 @@
 package forever.pajang.minethespire.register;
 
 import forever.pajang.minethespire.MineTheSpire;
+import forever.pajang.minethespire.compat.curios.CuriosCompat;
+import forever.pajang.minethespire.compat.curios.RegisterCurios;
 import forever.pajang.minethespire.content.ModItems;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.PackOutput;
 import net.minecraft.data.loot.LootTableProvider;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.EmptyLootItem;
@@ -21,15 +21,17 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.neoforged.neoforge.common.data.GlobalLootModifierProvider;
 import net.neoforged.neoforge.common.loot.LootTableIdCondition;
-import top.theillusivec4.curios.api.CuriosDataProvider;
 
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 public final class ModDataProviders {
     private static LootTableBuilder SPIRIT_LOOT_TABLE;
     private static LootTableBuilder LIZARD_TAIL_LOOT_TABLE;
+    private static LootTableBuilder BURNING_BLOOD_LOOT_TABLE;
+    private static LootTableBuilder SNAKE_RING_LOOT_TABLE;
+    private static LootTableBuilder BROKEN_CORE_LOOT_TABLE;
     private static final List<String> VILLAGE_CHEST_TABLES = List.of(
             "village_armorer",
             "village_butcher",
@@ -58,7 +60,7 @@ public final class ModDataProviders {
         }
         registerLootTables(registerCore);
         registerLootModifiers(registerCore);
-        registerCurios(registerCore);
+        RegisterCurios.registerCurios(registerCore);
 
         registerCore.dataProviders.add((output, lookupProvider) -> new RecipeProvider.Runner(output, lookupProvider) {
             @Override
@@ -91,210 +93,49 @@ public final class ModDataProviders {
             }
         });
 
-        registerCore.dataProviders.add((output, lookupProvider) -> new CuriosDataProvider(MineTheSpire.MODID, output, lookupProvider) {
-            @Override
-            public void generate(HolderLookup.Provider registries) {
-                registerCore.curiosBuilders.forEach(builder -> builder.generate(this));
-            }
-        });
+        if (CuriosCompat.isLoaded()) {
+            registerCore.dataProviders.add(CuriosCompat::createDataProvider);
+        }
     }
-
     private static void registerLootTables(RegisterCore registerCore) {
-        SPIRIT_LOOT_TABLE = registerCore.lootTable("chests/spirit")
-                .table(() -> LootTable.lootTable()
-                        .withPool(LootPool.lootPool()
-                                .setRolls(ConstantValue.exactly(1.0F))
-                                .add(LootItem.lootTableItem(ModItems.SPIRIT.get()).setWeight(1))
-                                .add(EmptyLootItem.emptyItem().setWeight(19))))
-                .register();
-
-        LIZARD_TAIL_LOOT_TABLE = registerCore.lootTable("chests/lizard_tail")
-                .table(() -> LootTable.lootTable()
-                        .withPool(LootPool.lootPool()
-                                .setRolls(ConstantValue.exactly(1.0F))
-                                .add(LootItem.lootTableItem(ModItems.LIZARD_TAIL.get()).setWeight(3))
-                                .add(EmptyLootItem.emptyItem().setWeight(1))))
-                .register();
+        SPIRIT_LOOT_TABLE = registerChestLootTable(registerCore, "spirit", ModItems.SPIRIT, 1, 19);
+        LIZARD_TAIL_LOOT_TABLE = registerChestLootTable(registerCore, "lizard_tail", ModItems.LIZARD_TAIL, 3, 1);
+        BURNING_BLOOD_LOOT_TABLE = registerChestLootTable(registerCore, "burning_blood", ModItems.BURNING_BLOOD, 1, 19);
+        SNAKE_RING_LOOT_TABLE = registerChestLootTable(registerCore, "snake_ring", ModItems.RING_OF_THE_SNAKE, 1, 19);
+        BROKEN_CORE_LOOT_TABLE = registerChestLootTable(registerCore, "broken_core", ModItems.CRACKED_CORE, 1, 19);
     }
 
     private static void registerLootModifiers(RegisterCore registerCore) {
-        registerCore.lootModifier("spirit_in_village_armorer")
-                .conditions(villageChestCondition("village_armorer"))
-                .weight(0)
-                .table(SPIRIT_LOOT_TABLE.key())
-                .register();
-        registerCore.lootModifier("spirit_in_village_butcher")
-                .conditions(villageChestCondition("village_butcher"))
-                .weight(0)
-                .table(SPIRIT_LOOT_TABLE.key())
-                .register();
-        registerCore.lootModifier("spirit_in_village_cartographer")
-                .conditions(villageChestCondition("village_cartographer"))
-                .weight(0)
-                .table(SPIRIT_LOOT_TABLE.key())
-                .register();
-        registerCore.lootModifier("spirit_in_village_desert_house")
-                .conditions(villageChestCondition("village_desert_house"))
-                .weight(0)
-                .table(SPIRIT_LOOT_TABLE.key())
-                .register();
-        registerCore.lootModifier("spirit_in_village_fisher")
-                .conditions(villageChestCondition("village_fisher"))
-                .weight(0)
-                .table(SPIRIT_LOOT_TABLE.key())
-                .register();
-        registerCore.lootModifier("spirit_in_village_fletcher")
-                .conditions(villageChestCondition("village_fletcher"))
-                .weight(0)
-                .table(SPIRIT_LOOT_TABLE.key())
-                .register();
-        registerCore.lootModifier("spirit_in_village_mason")
-                .conditions(villageChestCondition("village_mason"))
-                .weight(0)
-                .table(SPIRIT_LOOT_TABLE.key())
-                .register();
-        registerCore.lootModifier("spirit_in_village_plains_house")
-                .conditions(villageChestCondition("village_plains_house"))
-                .weight(0)
-                .table(SPIRIT_LOOT_TABLE.key())
-                .register();
-        registerCore.lootModifier("spirit_in_village_savanna_house")
-                .conditions(villageChestCondition("village_savanna_house"))
-                .weight(0)
-                .table(SPIRIT_LOOT_TABLE.key())
-                .register();
-        registerCore.lootModifier("spirit_in_village_shepherd")
-                .conditions(villageChestCondition("village_shepherd"))
-                .weight(0)
-                .table(SPIRIT_LOOT_TABLE.key())
-                .register();
-        registerCore.lootModifier("spirit_in_village_snowy_house")
-                .conditions(villageChestCondition("village_snowy_house"))
-                .weight(0)
-                .table(SPIRIT_LOOT_TABLE.key())
-                .register();
-        registerCore.lootModifier("spirit_in_village_taiga_house")
-                .conditions(villageChestCondition("village_taiga_house"))
-                .weight(0)
-                .table(SPIRIT_LOOT_TABLE.key())
-                .register();
-        registerCore.lootModifier("spirit_in_village_tannery")
-                .conditions(villageChestCondition("village_tannery"))
-                .weight(0)
-                .table(SPIRIT_LOOT_TABLE.key())
-                .register();
-        registerCore.lootModifier("spirit_in_village_temple")
-                .conditions(villageChestCondition("village_temple"))
-                .weight(0)
-                .table(SPIRIT_LOOT_TABLE.key())
-                .register();
-        registerCore.lootModifier("spirit_in_village_toolsmith")
-                .conditions(villageChestCondition("village_toolsmith"))
-                .weight(0)
-                .table(SPIRIT_LOOT_TABLE.key())
-                .register();
-        registerCore.lootModifier("spirit_in_village_weaponsmith")
-                .conditions(villageChestCondition("village_weaponsmith"))
-                .weight(0)
-                .table(SPIRIT_LOOT_TABLE.key())
-                .register();
-
-        registerCore.lootModifier("lizard_tail_in_village_armorer")
-                .conditions(villageChestCondition("village_armorer"))
-                .weight(0)
-                .table(LIZARD_TAIL_LOOT_TABLE.key())
-                .register();
-        registerCore.lootModifier("lizard_tail_in_village_butcher")
-                .conditions(villageChestCondition("village_butcher"))
-                .weight(0)
-                .table(LIZARD_TAIL_LOOT_TABLE.key())
-                .register();
-        registerCore.lootModifier("lizard_tail_in_village_cartographer")
-                .conditions(villageChestCondition("village_cartographer"))
-                .weight(0)
-                .table(LIZARD_TAIL_LOOT_TABLE.key())
-                .register();
-        registerCore.lootModifier("lizard_tail_in_village_desert_house")
-                .conditions(villageChestCondition("village_desert_house"))
-                .weight(0)
-                .table(LIZARD_TAIL_LOOT_TABLE.key())
-                .register();
-        registerCore.lootModifier("lizard_tail_in_village_fisher")
-                .conditions(villageChestCondition("village_fisher"))
-                .weight(0)
-                .table(LIZARD_TAIL_LOOT_TABLE.key())
-                .register();
-        registerCore.lootModifier("lizard_tail_in_village_fletcher")
-                .conditions(villageChestCondition("village_fletcher"))
-                .weight(0)
-                .table(LIZARD_TAIL_LOOT_TABLE.key())
-                .register();
-        registerCore.lootModifier("lizard_tail_in_village_mason")
-                .conditions(villageChestCondition("village_mason"))
-                .weight(0)
-                .table(LIZARD_TAIL_LOOT_TABLE.key())
-                .register();
-        registerCore.lootModifier("lizard_tail_in_village_plains_house")
-                .conditions(villageChestCondition("village_plains_house"))
-                .weight(0)
-                .table(LIZARD_TAIL_LOOT_TABLE.key())
-                .register();
-        registerCore.lootModifier("lizard_tail_in_village_savanna_house")
-                .conditions(villageChestCondition("village_savanna_house"))
-                .weight(0)
-                .table(LIZARD_TAIL_LOOT_TABLE.key())
-                .register();
-        registerCore.lootModifier("lizard_tail_in_village_shepherd")
-                .conditions(villageChestCondition("village_shepherd"))
-                .weight(0)
-                .table(LIZARD_TAIL_LOOT_TABLE.key())
-                .register();
-        registerCore.lootModifier("lizard_tail_in_village_snowy_house")
-                .conditions(villageChestCondition("village_snowy_house"))
-                .weight(0)
-                .table(LIZARD_TAIL_LOOT_TABLE.key())
-                .register();
-        registerCore.lootModifier("lizard_tail_in_village_taiga_house")
-                .conditions(villageChestCondition("village_taiga_house"))
-                .weight(0)
-                .table(LIZARD_TAIL_LOOT_TABLE.key())
-                .register();
-        registerCore.lootModifier("lizard_tail_in_village_tannery")
-                .conditions(villageChestCondition("village_tannery"))
-                .weight(0)
-                .table(LIZARD_TAIL_LOOT_TABLE.key())
-                .register();
-        registerCore.lootModifier("lizard_tail_in_village_temple")
-                .conditions(villageChestCondition("village_temple"))
-                .weight(0)
-                .table(LIZARD_TAIL_LOOT_TABLE.key())
-                .register();
-        registerCore.lootModifier("lizard_tail_in_village_toolsmith")
-                .conditions(villageChestCondition("village_toolsmith"))
-                .weight(0)
-                .table(LIZARD_TAIL_LOOT_TABLE.key())
-                .register();
-        registerCore.lootModifier("lizard_tail_in_village_weaponsmith")
-                .conditions(villageChestCondition("village_weaponsmith"))
-                .weight(0)
-                .table(LIZARD_TAIL_LOOT_TABLE.key())
-                .register();
-    }
-
-    private static void registerCurios(RegisterCore registerCore) {
-        registerCore.curios("tail")
-                .order(260)
-                .size(1)
-                .icon("slot/empty_curio_slot")
-                .addValidator("tag")
-                .addPlayer()
-                .tag(ModItems.LIZARD_TAIL)
-                .register();
+        registerVillageLootModifiers(registerCore, "spirit", SPIRIT_LOOT_TABLE);
+        registerVillageLootModifiers(registerCore, "lizard_tail", LIZARD_TAIL_LOOT_TABLE);
+        registerVillageLootModifiers(registerCore, "burning_blood", BURNING_BLOOD_LOOT_TABLE);
+        registerVillageLootModifiers(registerCore, "snake_ring", SNAKE_RING_LOOT_TABLE);
+        registerVillageLootModifiers(registerCore, "broken_core", BROKEN_CORE_LOOT_TABLE);
     }
 
     private static LootItemCondition[] villageChestCondition(String table) {
         return new LootItemCondition[]{
                 LootTableIdCondition.builder(Identifier.withDefaultNamespace("chests/village/" + table)).build()
         };
+    }
+
+    private static LootTableBuilder registerChestLootTable(RegisterCore registerCore, String name, Supplier<? extends Item> item, int itemWeight, int emptyWeight) {
+        return registerCore.lootTable("chests/" + name)
+                .table(() -> LootTable.lootTable()
+                        .withPool(LootPool.lootPool()
+                                .setRolls(ConstantValue.exactly(1.0F))
+                                .add(LootItem.lootTableItem(item.get()).setWeight(itemWeight))
+                                .add(EmptyLootItem.emptyItem().setWeight(emptyWeight))))
+                .register();
+    }
+
+    private static void registerVillageLootModifiers(RegisterCore registerCore, String prefix, LootTableBuilder table) {
+        for (String villageTable : VILLAGE_CHEST_TABLES) {
+            registerCore.lootModifier(prefix + "_in_" + villageTable)
+                    .conditions(villageChestCondition(villageTable))
+                    .weight(0)
+                    .table(table.key())
+                    .register();
+        }
     }
 }

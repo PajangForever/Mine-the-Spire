@@ -15,8 +15,23 @@ public final class ModAttributes {
     public static final DeferredHolder<Attribute, Attribute> OVERHEAL_CHANGE_RATE = REG.attribute("overheal_change_rate")
             .min(-1024.0D)
             .max(1024.0D)
-            .defaultValue(-1.0D)
+            .defaultValue(-0.5D)
             .en("Overheal Change Rate")
+            .register();
+    public static final DeferredHolder<Attribute, Attribute> LIGHTNING_CHARGE_BALL_LIMIT = REG.attribute("max_charge_ball")
+            .max(64.0D)
+            .defaultValue(1.0D)
+            .en("Max Charge Ball")
+            .register();
+    public static final DeferredHolder<Attribute, Attribute> LIGHTNING_CHARGE_BALL_ATTACK_RANGE = REG.attribute("charge_ball_attack_range")
+            .max(128.0D)
+            .defaultValue(8.0D)
+            .en("Charge Ball Attack Range")
+            .register();
+    public static final DeferredHolder<Attribute, Attribute> LIGHTNING_CHARGE_BALL_ATTACK_SPEED = REG.attribute("charge_ball_attack_speed")
+            .max(64.0D)
+            .defaultValue(0.5D)
+            .en("Charge Ball Attack Speed")
             .register();
 
     private ModAttributes() {

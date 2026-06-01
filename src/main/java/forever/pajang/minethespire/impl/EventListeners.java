@@ -1,13 +1,19 @@
 package forever.pajang.minethespire.impl;
 
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import forever.pajang.minethespire.MineTheSpire;
 import forever.pajang.minethespire.content.ModAttachments;
 import forever.pajang.minethespire.content.ModDataComponents;
 import forever.pajang.minethespire.content.ModEffects;
 import forever.pajang.minethespire.content.ModEnchantments;
 import forever.pajang.minethespire.content.ModItems;
+import forever.pajang.minethespire.content.item.OriginalRelic;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageTypes;
@@ -26,18 +32,51 @@ import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingHealEvent;
+import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 import net.neoforged.neoforge.event.entity.living.LivingUseTotemEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEnchantItemEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 
+import java.util.List;
+import java.util.UUID;
+
 @EventBusSubscriber(modid = MineTheSpire.MODID)
 public final class EventListeners {
+
+    @SubscribeEvent
+    public static void onRegisterCommands(RegisterCommandsEvent event) {
+        event.getDispatcher().register(Commands.literal(MineTheSpire.MODID)
+                .then(Commands.literal("combat")
+                        .then(Commands.literal("tick")
+                                .executes(context -> sendCombatTicks(context.getSource())))
+                        .then(Commands.literal("hostiles")
+                                .executes(context -> sendCombatHostiles(context.getSource())))));
+    }
+
+    private static int sendCombatTicks(CommandSourceStack source) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        int ticks = player.getData(ModAttachments.COMBAT_STATE).combatTicks();
+        source.sendSuccess(() -> Component.literal("战斗状态时间: " + ticks + " tick"), false);
+        return ticks;
+    }
+
+    private static int sendCombatHostiles(CommandSourceStack source) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        List<UUID> hostiles = player.getData(ModAttachments.COMBAT_STATE).hostiles();
+        if (hostiles.isEmpty()) {
+            source.sendSuccess(() -> Component.literal("敌对者 UUID: []"), false);
+        } else {
+            source.sendSuccess(() -> Component.literal("敌对者 UUID: " + hostiles), false);
+        }
+        return hostiles.size();
+    }
 
     @SubscribeEvent
     public static void onRegisterBrewingRecipes(RegisterBrewingRecipesEvent event) {
@@ -80,7 +119,10 @@ public final class EventListeners {
     public static void onAttackEntity(AttackEntityEvent event) {
         if (event.getEntity().getMainHandItem().is(ModItems.DARK_SHURIKEN.get())) {
             event.setCanceled(true);
+            return;
         }
+
+        CombatState.onAttack(event.getEntity(), event.getTarget());
     }
 
     @SubscribeEvent
@@ -99,6 +141,12 @@ public final class EventListeners {
             event.setNewDamage(1.0F);
         }
         OverhealHandler.onDamage(event.getEntity(), event);
+    }
+
+    @SubscribeEvent
+    public static void onLivingIncomingDamage(LivingIncomingDamageEvent event) {
+        CombatState.onHurt(event.getEntity(), event.getSource());
+        PainStrikeHandler.onLivingIncomingDamage(event);
     }
 
     @SubscribeEvent
@@ -128,6 +176,12 @@ public final class EventListeners {
         if (LizardTailHandler.tryPreventDeath(event)) {
             return;
         }
+
+    }
+
+    @SubscribeEvent
+    public static void onLivingDamagePost(LivingDamageEvent.Post event) {
+
     }
 
     @SubscribeEvent
@@ -147,6 +201,8 @@ public final class EventListeners {
     @SubscribeEvent
     public static void onEntityTick(EntityTickEvent.Post event) {
         if (event.getEntity() instanceof LivingEntity living) {
+            CombatState.tickEntity(living);
+            ChargeBallManager.get(living).tick();
             OverhealHandler.tick(living);
         }
     }

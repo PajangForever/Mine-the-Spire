@@ -5,6 +5,8 @@ import forever.pajang.minethespire.content.effect.FairyBlessingEffect;
 import forever.pajang.minethespire.content.effect.MindBloomEffect;
 import forever.pajang.minethespire.content.effect.NoEntityEffect;
 import forever.pajang.minethespire.content.effect.QuickBlockEffect;
+import forever.pajang.minethespire.content.effect.SerpentSpeedEffect;
+import forever.pajang.minethespire.content.effect.VulnerableEffect;
 import forever.pajang.minethespire.register.RegisterCore;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
@@ -24,6 +26,12 @@ public final class ModEffects {
             .register();
     public static final DeferredHolder<MobEffect, QuickBlockEffect> QUICK_BLOCK = REG.effect("quick_block", () -> new QuickBlockEffect(MobEffectCategory.BENEFICIAL, 0x70836F))
             .en("Quick Block")
+            .register();
+    public static final DeferredHolder<MobEffect, SerpentSpeedEffect> SERPENT_SPEED = REG.effect("serpent_speed", () -> new SerpentSpeedEffect(MobEffectCategory.BENEFICIAL, 0x69B95A))
+            .en("Serpent Speed")
+            .register();
+    public static final DeferredHolder<MobEffect, VulnerableEffect> VULNERABLE = REG.effect("vulnerable", () -> new VulnerableEffect(MobEffectCategory.HARMFUL, 0xC85A5A))
+            .en("Vulnerable")
             .register();
 
     public static void register() {

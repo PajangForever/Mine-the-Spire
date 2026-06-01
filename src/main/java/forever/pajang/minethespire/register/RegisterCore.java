@@ -1,6 +1,7 @@
 package forever.pajang.minethespire.register;
 
 import forever.pajang.minethespire.MineTheSpire;
+import forever.pajang.minethespire.compat.curios.CuriosSlot;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.ModelProvider;
@@ -10,6 +11,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.EnchantmentTagsProvider;
+import net.minecraft.data.tags.EntityTypeTagsProvider;
 import net.minecraft.data.tags.TagAppender;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.core.HolderGetter;
@@ -42,7 +44,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
-import org.jspecify.annotations.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -80,12 +82,17 @@ public class RegisterCore {
     protected final Map<ResourceKey<Enchantment>, Function<EnchantmentBuilder.LookupGetter, Enchantment>> enchantments = new HashMap<>();
     protected final Set<LootTableBuilder> lootTables = new LinkedHashSet<>();
     protected final Set<LootModifierBuilder> lootModifiers = new LinkedHashSet<>();
-    protected final Set<CuriosBuilder> curiosBuilders = new LinkedHashSet<>();
+
+    protected final Set<Supplier<? extends Item>> registeredItems = new LinkedHashSet<>();
+    protected final Set<CuriosSlot> curiosSlots = new LinkedHashSet<>();
+
     protected final List<Consumer<RegisterBrewingRecipesEvent>> brewingRecipes = new ArrayList<>();
     protected final List<BrewingRecipeDisplay> brewingRecipeDisplays = new ArrayList<>();
-
     protected final Map<TagKey<Item>, Set<DeferredItem<? extends Item>>> itemTags = new HashMap<>();
+
     protected final Map<TagKey<Enchantment>, Set<ResourceKey<Enchantment>>> enchantmentTags = new HashMap<>();
+
+    protected final Map<TagKey<EntityType<?>>, Set<EntityType<?>>> entityTypeTags = new HashMap<>();
 
     protected RegisterCore(String modid) {
         this.modid = modid;
@@ -100,7 +107,6 @@ public class RegisterCore {
         this.dataComponents = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, modid);
         this.enchantmentComponents = DeferredRegister.createDataComponents(Registries.ENCHANTMENT_EFFECT_COMPONENT_TYPE, modid);
     }
-
     public boolean runningDataGen() {
         return runningDataGen;
     }
@@ -155,6 +161,10 @@ public class RegisterCore {
         return new LangBuilder.CombinedKey(this);
     }
 
+    public void addLang(String key, String displayName) {
+        addTranslation(lang, "minethespire.language." + key, displayName);
+    }
+
     public ItemBuilder<Item> simpleItem(String path) {
         return new ItemBuilder<>(this, path, Item::new);
     }
@@ -191,12 +201,20 @@ public class RegisterCore {
         return new LootModifierBuilder(this, name);
     }
 
-    public CuriosBuilder curios(String name) {
-        return new CuriosBuilder(this, name);
+    public CuriosSlotBuilder curios(String name) {
+        return new CuriosSlotBuilder(this, name);
+    }
+
+    public CuriosSlotBuilder curios(CuriosSlot slot) {
+        return new CuriosSlotBuilder(this, slot);
     }
 
     public DeferredHolder<DataComponentType<?>, DataComponentType<Unit>> enchantmentComponent(String path) {
         return enchantmentComponents.registerComponentType(path, b -> b.persistent(Unit.CODEC));
+    }
+
+    public Map<TagKey<EntityType<?>>, Set<EntityType<?>>> getEntityTypeTags() {
+        return entityTypeTags;
     }
 
     public <T> DeferredHolder<DataComponentType<?>, DataComponentType<T>> dataComponent(String path, UnaryOperator<DataComponentType.Builder<T>> operator) {
@@ -209,6 +227,14 @@ public class RegisterCore {
             builderConsumer.accept(builder);
             return builder.build();
         });
+    }
+
+    public Set<Supplier<? extends Item>> getRegisteredItems() {
+        return registeredItems;
+    }
+
+    public Set<CuriosSlot> getCuriosSlots() {
+        return curiosSlots;
     }
 
     public void register(IEventBus modEventBus) {
@@ -266,6 +292,15 @@ public class RegisterCore {
                     itemTags.forEach((key, items) -> tag(key).addAll(items.stream().map(DeferredHolder::get)));
                 }
             });
+            dataProviders.add((out, lookup) -> new EntityTypeTagsProvider(out, lookup, modid) {
+                @Override
+                protected void addTags(HolderLookup.Provider lookup) {
+                    entityTypeTags.forEach((key, types) -> {
+                        var tagAppender = tag(key);
+                        types.forEach(tagAppender::add);
+                    });
+                }
+            });
             dataProviders.add((out, lookup) -> new EnchantmentTagsProvider(out, lookup, modid) {
                 @Override
                 protected void addTags(HolderLookup.Provider lookup) {
@@ -311,7 +346,7 @@ public class RegisterCore {
         }
     }
 
-    public static @NonNull String getDisplayTitle(String path) {
+    public static @NotNull String getDisplayTitle(String path) {
         return Arrays.stream(path.split("_")).map(s ->
                 s.isEmpty() ? s : Character.toUpperCase(s.charAt(0)) + s.substring(1)).collect(Collectors.joining(" "));
     }
