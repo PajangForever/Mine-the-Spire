@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "minethespire:item/dark_charge_ball_activated"
+  }
+}

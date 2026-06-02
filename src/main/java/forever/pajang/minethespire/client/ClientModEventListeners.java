@@ -17,13 +17,14 @@ public final class ClientModEventListeners {
     @SubscribeEvent
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(ModEntityTypes.DARK_SHURIKEN_PROJECTILE.get(), DarkShurikenProjectileRenderer::new);
-        event.registerEntityRenderer(ModEntityTypes.LIGHTNING_CHARGE_BALL.get(), LightningChargeBallRenderer::new);
-        event.registerEntityRenderer(ModEntityTypes.FROST_CHARGE_BALL.get(), LightningChargeBallRenderer::new);
+        event.registerEntityRenderer(ModEntityTypes.LIGHTNING_CHARGE_BALL.get(), ChargeBallRenderer::new);
+        event.registerEntityRenderer(ModEntityTypes.FROST_CHARGE_BALL.get(), ChargeBallRenderer::new);
+        event.registerEntityRenderer(ModEntityTypes.DARK_CHARGE_BALL.get(), ChargeBallRenderer::new);
     }
 
     @SubscribeEvent
     public static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
-        event.registerLayerDefinition(LightningChargeBallRenderer.LAYER_LOCATION, ChargeBallModel::createBodyLayer);
+        event.registerLayerDefinition(ChargeBallRenderer.LAYER_LOCATION, ChargeBallModel::createBodyLayer);
     }
 
     @SubscribeEvent

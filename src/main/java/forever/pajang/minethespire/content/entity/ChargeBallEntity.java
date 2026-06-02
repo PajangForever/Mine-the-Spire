@@ -3,6 +3,8 @@ package forever.pajang.minethespire.content.entity;
 import forever.pajang.minethespire.MineTheSpire;
 import forever.pajang.minethespire.impl.ChargeBallManager;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -34,10 +36,12 @@ public abstract class ChargeBallEntity extends Entity {
     private static final double ORBIT_RADIUS = 1.0D;
     private static final Vec3 WORLD_UP = new Vec3(0.0D, 1.0D, 0.0D);
     private static final double OWNER_MAX_DISTANCE = 48.0D;
+    private static final int ACTIVATED_MAX_LIFETIME = 10 * 20;
 
     private UUID ownerUuid;
     private boolean removedFromOwnerManager;
     private long birthGameTime;
+    private int activatedTicks;
 
     protected ChargeBallEntity(EntityType<? extends ChargeBallEntity> entityType, Level level) {
         super(entityType, level);
@@ -92,6 +96,10 @@ public abstract class ChargeBallEntity extends Entity {
         return activatedStack;
     }
 
+    public Component getChargeText() {
+        return null;
+    }
+
     public abstract ChargeBallEntity createCopy(LivingEntity owner);
 
     public final void applyScheduledEffectFromManager() {
@@ -144,6 +152,14 @@ public abstract class ChargeBallEntity extends Entity {
         }
 
         ChargeBallManager manager = ChargeBallManager.get(owner);
+        if (isActivated() && ++activatedTicks >= ACTIVATED_MAX_LIFETIME) {
+            discard();
+            return;
+        }
+        if (!isActivated() && !manager.containsBall(this)) {
+            discard();
+            return;
+        }
         if (!isRemoved()) {
             tickOwned(owner, manager);
         }
@@ -170,13 +186,14 @@ public abstract class ChargeBallEntity extends Entity {
         Vec3 center = owner.position().add(0.0D, 1.05D, 0.0D);
         Vec3 orbitOffset = right.scale(Mth.cos(orbitPhase) * radius).add(up.scale(Mth.sin(orbitPhase) * radius));
         Vec3 targetPos = center.add(orbitOffset);
-        Vec3 movement = targetPos.subtract(position()).scale(0.34D);
-        setDeltaMovement(movement);
+        Vec3 movement = targetPos.subtract(position()).scale(0.5d);
         move(MoverType.SELF, movement);
+//        setDeltaMovement(movement);
     }
 
     protected void markActivated() {
         entityData.set(ACTIVATED, true);
+        activatedTicks = 0;
         removeFromOwnerManager();
     }
 
@@ -196,8 +213,8 @@ public abstract class ChargeBallEntity extends Entity {
     protected void dissipate(ServerLevel level) {
         Vec3 pos = position().add(0.0D, getBbHeight() * 0.5D, 0.0D);
         level.playSound(null, getX(), getY(), getZ(), SoundEvents.AMETHYST_BLOCK_BREAK, SoundSource.PLAYERS, 0.75F, 1.5F);
-        level.sendParticles(net.minecraft.core.particles.ParticleTypes.ELECTRIC_SPARK, pos.x, pos.y, pos.z, 40, 0.35D, 0.35D, 0.35D, 0.08D);
-        level.sendParticles(net.minecraft.core.particles.ParticleTypes.POOF, pos.x, pos.y, pos.z, 18, 0.25D, 0.25D, 0.25D, 0.01D);
+        level.sendParticles(ParticleTypes.ELECTRIC_SPARK, pos.x, pos.y, pos.z, 40, 0.35D, 0.35D, 0.35D, 0.08D);
+        level.sendParticles(ParticleTypes.POOF, pos.x, pos.y, pos.z, 18, 0.25D, 0.25D, 0.25D, 0.01D);
     }
 
     @Override
@@ -265,17 +282,19 @@ public abstract class ChargeBallEntity extends Entity {
         entityData.set(ACTIVATED, input.getBooleanOr("Activated", false));
         entityData.set(SLOT_EXEMPT, input.getBooleanOr("SlotExempt", false));
         birthGameTime = input.getLongOr("BirthGameTime", 0L);
+        activatedTicks = input.getIntOr("ActivatedTicks", 0);
         readChargeBallSaveData(input);
     }
 
     @Override
     protected void addAdditionalSaveData(ValueOutput output) {
         if (ownerUuid != null) {
-        output.putString("Owner", ownerUuid.toString());
+            output.putString("Owner", ownerUuid.toString());
         }
         output.putBoolean("Activated", entityData.get(ACTIVATED));
         output.putBoolean("SlotExempt", entityData.get(SLOT_EXEMPT));
         output.putLong("BirthGameTime", birthGameTime);
+        output.putInt("ActivatedTicks", activatedTicks);
         addChargeBallSaveData(output);
     }
 

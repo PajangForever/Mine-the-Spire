@@ -13,6 +13,8 @@ import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.EquipmentSlotGroup;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.registries.Registries;
@@ -25,6 +27,7 @@ import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.component.Consumable;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
@@ -81,14 +84,17 @@ public final class ModItems {
 
     public static final DeferredItem<? extends Item> LIGHTNING_CHARGE_BALL = REG.item("lightning_charge_ball", LightningChargeBallItem::new).in("main")
             .properties(p -> p.stacksTo(16).rarity(Rarity.UNCOMMON))
-            .model((i, g) -> cubeItemWithTexture(i, g, MineTheSpire.id("item/lightning_charge_ball")))
-            .en("Lightning Charge Ball")
+            .defaultModel().en("Lightning Charge Ball")
             .register();
 
     public static final DeferredItem<? extends Item> FROST_CHARGE_BALL = REG.item("frost_charge_ball", FrostChargeBallItem::new).in("main")
             .properties(p -> p.stacksTo(16).rarity(Rarity.UNCOMMON))
-            .model((i, g) -> cubeItemWithTexture(i, g, MineTheSpire.id("item/frost_charge_ball")))
-            .en("Frost Charge Ball")
+            .defaultModel().en("Frost Charge Ball")
+            .register();
+
+    public static final DeferredItem<? extends Item> DARK_CHARGE_BALL = REG.item("dark_charge_ball", DarkChargeBallItem::new).in("main")
+            .properties(p -> p.stacksTo(16).rarity(Rarity.UNCOMMON))
+            .defaultModel().en("Dark Charge Ball")
             .register();
 
     public static final DeferredItem<? extends Item> DOUBLE_RELEASE = REG.item("double_release", DoubleReleaseItem::new).in("main")

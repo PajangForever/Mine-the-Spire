@@ -18,7 +18,8 @@ public final class ModAttributes {
             .defaultValue(-0.5D)
             .en("Overheal Change Rate")
             .register();
-    public static final DeferredHolder<Attribute, Attribute> LIGHTNING_CHARGE_BALL_LIMIT = REG.attribute("max_charge_ball")
+    public static final DeferredHolder<Attribute, Attribute> MAX_CHARGE_BALL = REG.attribute("max_charge_ball")
+            .min(0.0D)
             .max(64.0D)
             .defaultValue(1.0D)
             .en("Max Charge Ball")

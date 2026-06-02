@@ -1,6 +1,7 @@
 package forever.pajang.minethespire.compat.curios;
 
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataProvider;
@@ -9,6 +10,7 @@ import net.neoforged.fml.ModList;
 
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -47,6 +49,10 @@ public final class CuriosCompat {
 
     public static boolean consumeFirstCurio(LivingEntity entity, Predicate<ItemStack> predicate) {
         return isLoaded() && CuriosApiProxy.consumeFirstCurio(entity, predicate);
+    }
+
+    public static Optional<ItemStack> equipFirstMatchingCurio(Player player, ItemStack stack, Set<CuriosSlot> slots) {
+        return isLoaded() ? CuriosApiProxy.equipFirstMatchingCurio(player, stack, slots) : Optional.empty();
     }
 
     public static DataProvider createDataProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {

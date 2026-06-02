@@ -5,6 +5,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import org.jspecify.annotations.Nullable;
@@ -19,5 +20,11 @@ public final class ModDamageTypes {
         return owner == null
                 ? level.damageSources().source(CHARGE_BALL_LIGHTNING, directEntity)
                 : level.damageSources().source(CHARGE_BALL_LIGHTNING, directEntity, owner);
+    }
+
+    public static DamageSource chargeBallDark(Level level, Entity directEntity, @Nullable Entity owner) {
+        return owner == null
+                ? level.damageSources().source(DamageTypes.MAGIC, directEntity)
+                : level.damageSources().source(DamageTypes.MAGIC, directEntity, owner);
     }
 }

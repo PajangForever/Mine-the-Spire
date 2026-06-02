@@ -12,13 +12,19 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.UUID;
 
 public class LightningChargeBallEntity extends ChargeBallEntity {
     private static final Identifier IDLE_TEXTURE = MineTheSpire.id("textures/entity/projectiles/lightning_charge_ball.png");
@@ -28,9 +34,13 @@ public class LightningChargeBallEntity extends ChargeBallEntity {
     private static final float LAUNCH_DAMAGE = 8.0F;
     private static final int OUT_OF_COMBAT_LIFETIME_MIN = 15 * 20;
     private static final int OUT_OF_COMBAT_LIFETIME_MAX = 25 * 20;
+    private static final double ENTITY_HIT_RADIUS = 0.55D;
 
     private int outOfCombatDespawnTicks = -1;
     private boolean launching;
+    private boolean freeFlightLaunch;
+    private UUID launchTargetUuid;
+    private Vec3 launchDirection = Vec3.ZERO;
 
     public LightningChargeBallEntity(EntityType<? extends LightningChargeBallEntity> entityType, Level level) {
         super(entityType, level);
@@ -48,7 +58,7 @@ public class LightningChargeBallEntity extends ChargeBallEntity {
     @Override
     protected void tickOwned(LivingEntity owner, ChargeBallManager manager) {
         if (launching) {
-            tickLaunch(manager.getAttackTarget().orElse(null));
+            tickLaunch(owner);
             return;
         }
 
@@ -104,23 +114,44 @@ public class LightningChargeBallEntity extends ChargeBallEntity {
 
         LivingEntity target = ChargeBallManager.get(owner).getAttackTarget().orElse(null);
         if (target == null) {
-            dissipate((ServerLevel) level());
-            discard();
-            return;
+            freeFlightLaunch = true;
+            launchTargetUuid = null;
+            launchDirection = owner.getLookAngle().normalize();
+        }
+        else {
+            freeFlightLaunch = false;
+            launchTargetUuid = target.getUUID();
+            launchDirection = Vec3.ZERO;
+            if (level() instanceof ServerLevel serverLevel) {
+                Vec3 from = position().add(0.0D, getBbHeight() * 0.5D, 0.0D);
+                Vec3 to = target.position().add(0.0D, target.getBbHeight() * 0.5D, 0.0D);
+                emitActivatedBeamParticles(serverLevel, from, to, 16);
+            }
+        }
+
+        if (launchDirection.lengthSqr() < 1.0E-4D) {
+            launchDirection = owner.getLookAngle().normalize();
+        }
+        if (launchDirection.lengthSqr() < 1.0E-4D) {
+            launchDirection = Vec3.directionFromRotation(0.0F, owner.getYRot());
         }
 
         launching = true;
         level().playSound(null, getX(), getY(), getZ(), SoundEvents.BEACON_ACTIVATE, SoundSource.PLAYERS, 0.9F, 1.4F);
-        if (level() instanceof ServerLevel serverLevel) {
-            Vec3 from = position().add(0.0D, getBbHeight() * 0.5D, 0.0D);
-            Vec3 to = target.position().add(0.0D, target.getBbHeight() * 0.5D, 0.0D);
-            emitActivatedBeamParticles(serverLevel, from, to, 16);
-        }
     }
 
-    private void tickLaunch(LivingEntity target) {
+    private void tickLaunch(LivingEntity owner) {
+        if (freeFlightLaunch) {
+            tickFreeFlightLaunch(owner);
+            return;
+        }
+
+        LivingEntity target = getLaunchTarget();
         if (target == null) {
-            discard();
+            freeFlightLaunch = true;
+            launchTargetUuid = null;
+            launchDirection = getDeltaMovement().lengthSqr() < 1.0E-4D ? owner.getLookAngle().normalize() : getDeltaMovement().normalize();
+            tickFreeFlightLaunch(owner);
             return;
         }
 
@@ -128,14 +159,73 @@ public class LightningChargeBallEntity extends ChargeBallEntity {
         Vec3 toTarget = targetPos.subtract(position());
         if (toTarget.lengthSqr() <= 0.64D) {
             applyLightningDamage(target, LAUNCH_DAMAGE, true);
-            discard();
+            finishLaunch();
             return;
         }
 
         Vec3 movement = toTarget.normalize().scale(LAUNCH_SPEED);
-        setDeltaMovement(movement);
-        move(net.minecraft.world.entity.MoverType.SELF, movement);
+//        setDeltaMovement(movement);
+        move(MoverType.SELF, movement);
         emitBeamParticles((ServerLevel) level(), position(), targetPos, 6);
+    }
+
+    private void tickFreeFlightLaunch(LivingEntity owner) {
+        noPhysics = false;
+        setNoGravity(true);
+
+        Vec3 direction = launchDirection.lengthSqr() < 1.0E-4D ? owner.getLookAngle().normalize() : launchDirection.normalize();
+        Vec3 movement = direction.scale(LAUNCH_SPEED);
+       // setDeltaMovement(movement);
+        move(MoverType.SELF, movement);
+        emitLightningTrailParticles();
+
+        LivingEntity hitEntity = findHitEntity(owner);
+        if (hitEntity != null) {
+            applyLightningDamage(hitEntity, LAUNCH_DAMAGE, true);
+            finishLaunch();
+            return;
+        }
+
+        if (horizontalCollision || verticalCollision) {
+            if (level() instanceof ServerLevel serverLevel) {
+                dissipate(serverLevel);
+            }
+            finishLaunch();
+        }
+    }
+
+    private LivingEntity findHitEntity(LivingEntity owner) {
+        AABB area = getBoundingBox().inflate(ENTITY_HIT_RADIUS);
+        return level().getEntities(EntityTypeTest.forClass(LivingEntity.class), area, entity -> entity != owner && !isOwnedEntity(entity) && entity.isAlive() && !entity.isRemoved())
+                .stream()
+                .findFirst()
+                .orElse(null);
+    }
+
+    private LivingEntity getLaunchTarget() {
+        if (launchTargetUuid == null) {
+            return null;
+        }
+        Entity entity = level().getEntityInAnyDimension(launchTargetUuid);
+        return entity instanceof LivingEntity living && living.isAlive() && !living.isRemoved() ? living : null;
+    }
+
+    private void emitLightningTrailParticles() {
+        if (!(level() instanceof ServerLevel serverLevel)) {
+            return;
+        }
+        Vec3 pos = position().add(0.0D, getBbHeight() * 0.5D, 0.0D);
+        serverLevel.sendParticles(ParticleTypes.ELECTRIC_SPARK, pos.x, pos.y, pos.z, 5, 0.07D, 0.07D, 0.07D, 0.02D);
+        serverLevel.sendParticles(ParticleTypes.END_ROD, pos.x, pos.y, pos.z, 2, 0.04D, 0.04D, 0.04D, 0.005D);
+    }
+
+    private void finishLaunch() {
+        launching = false;
+        freeFlightLaunch = false;
+        launchTargetUuid = null;
+        launchDirection = Vec3.ZERO;
+//        setDeltaMovement(Vec3.ZERO);
+        discard();
     }
 
     private void applyLightningDamage(LivingEntity target, float damage, boolean special) {
@@ -205,12 +295,33 @@ public class LightningChargeBallEntity extends ChargeBallEntity {
     protected void readChargeBallSaveData(ValueInput input) {
         outOfCombatDespawnTicks = input.getIntOr("OutOfCombatDespawnTicks", -1);
         launching = input.getBooleanOr("Launching", false);
+        freeFlightLaunch = input.getBooleanOr("FreeFlightLaunch", false);
+        launchDirection = new Vec3(
+                input.getDoubleOr("LaunchDirectionX", 0.0D),
+                input.getDoubleOr("LaunchDirectionY", 0.0D),
+                input.getDoubleOr("LaunchDirectionZ", 0.0D)
+        );
+        input.getString("LaunchTarget").ifPresent(value -> {
+            try {
+                launchTargetUuid = UUID.fromString(value);
+            }
+            catch (IllegalArgumentException ignored) {
+                launchTargetUuid = null;
+            }
+        });
     }
 
     @Override
     protected void addChargeBallSaveData(ValueOutput output) {
         output.putInt("OutOfCombatDespawnTicks", outOfCombatDespawnTicks);
         output.putBoolean("Launching", launching);
+        output.putBoolean("FreeFlightLaunch", freeFlightLaunch);
+        output.putDouble("LaunchDirectionX", launchDirection.x);
+        output.putDouble("LaunchDirectionY", launchDirection.y);
+        output.putDouble("LaunchDirectionZ", launchDirection.z);
+        if (launchTargetUuid != null) {
+            output.putString("LaunchTarget", launchTargetUuid.toString());
+        }
     }
 
     private int randomOutOfCombatLifetime() {

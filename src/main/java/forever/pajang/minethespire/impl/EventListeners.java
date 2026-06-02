@@ -7,7 +7,7 @@ import forever.pajang.minethespire.content.ModDataComponents;
 import forever.pajang.minethespire.content.ModEffects;
 import forever.pajang.minethespire.content.ModEnchantments;
 import forever.pajang.minethespire.content.ModItems;
-import forever.pajang.minethespire.content.item.OriginalRelic;
+import forever.pajang.minethespire.content.item.LizardTailItem;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.particles.ParticleTypes;
@@ -173,8 +173,8 @@ public final class EventListeners {
             return;
         }
 
-        if (LizardTailHandler.tryPreventDeath(event)) {
-            return;
+        if (LizardTailItem.tryPreventDeath(event.getEntity())) {
+            event.setCanceled(true);
         }
 
     }

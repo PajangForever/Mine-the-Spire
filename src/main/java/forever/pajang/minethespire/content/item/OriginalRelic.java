@@ -23,11 +23,13 @@ public class OriginalRelic extends Relic {
         if (owner.level().isClientSide()) {
             return false;
         }
-        if (ModItems.BURNING_BLOOD.get().isInCuriosOrEquipmentSlot(owner)) {
-            owner.heal(HEAL_AMOUNT);
+        Set<ItemStack> bloods = ModItems.BURNING_BLOOD.get().getFromCuriosOrEquipmentSlot(owner);
+        if (bloods.isEmpty()) {
+            return false;
+        } else {
+            owner.heal(HEAL_AMOUNT * bloods.size());
             return true;
         }
-        return false;
     }
 
     public static boolean ringOfTheSnakeBoostSpeed(LivingEntity owner) {
@@ -37,9 +39,10 @@ public class OriginalRelic extends Relic {
         Set<ItemStack> rings = ModItems.RING_OF_THE_SNAKE.get().getFromCuriosOrEquipmentSlot(owner);
         if (rings.isEmpty()) {
             return false;
+        } else {
+            owner.addEffect(new MobEffectInstance(ModEffects.SERPENT_SPEED, SPEED_DURATION_TICKS, rings.size() - 1, false, false, false));
+            return true;
         }
-        owner.addEffect(new MobEffectInstance(ModEffects.SERPENT_SPEED, SPEED_DURATION_TICKS, rings.size() - 1, false, false, false));
-        return true;
     }
 
     @Override

@@ -1,12 +1,12 @@
 package forever.pajang.minethespire.impl;
 
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import forever.pajang.minethespire.content.ModAttachments;
 import forever.pajang.minethespire.content.ModAttributes;
 import forever.pajang.minethespire.content.ModItems;
 import forever.pajang.minethespire.content.entity.ChargeBallEntity;
+import forever.pajang.minethespire.content.entity.DarkChargeBallEntity;
 import forever.pajang.minethespire.content.entity.FrostChargeBallEntity;
 import forever.pajang.minethespire.content.entity.LightningChargeBallEntity;
 import net.minecraft.core.particles.ParticleTypes;
@@ -88,8 +88,19 @@ public final class ChargeBallManager {
         return tryCreate(new FrostChargeBallEntity(owner.level(), owner));
     }
 
+    public boolean tryCreateDark() {
+        if (owner == null) {
+            return false;
+        }
+        return tryCreate(new DarkChargeBallEntity(owner.level(), owner));
+    }
+
     public void removeBall(ChargeBallEntity ball) {
         chargeBalls.removeBall(ball.getUUID());
+    }
+
+    public boolean containsBall(ChargeBallEntity ball) {
+        return chargeBalls.contains(ball.getUUID());
     }
 
     public void resetSchedule() {
@@ -104,9 +115,6 @@ public final class ChargeBallManager {
         int maxBalls = getMaxBalls();
         if (lastMaxBalls >= 0 && maxBalls < lastMaxBalls) {
             removeOverflowBalls(maxBalls);
-        }
-        if (maxBalls > 0) {
-            chargeBalls.setCapacity(maxBalls);
         }
         lastMaxBalls = maxBalls;
     }
@@ -191,11 +199,18 @@ public final class ChargeBallManager {
         return CombatState.getRandomHostileIn(owner, getAttackRange());
     }
 
+    public Optional<LivingEntity> getAnyAttackTarget() {
+        if (owner == null) {
+            return Optional.empty();
+        }
+        return CombatState.getRandomHostile(owner, ignored -> true);
+    }
+
     public int getMaxBalls() {
         if (owner == null) {
             return 0;
         }
-        return Math.max(0, Mth.floor(owner.getAttributeValue(ModAttributes.LIGHTNING_CHARGE_BALL_LIMIT)));
+        return Math.max(0, Mth.floor(owner.getAttributeValue(ModAttributes.MAX_CHARGE_BALL)));
     }
 
     public double getAttackRange() {

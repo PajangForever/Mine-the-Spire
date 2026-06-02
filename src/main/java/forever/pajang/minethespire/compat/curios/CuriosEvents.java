@@ -10,7 +10,7 @@ public class CuriosEvents {
     public static void onCurioAttributeModifiers(CurioAttributeModifierEvent event) {
         ItemStack stack = event.getItemStack();
         if (stack.getItem() instanceof Relic relic) {
-            relic.addAttributeModifiers(stack, event::addModifier);
+            relic.addCuriosAttributeModifiers(stack, event::addModifier);
         }
     }
 }

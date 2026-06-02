@@ -1,6 +1,6 @@
 {
-  "parent": "minecraft:block/cube_all",
+  "parent": "minecraft:item/generated",
   "textures": {
-    "all": "minethespire:item/frost_charge_ball"
+    "layer0": "minethespire:item/frost_charge_ball"
   }
 }
