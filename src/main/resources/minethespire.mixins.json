@@ -11,8 +11,7 @@
     "SlotMixin"
   ],
   "client": [
-    "client.GameRendererAccessor",
-    "client.GuiMixin"
+    "client.GameRendererAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

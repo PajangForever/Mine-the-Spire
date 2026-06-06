@@ -7,6 +7,7 @@ import forever.pajang.minethespire.content.ModDataComponents;
 import forever.pajang.minethespire.content.ModEffects;
 import forever.pajang.minethespire.content.ModEnchantments;
 import forever.pajang.minethespire.content.ModItems;
+import forever.pajang.minethespire.content.item.HeavyBladeItem;
 import forever.pajang.minethespire.content.item.LizardTailItem;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -140,7 +141,7 @@ public final class EventListeners {
                 && event.getNewDamage() > 1.0F) {
             event.setNewDamage(1.0F);
         }
-        OverhealHandler.onDamage(event.getEntity(), event);
+        BlockingValueHandler.onDamage(event.getEntity(), event);
     }
 
     @SubscribeEvent
@@ -199,11 +200,28 @@ public final class EventListeners {
     }
 
     @SubscribeEvent
+    public static void onVeninExpired(MobEffectEvent.Expired event) {
+        LivingEntity entity = event.getEntity();
+        MobEffectInstance effect = event.getEffectInstance();
+        if (entity.level().isClientSide() || entity.isDeadOrDying() || effect == null || !effect.is(ModEffects.VENIN)) {
+            return;
+        }
+
+        int level = effect.getAmplifier() + 1;
+        entity.hurt(entity.level().damageSources().source(DamageTypes.MAGIC), (float) level);
+        if (level > 1 && !entity.isDeadOrDying()) {
+            event.setCanceled(true);
+            entity.forceAddEffect(new MobEffectInstance(ModEffects.VENIN, 5 * 20, effect.getAmplifier() - 1), null);
+        }
+    }
+
+    @SubscribeEvent
     public static void onEntityTick(EntityTickEvent.Post event) {
         if (event.getEntity() instanceof LivingEntity living) {
             CombatState.tickEntity(living);
             ChargeBallManager.get(living).tick();
-            OverhealHandler.tick(living);
+            BlockingValueHandler.tick(living);
+            HeavyBladeItem.tickStrengthModifier(living);
         }
     }
 

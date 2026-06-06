@@ -4,7 +4,7 @@ import forever.pajang.minethespire.MineTheSpire;
 import forever.pajang.minethespire.content.ModEntityTypes;
 import forever.pajang.minethespire.content.ModItems;
 import forever.pajang.minethespire.impl.ChargeBallManager;
-import forever.pajang.minethespire.impl.OverhealHandler;
+import forever.pajang.minethespire.impl.BlockingValueHandler;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
@@ -23,8 +23,8 @@ public class FrostChargeBallEntity extends ChargeBallEntity {
     private static final Identifier ACTIVATED_TEXTURE = MineTheSpire.id("textures/entity/projectiles/frost_charge_ball_activated.png");
     private static final int FROST_LIFETIME_MIN = 20 * 20;
     private static final int FROST_LIFETIME_MAX = 30 * 20;
-    private static final int FROST_HEAL_AMOUNT = 6;
-    private static final int FROST_FINISH_HEAL_AMOUNT = 20;
+    private static final float FROST_HEAL_AMOUNT = 5.0F;
+    private static final float FROST_FINISH_HEAL_AMOUNT = 20.0F;
 
     private int lifetimeTicks = -1;
 
@@ -66,7 +66,7 @@ public class FrostChargeBallEntity extends ChargeBallEntity {
             return;
         }
 
-        OverhealHandler.add(owner, FROST_HEAL_AMOUNT);
+        BlockingValueHandler.add(owner, focusAdjustedAmount(owner, FROST_HEAL_AMOUNT));
         if (level() instanceof ServerLevel serverLevel) {
             Vec3 pos = position().add(0.0D, getBbHeight() * 0.5D, 0.0D);
             serverLevel.playSound(null, getX(), getY(), getZ(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 0.45F, 1.55F);
@@ -87,7 +87,7 @@ public class FrostChargeBallEntity extends ChargeBallEntity {
             return;
         }
 
-        OverhealHandler.add(owner, FROST_FINISH_HEAL_AMOUNT);
+        BlockingValueHandler.add(owner, focusAdjustedAmount(owner, FROST_FINISH_HEAL_AMOUNT));
         if (level() instanceof ServerLevel serverLevel) {
             Vec3 pos = position().add(0.0D, getBbHeight() * 0.5D, 0.0D);
             serverLevel.playSound(null, getX(), getY(), getZ(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, lifetimeExpire ? 0.65F : 0.9F, lifetimeExpire ? 1.15F : 1.4F);

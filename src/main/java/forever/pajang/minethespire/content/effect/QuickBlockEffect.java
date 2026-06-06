@@ -17,7 +17,7 @@ public class QuickBlockEffect extends InstantenousMobEffect {
 
     public QuickBlockEffect(MobEffectCategory category, int color) {
         super(category, color);
-        this.addAttributeModifier(ModAttributes.OVERHEAL_CHANGE_RATE, MineTheSpire.id("quick_block"), 21.0D, AttributeModifier.Operation.ADD_VALUE);
+        this.addAttributeModifier(ModAttributes.BLOCKING_VALUE_CHANGE_RATE, MineTheSpire.id("quick_block"), 21.0D, AttributeModifier.Operation.ADD_VALUE);
     }
 
     @Override

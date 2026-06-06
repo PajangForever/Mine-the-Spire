@@ -1,7 +1,7 @@
 package forever.pajang.minethespire.content.item;
 
 import forever.pajang.minethespire.content.ModItems;
-import forever.pajang.minethespire.impl.OverhealHandler;
+import forever.pajang.minethespire.impl.BlockingValueHandler;
 import forever.pajang.minethespire.network.LizardTailActivationPayload;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.server.level.ServerLevel;
@@ -41,9 +41,9 @@ public class LizardTailItem extends Relic {
 
     private static void applyProtection(LivingEntity entity, ItemStack tail) {
         float maxHealth = entity.getMaxHealth();
-        float overheal = maxHealth * 2.0F;
+        float blockingValue = maxHealth * 2.0F;
         entity.setHealth(maxHealth * 0.5F);
-        OverhealHandler.grant(entity, overheal);
+        BlockingValueHandler.grant(entity, blockingValue);
         entity.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, RESISTANCE_DURATION, RESISTANCE_AMPLIFIER));
         entity.level().playSound(null, entity.getX(), entity.getY(), entity.getZ(), SoundEvents.TOTEM_USE, SoundSource.PLAYERS, 1.0F, 1.0F);
         if (entity instanceof ServerPlayer player) {

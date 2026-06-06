@@ -1,6 +1,7 @@
 package forever.pajang.minethespire.content.entity;
 
 import forever.pajang.minethespire.MineTheSpire;
+import forever.pajang.minethespire.content.ModAttributes;
 import forever.pajang.minethespire.impl.ChargeBallManager;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
@@ -208,6 +209,10 @@ public abstract class ChargeBallEntity extends Entity {
 
     protected boolean isOwnedEntity(Entity entity) {
         return entity instanceof LivingEntity living && isOwnedBy(living);
+    }
+
+    protected float focusAdjustedAmount(LivingEntity owner, float baseAmount) {
+        return Math.max(0.0F, baseAmount + (float) owner.getAttributeValue(ModAttributes.FOCUS));
     }
 
     protected void dissipate(ServerLevel level) {

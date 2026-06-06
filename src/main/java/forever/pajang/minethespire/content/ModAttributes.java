@@ -8,15 +8,21 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 public final class ModAttributes {
     private static final RegisterCore REG = MineTheSpire.REG;
 
-    public static final DeferredHolder<Attribute, Attribute> OVERHEAL = REG.attribute("overheal")
+    public static final DeferredHolder<Attribute, Attribute> BLOCKING_VALUE = REG.attribute("blocking_value")
             .defaultValue(0.0D)
-            .en("Overheal")
+            .en("Blocking Value")
             .register();
-    public static final DeferredHolder<Attribute, Attribute> OVERHEAL_CHANGE_RATE = REG.attribute("overheal_change_rate")
+    public static final DeferredHolder<Attribute, Attribute> BLOCKING_VALUE_CHANGE_RATE = REG.attribute("blocking_value_change_rate")
             .min(-1024.0D)
             .max(1024.0D)
             .defaultValue(-0.5D)
-            .en("Overheal Change Rate")
+            .en("Blocking Value Change Rate")
+            .register();
+    public static final DeferredHolder<Attribute, Attribute> FOCUS = REG.attribute("focus")
+            .min(-1024.0D)
+            .max(1024.0D)
+            .defaultValue(0.0D)
+            .en("Focus")
             .register();
     public static final DeferredHolder<Attribute, Attribute> MAX_CHARGE_BALL = REG.attribute("max_charge_ball")
             .min(0.0D)

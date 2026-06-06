@@ -10,12 +10,12 @@ import snownee.jade.api.WailaPlugin;
 public class MineTheSpireJadePlugin implements IWailaPlugin {
     @Override
     public void register(IWailaCommonRegistration registration) {
-        registration.registerEntityDataProvider(OverhealDataProvider.INSTANCE, LivingEntity.class);
+        registration.registerEntityDataProvider(BlockingValueDataProvider.INSTANCE, LivingEntity.class);
     }
 
     @Override
     public void registerClient(IWailaClientRegistration registration) {
-        registration.addConfig(OverhealJade.UID, true);
-        registration.registerEntityComponent(OverhealComponentProvider.INSTANCE, LivingEntity.class);
+        registration.addConfig(BlockingValueJade.UID, true);
+        registration.registerEntityComponent(BlockingValueComponentProvider.INSTANCE, LivingEntity.class);
     }
 }

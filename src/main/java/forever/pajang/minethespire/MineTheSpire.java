@@ -1,7 +1,7 @@
 package forever.pajang.minethespire;
 
 import forever.pajang.minethespire.compat.curios.CuriosCompat;
-import forever.pajang.minethespire.compat.jade.OverhealJade;
+import forever.pajang.minethespire.compat.jade.BlockingValueJade;
 import forever.pajang.minethespire.content.ModAttachments;
 import forever.pajang.minethespire.content.ModAttributes;
 import forever.pajang.minethespire.content.ModDataComponents;
@@ -42,7 +42,7 @@ public class MineTheSpire {
         ModDataComponents.register();
         ModEnchantments.register();
         CuriosCompat.registerEventsIfLoaded();
-        OverhealJade.register();
+        BlockingValueJade.register();
         ModDataProviders.register(REG);
         modEventBus.addListener(ModNetworking::register);
         REG.register(modEventBus);

@@ -9,6 +9,7 @@ import forever.pajang.minethespire.content.entity.ChargeBallEntity;
 import forever.pajang.minethespire.content.entity.DarkChargeBallEntity;
 import forever.pajang.minethespire.content.entity.FrostChargeBallEntity;
 import forever.pajang.minethespire.content.entity.LightningChargeBallEntity;
+import forever.pajang.minethespire.content.entity.PlasmaChargeBallEntity;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -93,6 +94,13 @@ public final class ChargeBallManager {
             return false;
         }
         return tryCreate(new DarkChargeBallEntity(owner.level(), owner));
+    }
+
+    public boolean tryCreatePlasma() {
+        if (owner == null) {
+            return false;
+        }
+        return tryCreate(new PlasmaChargeBallEntity(owner.level(), owner));
     }
 
     public void removeBall(ChargeBallEntity ball) {

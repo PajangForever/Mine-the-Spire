@@ -35,15 +35,48 @@ public final class ModPotions {
             .brewFrom(Potions.AWKWARD, Items.COPPER_INGOT)
             .en("Potion of Blocking")
             .register();
+    public static final DeferredHolder<Potion, Potion> BARRICADE = REG.potion("barricade")
+            .effect(ModEffects.BARRICADE, 8 * 60 * 20)
+            .brewFrom(Potions.AWKWARD, Items.SHIELD)
+            .en("Potion of Barricade")
+            .register();
+    public static final DeferredHolder<Potion, Potion> DEATH = REG.potion("deadly_poison")
+            .effect(ModEffects.VENIN, 5 * 20, 6)
+            .brewFrom(Potions.AWKWARD, Items.POISONOUS_POTATO)
+            .en("Deadly Poison")
+            .register();
+    public static final DeferredHolder<Potion, Potion> STRONG_DEATH = REG.potion("strong_deadly_poison")
+            .name("death")
+            .effect(ModEffects.VENIN, 5 * 20, 9)
+            .brewFrom(DEATH, Items.GLOWSTONE_DUST)
+            .en("Deadly Poison")
+            .register();
+    public static final DeferredHolder<Potion, Potion> FOCUS = REG.potion("focus")
+            .effect(ModEffects.FOCUS_BOOST, 3 * 60 * 20)
+            .brewFrom(Potions.AWKWARD, Items.COPPER_BLOCK)
+            .en("Potion of Focus")
+            .register();
+    public static final DeferredHolder<Potion, Potion> LONG_FOCUS = REG.potion("long_focus")
+            .name("focus")
+            .effect(ModEffects.FOCUS_BOOST, 8 * 60 * 20)
+            .brewFrom(FOCUS, Items.REDSTONE)
+            .en("Potion of Focus")
+            .register();
+    public static final DeferredHolder<Potion, Potion> STRONG_FOCUS = REG.potion("strong_focus")
+            .name("focus")
+            .effect(ModEffects.FOCUS_BOOST, 3 * 60 * 20, 1)
+            .brewFrom(FOCUS, Items.GLOWSTONE_DUST)
+            .en("Potion of Focus")
+            .register();
     public static final DeferredHolder<Potion, Potion> VULNERABLE = REG.potion("vulnerable")
             .effect(ModEffects.VULNERABLE, 3 * 60 * 20)
             .brewFrom(Potions.AWKWARD, Items.ROTTEN_FLESH)
-            .en("Vulnerable")
+            .en("Potion of Vulnerable")
             .register();
     public static final DeferredHolder<Potion, Potion> LONG_VULNERABLE = REG.potion("long_vulnerable")
             .effect(ModEffects.VULNERABLE, 8 * 60 * 20)
             .brewFrom(VULNERABLE, Items.REDSTONE)
-            .en("Long Vulnerable")
+            .en("Potion of Vulnerable")
             .register();
     public static final DeferredHolder<Potion, Potion> STRONG_VULNERABLE = REG.potion("strong_vulnerable")
             .effect(ModEffects.VULNERABLE, 3 * 60 * 20, 1)
@@ -52,6 +85,186 @@ public final class ModPotions {
             .register();
 
     static {
+        REG.brewingRecipeDisplay(
+                "brewing/barricade_from_awkward",
+                Items.SHIELD::getDefaultInstance,
+                () -> potionStack(Items.POTION, Potions.AWKWARD),
+                () -> potionStack(Items.POTION, BARRICADE)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/splash_barricade_from_awkward",
+                Items.SHIELD::getDefaultInstance,
+                () -> potionStack(Items.SPLASH_POTION, Potions.AWKWARD),
+                () -> potionStack(Items.SPLASH_POTION, BARRICADE)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/lingering_barricade_from_awkward",
+                Items.SHIELD::getDefaultInstance,
+                () -> potionStack(Items.LINGERING_POTION, Potions.AWKWARD),
+                () -> potionStack(Items.LINGERING_POTION, BARRICADE)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/splash_barricade",
+                Items.GUNPOWDER::getDefaultInstance,
+                () -> potionStack(Items.POTION, BARRICADE),
+                () -> potionStack(Items.SPLASH_POTION, BARRICADE)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/lingering_barricade",
+                Items.DRAGON_BREATH::getDefaultInstance,
+                () -> potionStack(Items.SPLASH_POTION, BARRICADE),
+                () -> potionStack(Items.LINGERING_POTION, BARRICADE)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/death_from_awkward",
+                Items.POISONOUS_POTATO::getDefaultInstance,
+                () -> potionStack(Items.POTION, Potions.AWKWARD),
+                () -> potionStack(Items.POTION, DEATH)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/splash_death_from_awkward",
+                Items.POISONOUS_POTATO::getDefaultInstance,
+                () -> potionStack(Items.SPLASH_POTION, Potions.AWKWARD),
+                () -> potionStack(Items.SPLASH_POTION, DEATH)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/lingering_death_from_awkward",
+                Items.POISONOUS_POTATO::getDefaultInstance,
+                () -> potionStack(Items.LINGERING_POTION, Potions.AWKWARD),
+                () -> potionStack(Items.LINGERING_POTION, DEATH)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/strong_death_from_glowstone",
+                Items.GLOWSTONE_DUST::getDefaultInstance,
+                () -> potionStack(Items.POTION, DEATH),
+                () -> potionStack(Items.POTION, STRONG_DEATH)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/splash_strong_death_from_glowstone",
+                Items.GLOWSTONE_DUST::getDefaultInstance,
+                () -> potionStack(Items.SPLASH_POTION, DEATH),
+                () -> potionStack(Items.SPLASH_POTION, STRONG_DEATH)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/lingering_strong_death_from_glowstone",
+                Items.GLOWSTONE_DUST::getDefaultInstance,
+                () -> potionStack(Items.LINGERING_POTION, DEATH),
+                () -> potionStack(Items.LINGERING_POTION, STRONG_DEATH)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/splash_death",
+                Items.GUNPOWDER::getDefaultInstance,
+                () -> potionStack(Items.POTION, DEATH),
+                () -> potionStack(Items.SPLASH_POTION, DEATH)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/lingering_death",
+                Items.DRAGON_BREATH::getDefaultInstance,
+                () -> potionStack(Items.SPLASH_POTION, DEATH),
+                () -> potionStack(Items.LINGERING_POTION, DEATH)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/splash_strong_death",
+                Items.GUNPOWDER::getDefaultInstance,
+                () -> potionStack(Items.POTION, STRONG_DEATH),
+                () -> potionStack(Items.SPLASH_POTION, STRONG_DEATH)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/lingering_strong_death",
+                Items.DRAGON_BREATH::getDefaultInstance,
+                () -> potionStack(Items.SPLASH_POTION, STRONG_DEATH),
+                () -> potionStack(Items.LINGERING_POTION, STRONG_DEATH)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/focus_from_awkward",
+                Items.COPPER_BLOCK::getDefaultInstance,
+                () -> potionStack(Items.POTION, Potions.AWKWARD),
+                () -> potionStack(Items.POTION, FOCUS)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/splash_focus_from_awkward",
+                Items.COPPER_BLOCK::getDefaultInstance,
+                () -> potionStack(Items.SPLASH_POTION, Potions.AWKWARD),
+                () -> potionStack(Items.SPLASH_POTION, FOCUS)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/lingering_focus_from_awkward",
+                Items.COPPER_BLOCK::getDefaultInstance,
+                () -> potionStack(Items.LINGERING_POTION, Potions.AWKWARD),
+                () -> potionStack(Items.LINGERING_POTION, FOCUS)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/long_focus_from_redstone",
+                Items.REDSTONE::getDefaultInstance,
+                () -> potionStack(Items.POTION, FOCUS),
+                () -> potionStack(Items.POTION, LONG_FOCUS)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/splash_long_focus_from_redstone",
+                Items.REDSTONE::getDefaultInstance,
+                () -> potionStack(Items.SPLASH_POTION, FOCUS),
+                () -> potionStack(Items.SPLASH_POTION, LONG_FOCUS)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/lingering_long_focus_from_redstone",
+                Items.REDSTONE::getDefaultInstance,
+                () -> potionStack(Items.LINGERING_POTION, FOCUS),
+                () -> potionStack(Items.LINGERING_POTION, LONG_FOCUS)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/strong_focus_from_glowstone",
+                Items.GLOWSTONE_DUST::getDefaultInstance,
+                () -> potionStack(Items.POTION, FOCUS),
+                () -> potionStack(Items.POTION, STRONG_FOCUS)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/splash_strong_focus_from_glowstone",
+                Items.GLOWSTONE_DUST::getDefaultInstance,
+                () -> potionStack(Items.SPLASH_POTION, FOCUS),
+                () -> potionStack(Items.SPLASH_POTION, STRONG_FOCUS)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/lingering_strong_focus_from_glowstone",
+                Items.GLOWSTONE_DUST::getDefaultInstance,
+                () -> potionStack(Items.LINGERING_POTION, FOCUS),
+                () -> potionStack(Items.LINGERING_POTION, STRONG_FOCUS)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/splash_focus",
+                Items.GUNPOWDER::getDefaultInstance,
+                () -> potionStack(Items.POTION, FOCUS),
+                () -> potionStack(Items.SPLASH_POTION, FOCUS)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/lingering_focus",
+                Items.DRAGON_BREATH::getDefaultInstance,
+                () -> potionStack(Items.SPLASH_POTION, FOCUS),
+                () -> potionStack(Items.LINGERING_POTION, FOCUS)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/splash_long_focus",
+                Items.GUNPOWDER::getDefaultInstance,
+                () -> potionStack(Items.POTION, LONG_FOCUS),
+                () -> potionStack(Items.SPLASH_POTION, LONG_FOCUS)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/lingering_long_focus",
+                Items.DRAGON_BREATH::getDefaultInstance,
+                () -> potionStack(Items.SPLASH_POTION, LONG_FOCUS),
+                () -> potionStack(Items.LINGERING_POTION, LONG_FOCUS)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/splash_strong_focus",
+                Items.GUNPOWDER::getDefaultInstance,
+                () -> potionStack(Items.POTION, STRONG_FOCUS),
+                () -> potionStack(Items.SPLASH_POTION, STRONG_FOCUS)
+        );
+        REG.brewingRecipeDisplay(
+                "brewing/lingering_strong_focus",
+                Items.DRAGON_BREATH::getDefaultInstance,
+                () -> potionStack(Items.SPLASH_POTION, STRONG_FOCUS),
+                () -> potionStack(Items.LINGERING_POTION, STRONG_FOCUS)
+        );
         REG.brewingRecipeDisplay(
                 "brewing/vulnerable_from_awkward",
                 Items.ROTTEN_FLESH::getDefaultInstance,

@@ -89,7 +89,7 @@ public class LightningChargeBallEntity extends ChargeBallEntity {
         if (owner == null || !CombatState.isInCombat(owner)) {
             return;
         }
-        ChargeBallManager.get(owner).getAttackTarget().ifPresent(target -> applyLightningDamage(target, BEAM_DAMAGE, false));
+        ChargeBallManager.get(owner).getAttackTarget().ifPresent(target -> applyLightningDamage(target, focusAdjustedAmount(owner, BEAM_DAMAGE), false));
     }
 
     @Override
@@ -98,7 +98,9 @@ public class LightningChargeBallEntity extends ChargeBallEntity {
     }
 
     public void attackLightningTarget(LivingEntity target, boolean special) {
-        applyLightningDamage(target, special ? LAUNCH_DAMAGE : BEAM_DAMAGE, special);
+        LivingEntity owner = getOwner();
+        float baseDamage = special ? LAUNCH_DAMAGE : BEAM_DAMAGE;
+        applyLightningDamage(target, owner == null ? baseDamage : focusAdjustedAmount(owner, baseDamage), special);
     }
 
     private void activateLightningLaunch() {
@@ -158,7 +160,7 @@ public class LightningChargeBallEntity extends ChargeBallEntity {
         Vec3 targetPos = target.position().add(0.0D, target.getBbHeight() * 0.5D, 0.0D);
         Vec3 toTarget = targetPos.subtract(position());
         if (toTarget.lengthSqr() <= 0.64D) {
-            applyLightningDamage(target, LAUNCH_DAMAGE, true);
+            applyLightningDamage(target, focusAdjustedAmount(owner, LAUNCH_DAMAGE), true);
             finishLaunch();
             return;
         }
@@ -181,7 +183,7 @@ public class LightningChargeBallEntity extends ChargeBallEntity {
 
         LivingEntity hitEntity = findHitEntity(owner);
         if (hitEntity != null) {
-            applyLightningDamage(hitEntity, LAUNCH_DAMAGE, true);
+            applyLightningDamage(hitEntity, focusAdjustedAmount(owner, LAUNCH_DAMAGE), true);
             finishLaunch();
             return;
         }

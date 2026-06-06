@@ -1,8 +1,0 @@
-{
-  "type": "minecraft:smithing_transform",
-  "addition": "minecraft:rotten_flesh",
-  "base": "minecraft:diamond_axe",
-  "result": {
-    "id": "minethespire:diamond_pain_strike"
-  }
-}

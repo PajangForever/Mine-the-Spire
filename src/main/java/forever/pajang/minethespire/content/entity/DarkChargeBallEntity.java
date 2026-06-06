@@ -94,7 +94,7 @@ public class DarkChargeBallEntity extends ChargeBallEntity {
         }
 
         if (CombatState.isInCombat(owner)) {
-            setCharge(getCharge() + CHARGE_GAIN);
+            setCharge(getCharge() + focusAdjustedAmount(owner, CHARGE_GAIN));
             playChargeGainEffects();
         }
         else {

@@ -47,6 +47,11 @@ public final class ModItems {
             .properties(p -> p.rarity(Rarity.EPIC))
             .flatModel(MineTheSpire.id("item/mark_bloom"))
             .register();
+    public static final DeferredItem<? extends Item> BOUNCING_FLASK = REG.item("bouncing_flask", BouncingFlaskItem::new).in("main")
+            .properties(p -> p.stacksTo(16).rarity(Rarity.UNCOMMON))
+            .flatModel(vanillaItemTexture("splash_potion"))
+            .en("Bouncing Flask")
+            .register();
     public static final DeferredItem<? extends Item> SPIRIT = REG.simpleItem("spirit").in("main")
             .properties(p -> p.food(
                     new FoodProperties(1, 0.1F, true),
@@ -97,41 +102,53 @@ public final class ModItems {
             .defaultModel().en("Dark Charge Ball")
             .register();
 
+    public static final DeferredItem<? extends Item> PLASMA_CHARGE_BALL = REG.item("plasma_charge_ball", PlasmaChargeBallItem::new).in("main")
+            .properties(p -> p.stacksTo(16).rarity(Rarity.UNCOMMON))
+            .defaultModel().en("Plasma Charge Ball")
+            .register();
+
     public static final DeferredItem<? extends Item> DOUBLE_RELEASE = REG.item("double_release", DoubleReleaseItem::new).in("main")
             .properties(p -> p.stacksTo(1).rarity(Rarity.RARE)).defaultModel().en("Double Release").register();
-    public static final DeferredItem<? extends Item> WOODEN_PAIN_STRIKE = painStrike(
-            "wooden_pain_strike", "wooden_axe", Items.WOODEN_AXE, ToolMaterial.WOOD, 7.0F, -3.36F, "Wooden Pain Strike", false
-    );
-    public static final DeferredItem<? extends Item> STONE_PAIN_STRIKE = painStrike(
-            "stone_pain_strike", "stone_axe", Items.STONE_AXE, ToolMaterial.STONE, 8.0F, -3.36F, "Stone Pain Strike", false
-    );
-    public static final DeferredItem<? extends Item> COPPER_PAIN_STRIKE = painStrike(
-            "copper_pain_strike", "copper_axe", Items.COPPER_AXE, ToolMaterial.COPPER, 8.0F, -3.36F, "Copper Pain Strike", false
-    );
-    public static final DeferredItem<? extends Item> GOLDEN_PAIN_STRIKE = painStrike(
-            "golden_pain_strike", "golden_axe", Items.GOLDEN_AXE, ToolMaterial.GOLD, 7.0F, -3.20F, "Golden Pain Strike", false
-    );
-    public static final DeferredItem<? extends Item> IRON_PAIN_STRIKE = painStrike(
-            "iron_pain_strike", "iron_axe", Items.IRON_AXE, ToolMaterial.IRON, 7.0F, -3.28F, "Iron Pain Strike", false
-    );
-    public static final DeferredItem<? extends Item> DIAMOND_PAIN_STRIKE = painStrike(
-            "diamond_pain_strike", "diamond_axe", Items.DIAMOND_AXE, ToolMaterial.DIAMOND, 6.0F, -3.20F, "Diamond Pain Strike", false
-    );
-    public static final DeferredItem<? extends Item> NETHERITE_PAIN_STRIKE = painStrike(
-            "netherite_pain_strike", "netherite_axe", Items.NETHERITE_AXE, ToolMaterial.NETHERITE, 6.0F, -3.20F, "Netherite Pain Strike", true
+
+    public static final DeferredItem<? extends Item> IMPERVIOUS = REG.item("impervious", ImperviousItem::new).in("main")
+            .properties(p -> p.stacksTo(16).rarity(Rarity.RARE).food(
+                    new FoodProperties(0, 0.0F, true),
+                    Consumable.builder()
+                            .animation(ItemUseAnimation.EAT)
+                            .sound(SoundEvents.GENERIC_EAT)
+                            .build()))
+            .flatModel(vanillaItemTexture("totem_of_undying"))
+            .en("Impervious")
+            .register();
+
+    public static final DeferredItem<? extends Item> ENTRENCH = REG.item("entrench", EntrenchItem::new).in("main")
+            .properties(p -> p.stacksTo(16).rarity(Rarity.UNCOMMON))
+            .flatModel(vanillaItemTexture("shield"))
+            .en("Entrench")
+            .register();
+
+    public static final DeferredItem<? extends Item> HEAVY_BLADE = REG.item("heavy_blade", HeavyBladeItem::new).in("main")
+            .properties(p -> p.stacksTo(1).rarity(Rarity.EPIC).sword(ToolMaterial.NETHERITE, 13.0F, -3.75F))
+            .flatModel(MineTheSpire.id("item/heavy_blade"))
+            .en("Heavy Blade")
+            .register();
+
+    static {
+        REG.text("tooltip.minethespire.heavy_blade.extra_prefix").en("Extra ").register();
+        REG.text("tooltip.minethespire.heavy_blade.strength").en("Strength").register();
+        REG.text("tooltip.minethespire.heavy_blade.extra_suffix").en(" Bonus:").register();
+        REG.text("tooltip.minethespire.heavy_blade.attack_damage").en(" Attack Damage").register();
+    }
+
+    public static final DeferredItem<? extends Item> PAIN_STRIKE = painStrike(
+            "pain_strike", "iron_axe", Items.IRON_AXE, ToolMaterial.IRON, 7.0F, -3.28F, "Pain Strike", false
     );
 
     public static void register() {
     }
 
     public static boolean isPainStrike(Item item) {
-        return item == WOODEN_PAIN_STRIKE.get()
-                || item == STONE_PAIN_STRIKE.get()
-                || item == COPPER_PAIN_STRIKE.get()
-                || item == GOLDEN_PAIN_STRIKE.get()
-                || item == IRON_PAIN_STRIKE.get()
-                || item == DIAMOND_PAIN_STRIKE.get()
-                || item == NETHERITE_PAIN_STRIKE.get();
+        return item == PAIN_STRIKE.get();
     }
 
     public static void cubeItemWithTexture(Supplier<? extends Item> i, Supplier<ItemModelGenerators> g, Identifier texture) {
@@ -163,7 +180,7 @@ public final class ModItems {
                     );
                     output.accept(recipeId, recipe, advancements.build(output, recipeId, RecipeCategory.COMBAT));
                 })
-                .flatModel(vanillaItemTexture(baseTexture))
+                .flatModel(MineTheSpire.id("item/" + name))
                 .en(en)
                 .register();
     }

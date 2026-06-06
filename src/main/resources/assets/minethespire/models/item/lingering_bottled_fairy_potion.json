@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "minethespire:item/lingering_bottled_fairy_potion"
-  }
-}

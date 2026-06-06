@@ -1,8 +1,0 @@
-{
-  "type": "minecraft:smithing_transform",
-  "addition": "minecraft:rotten_flesh",
-  "base": "minecraft:netherite_axe",
-  "result": {
-    "id": "minethespire:netherite_pain_strike"
-  }
-}
