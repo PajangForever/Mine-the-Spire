@@ -15,6 +15,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.registries.Registries;
@@ -43,16 +44,35 @@ import net.minecraft.data.recipes.RecipeUnlockAdvancementBuilder;
 public final class ModItems {
     private static final RegisterCore REG = MineTheSpire.REG;
 
-    public static final DeferredItem<? extends Item> DARK_SHURIKEN = REG.item("dark_shuriken", DarkShurikenItem::new).in("main")
-            .properties(p -> p.rarity(Rarity.EPIC))
+    public static final DeferredItem<? extends RelicItem> LIZARD_TAIL = REG.item("lizard_tail", LizardTailItem::new)
+            .properties(p -> p.stacksTo(1).rarity(Rarity.UNCOMMON))
+            .defaultModel().register();
+
+    public static final DeferredItem<? extends RelicItem> MANGO = REG.item("mango", RelicItem::new)
+            .properties(p -> p.stacksTo(1).rarity(Rarity.UNCOMMON).attributes(ItemAttributeModifiers.builder()
+                    .add(Attributes.MAX_HEALTH, new AttributeModifier(MineTheSpire.id("mango_add_max_health"), 14.0, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.ANY).build()))
+            .defaultModel().register();
+
+    public static final DeferredItem<? extends OriginalRelicItem> BURNING_BLOOD = REG.item("burning_blood", OriginalRelicItem::new)
+            .properties(p -> p.stacksTo(1).rarity(Rarity.RARE)).defaultModel().register();
+
+    public static final DeferredItem<? extends OriginalRelicItem> RING_OF_THE_SNAKE = REG.item("ring_of_the_snake", OriginalRelicItem::new)
+            .properties(p -> p.stacksTo(1).rarity(Rarity.RARE)).defaultModel().register();
+
+    public static final DeferredItem<? extends CrackedCoreRelicItem> CRACKED_CORE = REG.item("cracked_core", CrackedCoreRelicItem::new)
+            .properties(p -> p.stacksTo(1).rarity(Rarity.RARE).attributes(ItemAttributeModifiers.builder()
+                    .add(ModAttributes.MAX_CHARGE_BALL, new AttributeModifier(MineTheSpire.id("cracked_core_add_max_balls"), 2.0, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.ANY).build()))
+            .defaultModel().register();
+
+    public static final DeferredItem<? extends Item> DARK_SHURIKEN = REG.item("dark_shuriken", DarkShurikenItem::new)
+            .properties(p -> p.rarity(Rarity.EPIC).stacksTo(1))
             .flatModel(MineTheSpire.id("item/mark_bloom"))
             .register();
-    public static final DeferredItem<? extends Item> BOUNCING_FLASK = REG.item("bouncing_flask", BouncingFlaskItem::new).in("main")
+    public static final DeferredItem<? extends Item> BOUNCING_FLASK = REG.item("bouncing_flask", BouncingFlaskItem::new)
             .properties(p -> p.stacksTo(16).rarity(Rarity.UNCOMMON))
-            .flatModel(vanillaItemTexture("splash_potion"))
-            .en("Bouncing Flask")
-            .register();
-    public static final DeferredItem<? extends Item> SPIRIT = REG.simpleItem("spirit").in("main")
+            .flatModel(vanillaItemTexture("splash_potion")).register();
+
+    public static final DeferredItem<? extends Item> SPIRIT = REG.simpleItem("spirit")
             .properties(p -> p.food(
                     new FoodProperties(1, 0.1F, true),
                     Consumable.builder()
@@ -74,43 +94,32 @@ public final class ModItems {
             .en("Spirit")
             .register();
 
-    public static final DeferredItem<? extends Relic> LIZARD_TAIL = REG.item("lizard_tail", LizardTailItem::new).in("main")
-            .properties(p -> p.stacksTo(1).rarity(Rarity.UNCOMMON))
-            .defaultModel().en("Lizard Tail").register();
 
-    public static final DeferredItem<? extends OriginalRelic> BURNING_BLOOD = REG.item("burning_blood", OriginalRelic::new).in("main")
-            .properties(p -> p.stacksTo(1).rarity(Rarity.RARE)).defaultModel().register();
 
-    public static final DeferredItem<? extends OriginalRelic> RING_OF_THE_SNAKE = REG.item("ring_of_the_snake", OriginalRelic::new).in("main")
-            .properties(p -> p.stacksTo(1).rarity(Rarity.RARE)).defaultModel().register();
-
-    public static final DeferredItem<? extends CrackedCoreRelic> CRACKED_CORE = REG.item("cracked_core", CrackedCoreRelic::new).in("main")
-            .properties(p -> p.stacksTo(1).rarity(Rarity.RARE)).defaultModel().register();
-
-    public static final DeferredItem<? extends Item> LIGHTNING_CHARGE_BALL = REG.item("lightning_charge_ball", LightningChargeBallItem::new).in("main")
+    public static final DeferredItem<? extends Item> LIGHTNING_CHARGE_BALL = REG.item("lightning_charge_ball", LightningChargeBallItem::new)
             .properties(p -> p.stacksTo(16).rarity(Rarity.UNCOMMON))
             .defaultModel().en("Lightning Charge Ball")
             .register();
 
-    public static final DeferredItem<? extends Item> FROST_CHARGE_BALL = REG.item("frost_charge_ball", FrostChargeBallItem::new).in("main")
+    public static final DeferredItem<? extends Item> FROST_CHARGE_BALL = REG.item("frost_charge_ball", FrostChargeBallItem::new)
             .properties(p -> p.stacksTo(16).rarity(Rarity.UNCOMMON))
             .defaultModel().en("Frost Charge Ball")
             .register();
 
-    public static final DeferredItem<? extends Item> DARK_CHARGE_BALL = REG.item("dark_charge_ball", DarkChargeBallItem::new).in("main")
+    public static final DeferredItem<? extends Item> DARK_CHARGE_BALL = REG.item("dark_charge_ball", DarkChargeBallItem::new)
             .properties(p -> p.stacksTo(16).rarity(Rarity.UNCOMMON))
             .defaultModel().en("Dark Charge Ball")
             .register();
 
-    public static final DeferredItem<? extends Item> PLASMA_CHARGE_BALL = REG.item("plasma_charge_ball", PlasmaChargeBallItem::new).in("main")
+    public static final DeferredItem<? extends Item> PLASMA_CHARGE_BALL = REG.item("plasma_charge_ball", PlasmaChargeBallItem::new)
             .properties(p -> p.stacksTo(16).rarity(Rarity.UNCOMMON))
             .defaultModel().en("Plasma Charge Ball")
             .register();
 
-    public static final DeferredItem<? extends Item> DOUBLE_RELEASE = REG.item("double_release", DoubleReleaseItem::new).in("main")
+    public static final DeferredItem<? extends Item> DOUBLE_RELEASE = REG.item("double_release", DoubleReleaseItem::new)
             .properties(p -> p.stacksTo(1).rarity(Rarity.RARE)).defaultModel().en("Double Release").register();
 
-    public static final DeferredItem<? extends Item> IMPERVIOUS = REG.item("impervious", ImperviousItem::new).in("main")
+    public static final DeferredItem<? extends Item> IMPERVIOUS = REG.item("impervious", ImperviousItem::new)
             .properties(p -> p.stacksTo(16).rarity(Rarity.RARE).food(
                     new FoodProperties(0, 0.0F, true),
                     Consumable.builder()
@@ -121,13 +130,13 @@ public final class ModItems {
             .en("Impervious")
             .register();
 
-    public static final DeferredItem<? extends Item> ENTRENCH = REG.item("entrench", EntrenchItem::new).in("main")
+    public static final DeferredItem<? extends Item> ENTRENCH = REG.item("entrench", EntrenchItem::new)
             .properties(p -> p.stacksTo(16).rarity(Rarity.UNCOMMON))
             .flatModel(vanillaItemTexture("shield"))
             .en("Entrench")
             .register();
 
-    public static final DeferredItem<? extends Item> HEAVY_BLADE = REG.item("heavy_blade", HeavyBladeItem::new).in("main")
+    public static final DeferredItem<? extends Item> HEAVY_BLADE = REG.item("heavy_blade", HeavyBladeItem::new)
             .properties(p -> p.stacksTo(1).rarity(Rarity.EPIC).sword(ToolMaterial.NETHERITE, 13.0F, -3.75F))
             .flatModel(MineTheSpire.id("item/heavy_blade"))
             .en("Heavy Blade")
@@ -166,7 +175,6 @@ public final class ModItems {
             boolean fireResistant
     ) {
         return REG.item(name, p -> new AxeItem(material, attackDamageBaseline, attackSpeedBaseline, fireResistant ? p.fireResistant() : p))
-                .in("main")
                 .recipe(item -> (items, output) -> {
                     ResourceKey<Recipe<?>> recipeId = ResourceKey.create(Registries.RECIPE, MineTheSpire.id(name + "_smithing"));
                     RecipeUnlockAdvancementBuilder advancements = new RecipeUnlockAdvancementBuilder();

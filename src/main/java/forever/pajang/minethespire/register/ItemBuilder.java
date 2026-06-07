@@ -1,5 +1,7 @@
 package forever.pajang.minethespire.register;
 
+import forever.pajang.minethespire.content.ModItems;
+import forever.pajang.minethespire.content.item.RelicItem;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.model.ItemModelUtils;

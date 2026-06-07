@@ -3,12 +3,7 @@
   "package": "forever.pajang.minethespire.mixin",
   "compatibilityLevel": "JAVA_25",
   "mixins": [
-    "EquippableMixin",
-    "InventoryMixin",
-    "ItemMixin",
-    "ItemStackMixin",
     "LivingEntityMixin",
-    "SlotMixin"
   ],
   "client": [
     "client.GameRendererAccessor"

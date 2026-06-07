@@ -1,7 +1,7 @@
 package forever.pajang.minethespire.register;
 
 import forever.pajang.minethespire.MineTheSpire;
-import forever.pajang.minethespire.compat.curios.CuriosSlot;
+import forever.pajang.minethespire.compat.curios.CuriosSlotBuilder;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.ModelProvider;
@@ -84,7 +84,7 @@ public class RegisterCore {
     protected final Set<LootModifierBuilder> lootModifiers = new LinkedHashSet<>();
 
     protected final Set<Supplier<? extends Item>> registeredItems = new LinkedHashSet<>();
-    protected final Set<CuriosSlot> curiosSlots = new LinkedHashSet<>();
+    protected final Set<CuriosSlotBuilder> curiosSlots = new LinkedHashSet<>();
 
     protected final List<Consumer<RegisterBrewingRecipesEvent>> brewingRecipes = new ArrayList<>();
     protected final List<BrewingRecipeDisplay> brewingRecipeDisplays = new ArrayList<>();
@@ -136,9 +136,8 @@ public class RegisterCore {
         groupItems.computeIfAbsent(name, _ -> new LinkedHashSet<>()).add(item);
     }
 
-    public void addStackToGroup(String name, Supplier<ItemStack> stack) {
-        getGroup(name);
-        groupStacks.computeIfAbsent(name, _ -> new LinkedHashSet<>()).add(stack);
+    public void addStackToGroup(String group, Supplier<ItemStack> stack) {
+        groupStacks.computeIfAbsent(group, _ -> new LinkedHashSet<>()).add(stack);
     }
 
     protected CreativeModeTab.Builder getCurrentGroup() {
@@ -174,6 +173,7 @@ public class RegisterCore {
     }
 
     public <T extends Entity> DeferredHolder<EntityType<?>, EntityType<T>> entity(String path, EntityType.EntityFactory<T> factory, MobCategory category, UnaryOperator<EntityType.Builder<T>> builder) {
+        text().type("entity").info(path).register();
         return entities.registerEntityType(path, factory, category, builder);
     }
 
@@ -205,10 +205,6 @@ public class RegisterCore {
         return new CuriosSlotBuilder(this, name);
     }
 
-    public CuriosSlotBuilder curios(CuriosSlot slot) {
-        return new CuriosSlotBuilder(this, slot);
-    }
-
     public DeferredHolder<DataComponentType<?>, DataComponentType<Unit>> enchantmentComponent(String path) {
         return enchantmentComponents.registerComponentType(path, b -> b.persistent(Unit.CODEC));
     }
@@ -233,7 +229,7 @@ public class RegisterCore {
         return registeredItems;
     }
 
-    public Set<CuriosSlot> getCuriosSlots() {
+    public Set<CuriosSlotBuilder> getCuriosSlots() {
         return curiosSlots;
     }
 

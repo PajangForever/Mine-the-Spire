@@ -1,12 +1,7 @@
 package forever.pajang.minethespire.content;
 
 import forever.pajang.minethespire.MineTheSpire;
-import forever.pajang.minethespire.content.entity.BouncingFlaskProjectile;
-import forever.pajang.minethespire.content.entity.DarkChargeBallEntity;
-import forever.pajang.minethespire.content.entity.FrostChargeBallEntity;
-import forever.pajang.minethespire.content.entity.LightningChargeBallEntity;
-import forever.pajang.minethespire.content.entity.DarkShurikenProjectile;
-import forever.pajang.minethespire.content.entity.PlasmaChargeBallEntity;
+import forever.pajang.minethespire.content.entity.*;
 import forever.pajang.minethespire.register.RegisterCore;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;

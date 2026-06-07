@@ -2,7 +2,7 @@ package forever.pajang.minethespire.register;
 
 import forever.pajang.minethespire.MineTheSpire;
 import forever.pajang.minethespire.compat.curios.CuriosCompat;
-import forever.pajang.minethespire.compat.curios.RegisterCurios;
+import forever.pajang.minethespire.compat.curios.ModCuriosSlot;
 import forever.pajang.minethespire.content.ModItems;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderGetter;
@@ -60,7 +60,7 @@ public final class ModDataProviders {
         }
         registerLootTables(registerCore);
         registerLootModifiers(registerCore);
-        RegisterCurios.registerCurios(registerCore);
+        ModCuriosSlot.register();
 
         registerCore.dataProviders.add((output, lookupProvider) -> new RecipeProvider.Runner(output, lookupProvider) {
             @Override

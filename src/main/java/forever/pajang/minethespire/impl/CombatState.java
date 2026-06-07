@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import forever.pajang.minethespire.content.ModAttachments;
-import forever.pajang.minethespire.content.item.OriginalRelic;
+import forever.pajang.minethespire.content.item.OriginalRelicItem;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -185,12 +185,12 @@ public final class CombatState {
     }
 
     public static void onEnterCombat(LivingEntity owner) {
-        OriginalRelic.ringOfTheSnakeBoostSpeed(owner);
+        OriginalRelicItem.ringOfTheSnakeBoostSpeed(owner);
         ChargeBallManager.get(owner).tryCreateForCombatEntry();
     }
 
     public static void onExitCombat(LivingEntity owner) {
-        OriginalRelic.burningBloodHeal(owner);
+        OriginalRelicItem.burningBloodHeal(owner);
     }
 
     public static Optional<LivingEntity> getRandomHostile(LivingEntity owner, Predicate<LivingEntity> condition) {

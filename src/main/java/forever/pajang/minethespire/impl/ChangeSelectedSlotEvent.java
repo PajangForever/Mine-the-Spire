@@ -4,7 +4,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.Event;
 import net.neoforged.neoforge.common.NeoForge;
-
+@Deprecated
 public final class ChangeSelectedSlotEvent extends Event {
     private final Inventory inventory;
     private final int before;

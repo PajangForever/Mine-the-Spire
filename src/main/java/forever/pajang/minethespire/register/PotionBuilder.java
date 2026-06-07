@@ -20,7 +20,7 @@ import java.util.function.Supplier;
 public final class PotionBuilder extends RegisterCore.Builder {
     private final List<MobEffectInstance> effects = new ArrayList<>();
     private String potionName;
-    private String group = "main";
+    private String group;
     private String en = null;
     private Function<Holder<Potion>, ItemStack> stackFactory = holder -> PotionContents.createItemStack(Items.POTION, holder);
     private final List<Consumer<DeferredHolder<Potion, Potion>>> brewingRegistrations = new ArrayList<>();
@@ -73,7 +73,7 @@ public final class PotionBuilder extends RegisterCore.Builder {
     public DeferredHolder<Potion, Potion> register() {
         DeferredHolder<Potion, Potion> potion = registerCore.potions.register(name, () -> new Potion(potionName, effects.toArray(MobEffectInstance[]::new)));
         brewingRegistrations.forEach(registration -> registration.accept(potion));
-        registerCore.addStackToGroup(group, () -> stackFactory.apply(potion));
+        registerCore.addStackToGroup(group == null ? registerCore.getCurrentGroupName() : group, () -> stackFactory.apply(potion));
         if (registerCore.runningDataGen()) {
             String display = this.en == null ? RegisterCore.getDisplayTitle(this.potionName) : this.en;
             registerCore.lang.put("item.minecraft.potion.effect." + potionName, display);

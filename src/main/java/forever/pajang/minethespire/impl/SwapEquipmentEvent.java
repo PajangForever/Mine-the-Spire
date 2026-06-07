@@ -5,7 +5,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.equipment.Equippable;
 import net.neoforged.bus.api.Event;
 import net.neoforged.neoforge.common.NeoForge;
-
+@Deprecated
 public class SwapEquipmentEvent extends Event {
     private final Player player;
     private final Equippable equippable;

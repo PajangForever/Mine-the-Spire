@@ -1,8 +1,10 @@
 package forever.pajang.minethespire.content.item;
 
+import forever.pajang.minethespire.compat.curios.CuriosCompat;
 import forever.pajang.minethespire.content.ModItems;
 import forever.pajang.minethespire.impl.BlockingValueHandler;
 import forever.pajang.minethespire.network.LizardTailActivationPayload;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -16,7 +18,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.Set;
 
-public class LizardTailItem extends Relic {
+public class LizardTailItem extends RelicItem {
     private static final DustParticleOptions ORANGE_PARTICLE = new DustParticleOptions(0xFF7A00, 1.35F);
     private static final int RESISTANCE_DURATION = 20;
     private static final int RESISTANCE_AMPLIFIER = 4;
@@ -26,20 +28,14 @@ public class LizardTailItem extends Relic {
     }
 
     public static boolean tryPreventDeath(LivingEntity entity) {
-        if (entity.level().isClientSide()) {
-            return false;
-        }
-
-        Set<ItemStack> tails = ModItems.LIZARD_TAIL.get().getFromCuriosOrInventory(entity);
-        if (tails.isEmpty()) {
-            return false;
-        } else {
-            applyProtection(entity, tails.iterator().next());
+        boolean consumed = ModItems.LIZARD_TAIL.get().tryConsumeFirstFromCuriosOrEquipment(entity);
+        if (consumed) {
+            applyProtection(entity);
             return true;
-        }
+        } else return false;
     }
 
-    private static void applyProtection(LivingEntity entity, ItemStack tail) {
+    private static void applyProtection(LivingEntity entity) {
         float maxHealth = entity.getMaxHealth();
         float blockingValue = maxHealth * 2.0F;
         entity.setHealth(maxHealth * 0.5F);
@@ -49,11 +45,15 @@ public class LizardTailItem extends Relic {
         if (entity instanceof ServerPlayer player) {
             PacketDistributor.sendToPlayer(player, LizardTailActivationPayload.INSTANCE);
         }
-        entity.level().addParticle(ORANGE_PARTICLE, entity.getX(), entity.getY() + entity.getBbHeight() * 0.5D, entity.getZ(), 0.0D, 0.0D, 0.0D);
         if (entity.level() instanceof ServerLevel level) {
-            level.sendParticles(ORANGE_PARTICLE,
-                    entity.getX(), entity.getY() + entity.getBbHeight() * 0.5D, entity.getZ(),
-                    140, 0.85D, entity.getBbHeight() * 0.55D, 0.85D, 0.18D);
+            level.sendParticles(ORANGE_PARTICLE, entity.getX(), entity.getY() + entity.getBbHeight() * 0.5D, entity.getZ(), 140, 0.85D, entity.getBbHeight() * 0.55D, 0.85D, 0.18D);
+        }
+    }
+
+    public static void displayLizardTailActivation() {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player != null) {
+            mc.gameRenderer.displayItemActivation(ModItems.LIZARD_TAIL.get().getDefaultInstance());
         }
     }
 }

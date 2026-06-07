@@ -3,6 +3,9 @@
     "#curios:player_like"
   ],
   "icon": "curios:slot/empty_curio_slot",
-  "order": 260,
-  "size": 4
+  "order": 999,
+  "size": 4,
+  "validators": [
+    "curios:tag"
+  ]
 }

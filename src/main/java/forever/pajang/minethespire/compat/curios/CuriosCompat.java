@@ -1,61 +1,91 @@
 package forever.pajang.minethespire.compat.curios;
 
+import forever.pajang.minethespire.MineTheSpire;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Item;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
+import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModList;
+import net.neoforged.neoforge.capabilities.EntityCapability;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
 public final class CuriosCompat {
-    public static final String CURIOS = "curios";
+    static final String CURIOS = "curios";
+    private static final boolean LOADED = ModList.get().isLoaded("curios");
+    static final Identifier ITEM_HANDLER = id("item_handler");
+    static final EntityCapability<ResourceHandler<ItemResource>, Void> CURIOS_ITEM_HANDLER =
+            EntityCapability.createVoid(ITEM_HANDLER, ResourceHandler.asClass());
 
-    private CuriosCompat() {
+    private CuriosCompat() {}
+
+    static Identifier id(String path) {
+        return Identifier.fromNamespaceAndPath(CURIOS, path);
     }
 
     public static boolean isLoaded() {
-        ModList modList = ModList.get();
-        return modList != null && modList.isLoaded(CURIOS);
+        return LOADED;
     }
 
-    public static void registerEventsIfLoaded() {
+    public static void registerEventsIfLoaded(IEventBus modEventBus) {
         if (isLoaded()) {
-            CuriosApiProxy.registerEvents();
+            NeoForge.EVENT_BUS.register(CuriosEvents.class);
+            modEventBus.register(CuriosEvents.ModBusEvent.class);
+            NeoForge.EVENT_BUS.register(PatchForCurios.class);
         }
-    }
-
-    public static boolean hasCurio(LivingEntity entity, Predicate<ItemStack> predicate) {
-        return isLoaded() && CuriosApiProxy.hasCurio(entity, predicate);
-    }
-
-    public static void forEachCurio(LivingEntity entity, Consumer<ItemStack> action) {
-        if (!isLoaded()) {
-            return;
-        }
-        CuriosApiProxy.forEachCurio(entity, action);
-    }
-
-    public static Set<ItemStack> getCurioItems(LivingEntity entity, Predicate<ItemStack> predicate) {
-        return isLoaded() ? CuriosApiProxy.getCurioItems(entity, predicate) : new HashSet<>();
-    }
-
-    public static boolean consumeFirstCurio(LivingEntity entity, Predicate<ItemStack> predicate) {
-        return isLoaded() && CuriosApiProxy.consumeFirstCurio(entity, predicate);
-    }
-
-    public static Optional<ItemStack> equipFirstMatchingCurio(Player player, ItemStack stack, Set<CuriosSlot> slots) {
-        return isLoaded() ? CuriosApiProxy.equipFirstMatchingCurio(player, stack, slots) : Optional.empty();
     }
 
     public static DataProvider createDataProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
         return CuriosDataGenerator.createDataProvider(output, lookupProvider);
+    }
+
+    public static Optional<ResourceHandler<ItemResource>> getCuriosItemHandler(LivingEntity entity) {
+        return Optional.ofNullable(entity.getCapability(CURIOS_ITEM_HANDLER));
+    }
+
+    public static boolean tryFindAny(LivingEntity entity, Predicate<Item> predicate) {
+        AtomicBoolean found = new AtomicBoolean(false);
+        getCuriosItemHandler(entity).ifPresent(handler -> {
+            int size = handler.size();
+            for (int i = 0; i < size; i++) {
+                ItemResource itemResource = handler.getResource(i);
+                if (predicate.test(itemResource.getItem())) {
+                    found.set(true);
+                    break;
+                }
+            }
+        });
+        return found.get();
+    }
+
+    public static boolean tryConsumeFirst(LivingEntity entity, Predicate<Item> predicate) {
+        AtomicBoolean found = new AtomicBoolean(false);
+        getCuriosItemHandler(entity).ifPresent(handler -> {
+            int size = handler.size();
+            for (int i = 0; i < size; i++) {
+                ItemResource itemResource = handler.getResource(i);
+                if (predicate.test(itemResource.getItem())) {
+                    try (Transaction transaction = Transaction.openRoot()) {
+                        int extracted = handler.extract(i, itemResource, 1, transaction);
+                        if (extracted == 1) {
+                            found.set(true);
+                            transaction.commit();
+                        }
+                    }
+                    break;
+                }
+            }
+        });
+        return found.get();
     }
 }

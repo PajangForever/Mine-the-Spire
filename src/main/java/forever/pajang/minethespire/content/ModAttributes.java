@@ -9,37 +9,22 @@ public final class ModAttributes {
     private static final RegisterCore REG = MineTheSpire.REG;
 
     public static final DeferredHolder<Attribute, Attribute> BLOCKING_VALUE = REG.attribute("blocking_value")
-            .defaultValue(0.0D)
-            .en("Blocking Value")
-            .register();
+            .max(256.0D).defaultValue(0.0D).register();
+
     public static final DeferredHolder<Attribute, Attribute> BLOCKING_VALUE_CHANGE_RATE = REG.attribute("blocking_value_change_rate")
-            .min(-1024.0D)
-            .max(1024.0D)
-            .defaultValue(-0.5D)
-            .en("Blocking Value Change Rate")
-            .register();
+            .min(-1024.0D).max(1024.0D).defaultValue(-0.5D).register();
+
     public static final DeferredHolder<Attribute, Attribute> FOCUS = REG.attribute("focus")
-            .min(-1024.0D)
-            .max(1024.0D)
-            .defaultValue(0.0D)
-            .en("Focus")
-            .register();
+            .min(-1024.0D).max(1024.0D).defaultValue(0.0D).register();
+
     public static final DeferredHolder<Attribute, Attribute> MAX_CHARGE_BALL = REG.attribute("max_charge_ball")
-            .min(0.0D)
-            .max(64.0D)
-            .defaultValue(1.0D)
-            .en("Max Charge Ball")
-            .register();
+            .min(0.0D).max(64.0D).defaultValue(1.0D).register();
+
     public static final DeferredHolder<Attribute, Attribute> LIGHTNING_CHARGE_BALL_ATTACK_RANGE = REG.attribute("charge_ball_attack_range")
-            .max(128.0D)
-            .defaultValue(8.0D)
-            .en("Charge Ball Attack Range")
-            .register();
+            .max(128.0D).defaultValue(8.0D).register();
+
     public static final DeferredHolder<Attribute, Attribute> LIGHTNING_CHARGE_BALL_ATTACK_SPEED = REG.attribute("charge_ball_attack_speed")
-            .max(64.0D)
-            .defaultValue(0.5D)
-            .en("Charge Ball Attack Speed")
-            .register();
+            .max(64.0D).defaultValue(0.5D).register();
 
     private ModAttributes() {
     }

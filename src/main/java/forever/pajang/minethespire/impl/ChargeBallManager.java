@@ -64,7 +64,7 @@ public final class ChargeBallManager {
     }
 
     public boolean tryCreateForCombatEntry() {
-        if (owner == null || owner.level().isClientSide() || !ModItems.CRACKED_CORE.get().isInCuriosOrEquipmentSlot(owner)) {
+        if (owner == null || owner.level().isClientSide() || !ModItems.CRACKED_CORE.get().tryFindAnyFromCuriosOrEquipment(owner)) {
             return false;
         }
 

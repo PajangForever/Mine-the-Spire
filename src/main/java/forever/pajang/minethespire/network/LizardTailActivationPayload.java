@@ -1,14 +1,16 @@
 package forever.pajang.minethespire.network;
 
 import forever.pajang.minethespire.MineTheSpire;
-import forever.pajang.minethespire.client.ClientEventListeners;
+import forever.pajang.minethespire.content.item.LizardTailItem;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-public record LizardTailActivationPayload() implements CustomPacketPayload {
-    public static final LizardTailActivationPayload INSTANCE = new LizardTailActivationPayload();
+public enum LizardTailActivationPayload implements CustomPacketPayload {
+
+    INSTANCE;
+
     public static final Type<LizardTailActivationPayload> TYPE = new Type<>(MineTheSpire.id("lizard_tail_activation"));
     public static final StreamCodec<RegistryFriendlyByteBuf, LizardTailActivationPayload> STREAM_CODEC = StreamCodec.unit(INSTANCE);
 
@@ -18,6 +20,6 @@ public record LizardTailActivationPayload() implements CustomPacketPayload {
     }
 
     public static void handle(LizardTailActivationPayload payload, IPayloadContext context) {
-        context.enqueueWork(ClientEventListeners::displayLizardTailActivation);
+        context.enqueueWork(LizardTailItem::displayLizardTailActivation);
     }
 }

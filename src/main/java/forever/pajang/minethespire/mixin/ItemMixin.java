@@ -1,14 +1,12 @@
 package forever.pajang.minethespire.mixin;
 
-import forever.pajang.minethespire.content.ModEnchantments;
 import forever.pajang.minethespire.register.RegisterCore;
 import net.minecraft.core.Holder;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.neoforged.neoforge.common.extensions.IItemExtension;
 import org.spongepowered.asm.mixin.Mixin;
-
+@Deprecated
 @Mixin(targets = "net.minecraft.world.item.Item")
 public abstract class ItemMixin implements IItemExtension {
 
@@ -19,13 +17,13 @@ public abstract class ItemMixin implements IItemExtension {
 
     @Override
     public void setDamage(ItemStack stack, int damage) {
-        if (EnchantmentHelper.has(stack, ModEnchantments.DATA_EXHAUST.get())) {
-            int damageBefore = stack.getDamageValue();
-            if (damage > damageBefore) {
-                IItemExtension.super.setDamage(stack, stack.getMaxDamage());
-                return;
-            }
-        }
+//        if (EnchantmentHelper.has(stack, ModEnchantments.DATA_EXHAUST.get())) {
+//            int damageBefore = stack.getDamageValue();
+//            if (damage > damageBefore) {
+//                IItemExtension.super.setDamage(stack, stack.getMaxDamage());
+//                return;
+//            }
+//        }
         IItemExtension.super.setDamage(stack, damage);
     }
 

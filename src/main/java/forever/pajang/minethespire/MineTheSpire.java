@@ -2,18 +2,13 @@ package forever.pajang.minethespire;
 
 import forever.pajang.minethespire.compat.curios.CuriosCompat;
 import forever.pajang.minethespire.compat.jade.BlockingValueJade;
-import forever.pajang.minethespire.content.ModAttachments;
-import forever.pajang.minethespire.content.ModAttributes;
-import forever.pajang.minethespire.content.ModDataComponents;
-import forever.pajang.minethespire.content.ModEffects;
-import forever.pajang.minethespire.content.ModEnchantments;
-import forever.pajang.minethespire.content.ModItems;
-import forever.pajang.minethespire.content.ModEntityTypes;
-import forever.pajang.minethespire.content.ModPotions;
+import forever.pajang.minethespire.content.*;
+//import forever.pajang.minethespire.content.ModEnchantments;
 import forever.pajang.minethespire.register.ModDataProviders;
 import forever.pajang.minethespire.register.RegisterCore;
 import forever.pajang.minethespire.network.ModNetworking;
 import net.minecraft.resources.Identifier;
+import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -41,12 +36,11 @@ public class MineTheSpire {
         ModAttributes.register();
         ModDataComponents.register();
         ModEnchantments.register();
-        CuriosCompat.registerEventsIfLoaded();
+        CuriosCompat.registerEventsIfLoaded(modEventBus);
         BlockingValueJade.register();
         ModDataProviders.register(REG);
         modEventBus.addListener(ModNetworking::register);
         REG.register(modEventBus);
-        NeoForge.EVENT_BUS.register(this);
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
@@ -57,10 +51,5 @@ public class MineTheSpire {
     @Deprecated
     public static void debug() {
         LOGGER.debug("Triggered!");
-    }
-
-    @SubscribeEvent
-    public void onServerStarting(ServerStartingEvent event) {
-        LOGGER.info("HELLO from server starting");
     }
 }
