@@ -1,8 +1,7 @@
 package forever.pajang.minethespire.content.item;
 
-import forever.pajang.minethespire.compat.curios.CuriosCompat;
 import forever.pajang.minethespire.content.ModItems;
-import forever.pajang.minethespire.impl.BlockingValueHandler;
+import forever.pajang.minethespire.content.specials.BlockingValueHandler;
 import forever.pajang.minethespire.network.LizardTailActivationPayload;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.particles.DustParticleOptions;
@@ -13,10 +12,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.PacketDistributor;
-
-import java.util.Set;
 
 public class LizardTailItem extends RelicItem {
     private static final DustParticleOptions ORANGE_PARTICLE = new DustParticleOptions(0xFF7A00, 1.35F);

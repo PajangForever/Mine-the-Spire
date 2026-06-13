@@ -1,7 +1,7 @@
 package forever.pajang.minethespire.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import forever.pajang.minethespire.content.entity.ChargeBallEntity;
+import forever.pajang.minethespire.content.entity.OrbEntity;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
@@ -12,7 +12,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 
-public class ChargeBallRenderer extends EntityRenderer<ChargeBallEntity, ChargeBallRenderState> {
+public class ChargeBallRenderer extends EntityRenderer<OrbEntity, ChargeBallRenderState> {
     public static final ModelLayerLocation LAYER_LOCATION = ChargeBallModel.LAYER_LOCATION;
 
     private final ChargeBallModel model;
@@ -23,7 +23,7 @@ public class ChargeBallRenderer extends EntityRenderer<ChargeBallEntity, ChargeB
     }
 
     @Override
-    protected int getBlockLightLevel(ChargeBallEntity entity, BlockPos blockPos) {
+    protected int getBlockLightLevel(OrbEntity entity, BlockPos blockPos) {
         return 15;
     }
 
@@ -41,7 +41,7 @@ public class ChargeBallRenderer extends EntityRenderer<ChargeBallEntity, ChargeB
     }
 
     @Override
-    public void extractRenderState(ChargeBallEntity entity, ChargeBallRenderState state, float partialTicks) {
+    public void extractRenderState(OrbEntity entity, ChargeBallRenderState state, float partialTicks) {
         super.extractRenderState(entity, state, partialTicks);
         state.animationState.startIfStopped(entity.tickCount);
         state.texture = entity.getRenderTexture();

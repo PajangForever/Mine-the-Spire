@@ -46,6 +46,8 @@ public class CuriosEvents {
                                 ((RelicItem) stack.getItem()).tickCurios(getStack(), (ServerLevel) slotContext.entity().level(), slotContext.entity(), null);
                             }
                         }
+
+
                     };
                 } else return () -> stack;
             }, RelicItem.RELICS.get().toArray(RelicItem[]::new));

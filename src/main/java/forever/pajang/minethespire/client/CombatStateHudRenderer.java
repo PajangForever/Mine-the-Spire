@@ -1,9 +1,8 @@
 package forever.pajang.minethespire.client;
 
-import forever.pajang.minethespire.Config;
+import forever.pajang.minethespire.ConfigTheSpire;
 import forever.pajang.minethespire.MineTheSpire;
-import forever.pajang.minethespire.content.ModAttachments;
-import forever.pajang.minethespire.impl.CombatState;
+import forever.pajang.minethespire.content.specials.CombatState;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -25,17 +24,17 @@ public final class CombatStateHudRenderer {
 
     public static void render(GuiGraphicsExtractor graphics, DeltaTracker partialTick) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.options.hideGui || !Config.SHOW_COMBAT_STATE_HUD.getAsBoolean()) {
+        if (mc.player == null || mc.options.hideGui || !ConfigTheSpire.SHOW_COMBAT_STATE.getAsBoolean()) {
             return;
         }
 
-        CombatState state = mc.player.getData(ModAttachments.COMBAT_STATE);
+        CombatState state = CombatState.get(mc.player);
         Identifier icon = state.inCombat() ? COMBAT : IDLE;
         int x = graphics.guiWidth() - ICON_SIZE - MARGIN;
         int y = graphics.guiHeight() - ICON_SIZE - MARGIN;
-        int seconds = (state.combatTicks() + 19) / 20;
+        int seconds = (state.getTickRemains() + 19) / 20;
         String secondsText = "Time: " + seconds + "s";
-        String hostilesText = "Hostiles: " + state.hostiles().size();
+        String hostilesText = "Hostiles: " + state.getHostileUUIDs().size();
         int textWidth = Math.max(mc.font.width(secondsText), mc.font.width(hostilesText));
         int textX = x - TEXT_GAP - textWidth;
         graphics.fill(RenderPipelines.GUI, textX - 2, y - 1, x - 1, y + ICON_SIZE + 1, BACKGROUND_COLOR);

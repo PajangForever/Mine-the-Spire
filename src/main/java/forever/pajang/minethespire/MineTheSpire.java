@@ -1,25 +1,20 @@
 package forever.pajang.minethespire;
 
 import forever.pajang.minethespire.compat.curios.CuriosCompat;
+import forever.pajang.minethespire.compat.curios.ModCuriosSlot;
 import forever.pajang.minethespire.compat.jade.BlockingValueJade;
 import forever.pajang.minethespire.content.*;
-//import forever.pajang.minethespire.content.ModEnchantments;
-import forever.pajang.minethespire.register.ModDataProviders;
+import forever.pajang.minethespire.impl.EventListeners;
 import forever.pajang.minethespire.register.RegisterCore;
 import forever.pajang.minethespire.network.ModNetworking;
 import net.minecraft.resources.Identifier;
-import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
 
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.ModContainer;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.server.ServerStartingEvent;
 
 @Mod(MineTheSpire.MODID)
 public class MineTheSpire {
@@ -36,12 +31,13 @@ public class MineTheSpire {
         ModAttributes.register();
         ModDataComponents.register();
         ModEnchantments.register();
+        ModCuriosSlot.register();
+        modEventBus.addListener(ModNetworking::register);
+        modEventBus.register(EventListeners.OnModBus.class);
         CuriosCompat.registerEventsIfLoaded(modEventBus);
         BlockingValueJade.register();
-        ModDataProviders.register(REG);
-        modEventBus.addListener(ModNetworking::register);
+        ConfigTheSpire.register(modContainer);
         REG.register(modEventBus);
-        modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
     public static Identifier id(String path) {

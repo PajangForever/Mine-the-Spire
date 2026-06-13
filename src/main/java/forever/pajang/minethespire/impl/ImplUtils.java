@@ -29,6 +29,7 @@ import net.neoforged.neoforge.server.ServerLifecycleHooks;
 //import java.util.ArrayList;
 //import java.util.Set;
 
+@Deprecated
 public class ImplUtils {
 
     public static MinecraftServer getCurrentServer() {

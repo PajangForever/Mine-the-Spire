@@ -1,6 +1,6 @@
 package forever.pajang.minethespire.content.item;
 
-import forever.pajang.minethespire.impl.BlockingValueHandler;
+import forever.pajang.minethespire.content.specials.BlockingValueHandler;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;

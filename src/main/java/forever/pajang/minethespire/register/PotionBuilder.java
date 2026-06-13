@@ -1,6 +1,7 @@
 package forever.pajang.minethespire.register;
 
 import net.minecraft.core.Holder;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.item.Item;
@@ -17,22 +18,17 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public final class PotionBuilder extends RegisterCore.Builder {
+public class PotionBuilder extends RegisterCore.Builder {
     private final List<MobEffectInstance> effects = new ArrayList<>();
-    private String potionName;
     private String group;
-    private String en = null;
-    private Function<Holder<Potion>, ItemStack> stackFactory = holder -> PotionContents.createItemStack(Items.POTION, holder);
-    private final List<Consumer<DeferredHolder<Potion, Potion>>> brewingRegistrations = new ArrayList<>();
+    private String en;
+    private Function<Holder<Potion>, ItemStack> normalFactory = _ -> ItemStack.EMPTY;
+    private Function<Holder<Potion>, ItemStack> splashFactory = _ -> ItemStack.EMPTY;
+    private Function<Holder<Potion>, ItemStack> lingeringFactory = _ -> ItemStack.EMPTY;
+    private final List<Consumer<DeferredHolder<Potion, Potion>>> brewing = new ArrayList<>();
 
     PotionBuilder(RegisterCore registerCore, String name) {
         super(registerCore, name);
-        this.potionName = name;
-    }
-
-    public PotionBuilder name(String potionName) {
-        this.potionName = potionName;
-        return this;
     }
 
     public PotionBuilder in(String group) {
@@ -55,30 +51,62 @@ public final class PotionBuilder extends RegisterCore.Builder {
         return this;
     }
 
-    public PotionBuilder stack(Function<Holder<Potion>, ItemStack> stackFactory) {
-        this.stackFactory = stackFactory;
+    public PotionBuilder addNormal(Function<Holder<Potion>, ItemStack> stackFactory) {
+        this.normalFactory = stackFactory;
+        return this;
+    }
+
+    public PotionBuilder addSplash(Function<Holder<Potion>, ItemStack> stackFactory) {
+        this.splashFactory = stackFactory;
+        return this;
+    }
+
+    public PotionBuilder addLingering(Function<Holder<Potion>, ItemStack> stackFactory) {
+        this.lingeringFactory = stackFactory;
+        return this;
+    }
+
+    public PotionBuilder addNormal() {
+        this.normalFactory = holder -> PotionContents.createItemStack(Items.POTION, holder);
+        return this;
+    }
+
+    public PotionBuilder addSplash() {
+        this.splashFactory = holder -> PotionContents.createItemStack(Items.SPLASH_POTION, holder);
+        return this;
+    }
+
+    public PotionBuilder addLingering() {
+        this.lingeringFactory = holder -> PotionContents.createItemStack(Items.LINGERING_POTION, holder);
+        return this;
+    }
+
+    public PotionBuilder brewStart(Item ingredient) {
+        brewing.add(potion -> registerCore.brewingRecipes.add(b -> b.addStartMix(ingredient, potion)));
         return this;
     }
 
     public PotionBuilder brewFrom(Holder<Potion> input, Item ingredient) {
-        brewingRegistrations.add(potion -> registerCore.brewingRecipes.add(event -> event.getBuilder().addMix(input, ingredient, potion)));
+        brewing.add(potion -> registerCore.brewingRecipes.add(b -> b.addMix(input, ingredient, potion)));
         return this;
     }
 
     public PotionBuilder brewingRecipe(Supplier<IBrewingRecipe> recipe) {
-        registerCore.brewingRecipes.add(event -> event.getBuilder().addRecipe(recipe.get()));
+        registerCore.brewingRecipes.add(b -> b.addRecipe(recipe.get()));
         return this;
     }
 
     public DeferredHolder<Potion, Potion> register() {
-        DeferredHolder<Potion, Potion> potion = registerCore.potions.register(name, () -> new Potion(potionName, effects.toArray(MobEffectInstance[]::new)));
-        brewingRegistrations.forEach(registration -> registration.accept(potion));
-        registerCore.addStackToGroup(group == null ? registerCore.getCurrentGroupName() : group, () -> stackFactory.apply(potion));
+        DeferredHolder<Potion, Potion> potion = registerCore.potions.register(name, () -> new Potion(name, effects.toArray(MobEffectInstance[]::new)));
+        brewing.forEach(registration -> registration.accept(potion));
+        registerCore.addToCreative(group, () -> normalFactory.apply(potion));
+        registerCore.addToCreative(group, () -> splashFactory.apply(potion));
+        registerCore.addToCreative(group, () -> lingeringFactory.apply(potion));
         if (registerCore.runningDataGen()) {
-            String display = this.en == null ? RegisterCore.getDisplayTitle(this.potionName) : this.en;
-            registerCore.lang.put("item.minecraft.potion.effect." + potionName, display);
-            registerCore.lang.put("item.minecraft.splash_potion.effect." + potionName, "Splash " + display);
-            registerCore.lang.put("item.minecraft.lingering_potion.effect." + potionName, "Lingering " + display);
+            String display = this.en == null ? RegisterCore.getDisplayTitle(this.name) : this.en;
+            registerCore.text("item.minecraft.potion.effect." + name).en(display).register();
+            registerCore.text("item.minecraft.splash_potion.effect." + name).en("Splash " + display).register();
+            registerCore.text("item.minecraft.lingering_potion.effect." + name).en("Lingering " + display).register();
         }
         return potion;
     }

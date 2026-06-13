@@ -1,7 +1,5 @@
 package forever.pajang.minethespire.register;
 
-import forever.pajang.minethespire.content.ModItems;
-import forever.pajang.minethespire.content.item.RelicItem;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.model.ItemModelUtils;
@@ -91,11 +89,7 @@ public class ItemBuilder<T extends Item> extends RegisterCore.Builder {
     public DeferredItem<T> register() {
         DeferredItem<T> item = registerCore.items.registerItem(name, constructor, properties);
         registerCore.registeredItems.add(item);
-        if (group == null) {
-            registerCore.addToGroup(registerCore.getCurrentGroupName(), item);
-        } else {
-            registerCore.addToGroup(group, item);
-        }
+        registerCore.addToCreative(group, item::toStack);
         if (registerCore.runningDataGen()){
             registerCore.itemModels.add(gen -> modelGen.accept(item, gen));
             registerCore.itemRecipes.add(recipeGen.apply(item));

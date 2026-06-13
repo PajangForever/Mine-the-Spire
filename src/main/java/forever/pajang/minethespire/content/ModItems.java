@@ -2,13 +2,10 @@ package forever.pajang.minethespire.content;
 
 import forever.pajang.minethespire.MineTheSpire;
 import forever.pajang.minethespire.content.item.*;
+import forever.pajang.minethespire.impl.ActivatableStatesAttribute;
 import forever.pajang.minethespire.register.RegisterCore;
 import net.minecraft.advancements.criterion.InventoryChangeTrigger;
-import net.minecraft.client.data.models.ItemModelGenerators;
-import net.minecraft.client.data.models.model.ItemModelUtils;
-import net.minecraft.client.data.models.model.ModelLocationUtils;
-import net.minecraft.client.data.models.model.ModelTemplates;
-import net.minecraft.client.data.models.model.TextureMapping;
+import net.minecraft.core.Holder;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
@@ -17,16 +14,9 @@ import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.food.FoodProperties;
-import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.item.AxeItem;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemUseAnimation;
-import net.minecraft.world.item.Rarity;
-import net.minecraft.world.item.ToolMaterial;
-import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.Consumable;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect;
@@ -35,7 +25,6 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.SmithingTransformRecipe;
 import net.neoforged.neoforge.registries.DeferredItem;
 
-import java.util.function.Supplier;
 import java.util.Optional;
 
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
@@ -45,23 +34,39 @@ public final class ModItems {
     private static final RegisterCore REG = MineTheSpire.REG;
 
     public static final DeferredItem<? extends RelicItem> LIZARD_TAIL = REG.item("lizard_tail", LizardTailItem::new)
-            .properties(p -> p.stacksTo(1).rarity(Rarity.UNCOMMON))
+            .properties(p -> p.stacksTo(1).rarity(Rarity.UNCOMMON)
+                    .attributes(ActivatableStatesAttribute.modifyItem(ModAttributes.ACTIVATABLE_STATES, MineTheSpire.id("lizard_tail_protection"), ModAttributes.State.LIZARD_TAIL.getIndex()).apply(ItemAttributeModifiers.builder()).build()))
             .defaultModel().register();
 
     public static final DeferredItem<? extends RelicItem> MANGO = REG.item("mango", RelicItem::new)
-            .properties(p -> p.stacksTo(1).rarity(Rarity.UNCOMMON).attributes(ItemAttributeModifiers.builder()
+            .properties(p -> p.stacksTo(1).rarity(Rarity.RARE).attributes(ItemAttributeModifiers.builder()
                     .add(Attributes.MAX_HEALTH, new AttributeModifier(MineTheSpire.id("mango_add_max_health"), 14.0, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.ANY).build()))
             .defaultModel().register();
 
+    public static final DeferredItem<? extends RelicItem> PEAR = REG.item("pear", RelicItem::new)
+            .properties(p -> p.stacksTo(1).rarity(Rarity.UNCOMMON).attributes(ItemAttributeModifiers.builder()
+                    .add(Attributes.MAX_HEALTH, new AttributeModifier(MineTheSpire.id("pear_add_max_health"), 10.0, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.ANY).build()))
+            .defaultModel().register();
+
+    public static final DeferredItem<? extends RelicItem> STRAWBERRY = REG.item("strawberry", RelicItem::new)
+            .properties(p -> p.stacksTo(1).rarity(Rarity.COMMON).attributes(ItemAttributeModifiers.builder()
+                    .add(Attributes.MAX_HEALTH, new AttributeModifier(MineTheSpire.id("strawberry_add_max_health"), 7.0, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.ANY).build()))
+            .defaultModel().register();
+
     public static final DeferredItem<? extends OriginalRelicItem> BURNING_BLOOD = REG.item("burning_blood", OriginalRelicItem::new)
-            .properties(p -> p.stacksTo(1).rarity(Rarity.RARE)).defaultModel().register();
+            .properties(p -> p.stacksTo(1).rarity(Rarity.RARE)
+                    .attributes(ActivatableStatesAttribute.modifyItem(ModAttributes.ACTIVATABLE_STATES, MineTheSpire.id("burning_blood_effect"), ModAttributes.State.BURNING_BLOOD.getIndex()).apply(ItemAttributeModifiers.builder()).build()))
+            .defaultModel().register();
 
     public static final DeferredItem<? extends OriginalRelicItem> RING_OF_THE_SNAKE = REG.item("ring_of_the_snake", OriginalRelicItem::new)
-            .properties(p -> p.stacksTo(1).rarity(Rarity.RARE)).defaultModel().register();
+            .properties(p -> p.stacksTo(1).rarity(Rarity.RARE)
+                    .attributes(ActivatableStatesAttribute.modifyItem(ModAttributes.ACTIVATABLE_STATES, MineTheSpire.id("ring_of_the_snake_effect"), ModAttributes.State.RING_OF_THE_SNAKE.getIndex()).apply(ItemAttributeModifiers.builder()).build()))
+            .defaultModel().register();
 
-    public static final DeferredItem<? extends CrackedCoreRelicItem> CRACKED_CORE = REG.item("cracked_core", CrackedCoreRelicItem::new)
-            .properties(p -> p.stacksTo(1).rarity(Rarity.RARE).attributes(ItemAttributeModifiers.builder()
-                    .add(ModAttributes.MAX_CHARGE_BALL, new AttributeModifier(MineTheSpire.id("cracked_core_add_max_balls"), 2.0, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.ANY).build()))
+    public static final DeferredItem<? extends OriginalRelicItem> CRACKED_CORE = REG.item("cracked_core", OriginalRelicItem::new)
+            .properties(p -> p.stacksTo(1).rarity(Rarity.RARE)
+                    .attributes(ActivatableStatesAttribute.modifyItem(ModAttributes.ACTIVATABLE_STATES, MineTheSpire.id("cracked_core_effect"), ModAttributes.State.CRACKED_CORE.getIndex()).apply(ItemAttributeModifiers.builder()
+                    .add(ModAttributes.MAX_ORB, new AttributeModifier(MineTheSpire.id("cracked_core_add_max_balls"), 2.0, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.ANY)).build()))
             .defaultModel().register();
 
     public static final DeferredItem<? extends Item> DARK_SHURIKEN = REG.item("dark_shuriken", DarkShurikenItem::new)
@@ -70,7 +75,7 @@ public final class ModItems {
             .register();
     public static final DeferredItem<? extends Item> BOUNCING_FLASK = REG.item("bouncing_flask", BouncingFlaskItem::new)
             .properties(p -> p.stacksTo(16).rarity(Rarity.UNCOMMON))
-            .flatModel(vanillaItemTexture("splash_potion")).register();
+            .defaultModel().register();
 
     public static final DeferredItem<? extends Item> SPIRIT = REG.simpleItem("spirit")
             .properties(p -> p.food(
@@ -94,8 +99,6 @@ public final class ModItems {
             .en("Spirit")
             .register();
 
-
-
     public static final DeferredItem<? extends Item> LIGHTNING_CHARGE_BALL = REG.item("lightning_charge_ball", LightningChargeBallItem::new)
             .properties(p -> p.stacksTo(16).rarity(Rarity.UNCOMMON))
             .defaultModel().en("Lightning Charge Ball")
@@ -116,19 +119,14 @@ public final class ModItems {
             .defaultModel().en("Plasma Charge Ball")
             .register();
 
-    public static final DeferredItem<? extends Item> DOUBLE_RELEASE = REG.item("double_release", DoubleReleaseItem::new)
-            .properties(p -> p.stacksTo(1).rarity(Rarity.RARE)).defaultModel().en("Double Release").register();
+    public static final DeferredItem<? extends Item> DUALCAST = REG.item("dualcast", DualcastItem::new)
+            .properties(p -> p.stacksTo(1).rarity(Rarity.RARE)).defaultModel().register();
 
     public static final DeferredItem<? extends Item> IMPERVIOUS = REG.item("impervious", ImperviousItem::new)
-            .properties(p -> p.stacksTo(16).rarity(Rarity.RARE).food(
+            .properties(p -> p.stacksTo(64).rarity(Rarity.RARE).food(
                     new FoodProperties(0, 0.0F, true),
-                    Consumable.builder()
-                            .animation(ItemUseAnimation.EAT)
-                            .sound(SoundEvents.GENERIC_EAT)
-                            .build()))
-            .flatModel(vanillaItemTexture("totem_of_undying"))
-            .en("Impervious")
-            .register();
+                    Consumable.builder().animation(ItemUseAnimation.TRIDENT).sound(Holder.direct(SoundEvents.AMETHYST_BLOCK_HIT)).build()))
+            .defaultModel().register();
 
     public static final DeferredItem<? extends Item> ENTRENCH = REG.item("entrench", EntrenchItem::new)
             .properties(p -> p.stacksTo(16).rarity(Rarity.UNCOMMON))
@@ -158,10 +156,6 @@ public final class ModItems {
 
     public static boolean isPainStrike(Item item) {
         return item == PAIN_STRIKE.get();
-    }
-
-    public static void cubeItemWithTexture(Supplier<? extends Item> i, Supplier<ItemModelGenerators> g, Identifier texture) {
-        g.get().itemModelOutput.accept(i.get(), ItemModelUtils.plainModel(ModelTemplates.CUBE_ALL.create(ModelLocationUtils.getModelLocation(i.get()), TextureMapping.cube(new Material(texture)), g.get().modelOutput)));
     }
 
     private static DeferredItem<? extends Item> painStrike(
@@ -196,4 +190,5 @@ public final class ModItems {
     private static Identifier vanillaItemTexture(String textureName) {
         return Identifier.withDefaultNamespace("item/" + textureName);
     }
+
 }

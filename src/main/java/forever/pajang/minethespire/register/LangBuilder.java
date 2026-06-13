@@ -8,6 +8,8 @@ import java.util.Arrays;
 public abstract class LangBuilder {
     protected final RegisterCore registerCore;
     protected String key;
+    protected boolean autoColor = true;
+    protected int color = 0xffffff;
     String en = null;
 
     protected LangBuilder(RegisterCore registerCore) {
@@ -19,7 +21,18 @@ public abstract class LangBuilder {
         return this;
     }
 
+    public LangBuilder color(int color) {
+        this.autoColor = false;
+        this.color = color;
+        return this;
+    }
+
     public abstract MutableComponent register();
+
+    public String registerAndGetKey() {
+        register();
+        return key;
+    }
 
     public static class FixedKey extends LangBuilder {
 
@@ -30,16 +43,15 @@ public abstract class LangBuilder {
 
         @Override
         public MutableComponent register() {
-            String key;
             if (en == null) en = this.key.replace(".", " ").trim();
             registerCore.lang.put(this.key, en);
-            return Component.translatable(this.key);
+            return Component.translatable(this.key).withColor(color);
         }
     }
 
     public static class CombinedKey extends LangBuilder {
         String type = "text";
-        String info = null;
+        String info = "";
 
         public CombinedKey(RegisterCore registerCore) {
             super(registerCore);
@@ -51,7 +63,6 @@ public abstract class LangBuilder {
         }
 
         public LangBuilder.CombinedKey info(String... info) {
-            this.info = "";
             Arrays.stream(info).forEach(s -> this.info += "." + s);
             return this;
         }
@@ -61,13 +72,19 @@ public abstract class LangBuilder {
         }
 
         @Override
+        public LangBuilder clone() {
+            return new LangBuilder.CombinedKey(registerCore).type(type).info(info).en(en);
+        }
+
+        @Override
         public MutableComponent register() {
-            String key;
-            if (info == null) info = getDefaultedInfo();
+            if (info == null || info.isEmpty()) info = getDefaultedInfo();
             if (en == null) en = info.replace(".", " ").trim();
             key = type + "." + registerCore.modid + info.replace('/', '.');
             registerCore.lang.put(key, en);
-            return Component.translatable(key);
+            if (autoColor) {
+                return Component.translatable(key);
+            } else return Component.translatable(key).withColor(color);
         }
     }
 }

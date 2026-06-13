@@ -9,6 +9,6 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 public class PlasmaChargeEffect extends MobEffect {
     public PlasmaChargeEffect(MobEffectCategory category, int color) {
         super(category, color);
-        this.addAttributeModifier(ModAttributes.LIGHTNING_CHARGE_BALL_ATTACK_SPEED, MineTheSpire.id("plasma_charge"), 0.5D, AttributeModifier.Operation.ADD_VALUE);
+        this.addAttributeModifier(ModAttributes.ORB_PASSIVE_SPEED, MineTheSpire.id("plasma_charge"), 0.5D, AttributeModifier.Operation.ADD_VALUE);
     }
 }

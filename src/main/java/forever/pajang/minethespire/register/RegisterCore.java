@@ -1,6 +1,7 @@
 package forever.pajang.minethespire.register;
 
 import forever.pajang.minethespire.MineTheSpire;
+import forever.pajang.minethespire.compat.curios.CuriosCompat;
 import forever.pajang.minethespire.compat.curios.CuriosSlotBuilder;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
@@ -10,6 +11,7 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
+import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.data.tags.EnchantmentTagsProvider;
 import net.minecraft.data.tags.EntityTypeTagsProvider;
 import net.minecraft.data.tags.TagAppender;
@@ -19,6 +21,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Unit;
+import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.LivingEntity;
@@ -30,6 +33,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.Potion;
+import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.ItemLike;
 import net.neoforged.bus.api.IEventBus;
@@ -38,8 +42,6 @@ import net.neoforged.neoforge.attachment.IAttachmentHolder;
 import net.neoforged.neoforge.common.data.ItemTagsProvider;
 import net.neoforged.neoforge.common.data.LanguageProvider;
 import net.neoforged.neoforge.data.loading.DatagenModLoader;
-import net.neoforged.neoforge.event.brewing.RegisterBrewingRecipesEvent;
-import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -76,24 +78,24 @@ public class RegisterCore {
     protected String currentGroupName;
     protected final Map<String, String> lang = new HashMap<>();
     protected final Map<Supplier<String>, String> deferredLang = new HashMap<>();
-    protected final Map<DeferredHolder<Attribute, ? extends Attribute>, Double> livingEntityAttributes = new LinkedHashMap<>();
+
+    protected final Map<DeferredHolder<Attribute, Attribute>, Predicate<EntityType<? extends LivingEntity>>> livingAttributes = new LinkedHashMap<>();
+
     protected final Set<Consumer<Supplier<ItemModelGenerators>>> itemModels = new HashSet<>();
     protected final Set<BiConsumer<HolderGetter<Item>, RecipeOutput>> itemRecipes = new LinkedHashSet<>();
     protected final Map<ResourceKey<Enchantment>, Function<EnchantmentBuilder.LookupGetter, Enchantment>> enchantments = new HashMap<>();
     protected final Set<LootTableBuilder> lootTables = new LinkedHashSet<>();
     protected final Set<LootModifierBuilder> lootModifiers = new LinkedHashSet<>();
-
     protected final Set<Supplier<? extends Item>> registeredItems = new LinkedHashSet<>();
+
     protected final Set<CuriosSlotBuilder> curiosSlots = new LinkedHashSet<>();
 
-    protected final List<Consumer<RegisterBrewingRecipesEvent>> brewingRecipes = new ArrayList<>();
-    protected final List<BrewingRecipeDisplay> brewingRecipeDisplays = new ArrayList<>();
+    protected final List<Consumer<PotionBrewing.Builder>> brewingRecipes = new ArrayList<>();
+
     protected final Map<TagKey<Item>, Set<DeferredItem<? extends Item>>> itemTags = new HashMap<>();
 
     protected final Map<TagKey<Enchantment>, Set<ResourceKey<Enchantment>>> enchantmentTags = new HashMap<>();
-
     protected final Map<TagKey<EntityType<?>>, Set<EntityType<?>>> entityTypeTags = new HashMap<>();
-
     protected RegisterCore(String modid) {
         this.modid = modid;
         this.groups = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, modid);
@@ -107,6 +109,7 @@ public class RegisterCore {
         this.dataComponents = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, modid);
         this.enchantmentComponents = DeferredRegister.createDataComponents(Registries.ENCHANTMENT_EFFECT_COMPONENT_TYPE, modid);
     }
+
     public boolean runningDataGen() {
         return runningDataGen;
     }
@@ -124,20 +127,22 @@ public class RegisterCore {
                 .title(this.text().type("group").info(name.toLowerCase().replace('_', '.')).en(getDisplayTitle(name)).register())
                 .icon(() -> Items.TROPICAL_FISH.asItem().getDefaultInstance());
     }
-
     public CreativeModeTab.Builder setGroup(String name) {
         currentGroupName = name;
         currentGroup = getGroup(name);
         return currentGroup;
     }
 
-    public void addToGroup(String name, Supplier<? extends ItemLike> item) {
-        getGroup(name);
-        groupItems.computeIfAbsent(name, _ -> new LinkedHashSet<>()).add(item);
+    public void addToCreative(String group, Supplier<ItemStack> stack) {
+        if (group == null) {
+            addToCreative(stack);
+        } else {
+            groupStacks.computeIfAbsent(group, _ -> new LinkedHashSet<>()).add(stack);
+        }
     }
 
-    public void addStackToGroup(String group, Supplier<ItemStack> stack) {
-        groupStacks.computeIfAbsent(group, _ -> new LinkedHashSet<>()).add(stack);
+    public void addToCreative(Supplier<ItemStack> stack) {
+        addToCreative(getCurrentGroupName(), stack);
     }
 
     protected CreativeModeTab.Builder getCurrentGroup() {
@@ -160,10 +165,6 @@ public class RegisterCore {
         return new LangBuilder.CombinedKey(this);
     }
 
-    public void addLang(String key, String displayName) {
-        addTranslation(lang, "minethespire.language." + key, displayName);
-    }
-
     public ItemBuilder<Item> simpleItem(String path) {
         return new ItemBuilder<>(this, path, Item::new);
     }
@@ -172,21 +173,31 @@ public class RegisterCore {
         return new ItemBuilder<>(this, path, constructor);
     }
 
+    public Identifier itemModel(String path, Consumer<ItemModelGenerators> model) {
+        Identifier id = id("item/" + path);
+        itemModels.add(gen -> model.accept(gen.get()));
+        return id;
+    }
+
     public <T extends Entity> DeferredHolder<EntityType<?>, EntityType<T>> entity(String path, EntityType.EntityFactory<T> factory, MobCategory category, UnaryOperator<EntityType.Builder<T>> builder) {
         text().type("entity").info(path).register();
         return entities.registerEntityType(path, factory, category, builder);
     }
 
-    public <T extends MobEffect> EffectBuilder<T> effect(String path, Supplier<T> constructor) {
+    public <T extends MobEffect> EffectBuilder<T> effect(String path, BiFunction<MobEffectCategory, Integer, T> constructor) {
         return new EffectBuilder<>(this, path, constructor);
-    }
-
-    public AttributeBuilder attribute(String path) {
-        return new AttributeBuilder(this, path);
     }
 
     public PotionBuilder potion(String path) {
         return new PotionBuilder(this, path);
+    }
+
+    public AttributeBuilder.Ranged attribute(String path) {
+        return new AttributeBuilder.Ranged(this, path);
+    }
+
+    public AttributeBuilder.StateSet stateSet(String path) {
+        return new AttributeBuilder.StateSet(this, path);
     }
 
     public EnchantmentBuilder enchantment(String path) {
@@ -209,10 +220,6 @@ public class RegisterCore {
         return enchantmentComponents.registerComponentType(path, b -> b.persistent(Unit.CODEC));
     }
 
-    public Map<TagKey<EntityType<?>>, Set<EntityType<?>>> getEntityTypeTags() {
-        return entityTypeTags;
-    }
-
     public <T> DeferredHolder<DataComponentType<?>, DataComponentType<T>> dataComponent(String path, UnaryOperator<DataComponentType.Builder<T>> operator) {
         return dataComponents.registerComponentType(path, operator);
     }
@@ -233,6 +240,10 @@ public class RegisterCore {
         return curiosSlots;
     }
 
+    public List<Consumer<PotionBrewing.Builder>> getBrewingRecipes() {
+        return brewingRecipes;
+    }
+
     public void register(IEventBus modEventBus) {
         blocks.register(modEventBus);
         items.register(modEventBus);
@@ -240,15 +251,13 @@ public class RegisterCore {
         effects.register(modEventBus);
         attributes.register(modEventBus);
         potions.register(modEventBus);
+        attachmentTypes.register(modEventBus);
+        dataComponents.register(modEventBus);
+        enchantmentComponents.register(modEventBus);
+
         for (Map.Entry<String, CreativeModeTab.Builder> entry : namedGroups.entrySet()) {
             String groupName = entry.getKey();
             entry.getValue().displayItems((parameters, output) -> {
-                groupItems.getOrDefault(groupName, Collections.emptySet()).stream()
-                        .map(Supplier::get)
-                        .map(ItemLike::asItem)
-                        .filter(item -> item != Items.AIR)
-                        .filter(item -> item.isEnabled(parameters.enabledFeatures()))
-                        .forEach(output::accept);
                 groupStacks.getOrDefault(groupName, Collections.emptySet()).stream()
                         .map(Supplier::get)
                         .filter(stack -> !stack.isEmpty())
@@ -258,9 +267,6 @@ public class RegisterCore {
             groups.register(entry.getKey(), entry.getValue()::build);
         }
         groups.register(modEventBus);
-        attachmentTypes.register(modEventBus);
-        dataComponents.register(modEventBus);
-        enchantmentComponents.register(modEventBus);
 
         if (runningDataGen) {
             registrySetBuilder.add(Registries.ENCHANTMENT, ctx ->
@@ -280,6 +286,23 @@ public class RegisterCore {
                 @Override
                 protected void registerModels(BlockModelGenerators blockGen, ItemModelGenerators itemGen) {
                     itemModels.forEach(c -> c.accept(() -> itemGen));
+                }
+            });
+            dataProviders.add((output, lookupProvider) -> new RecipeProvider.Runner(output, lookupProvider) {
+                @Override
+                protected RecipeProvider createRecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
+                    return new RecipeProvider(registries, output) {
+                        @Override
+                        protected void buildRecipes() {
+                            HolderGetter<Item> items = this.registries.lookupOrThrow(Registries.ITEM);
+                            itemRecipes.forEach(recipe -> recipe.accept(items, this.output));
+                        }
+                    };
+                }
+
+                @Override
+                public String getName() {
+                    return "Recipes for " + MineTheSpire.MODID;
                 }
             });
             dataProviders.add((out, lookup) -> new ItemTagsProvider(out, lookup, modid) {
@@ -306,33 +329,10 @@ public class RegisterCore {
                     });
                 }
             });
-        }
-    }
-
-    public void addEntityAttributes(EntityAttributeModificationEvent event) {
-        livingEntityAttributes.forEach((attribute, defaultValue) -> {
-            for (EntityType<? extends LivingEntity> entityType : event.getTypes()) {
-                if (!event.has(entityType, attribute)) {
-                    event.add(entityType, attribute, defaultValue);
-                }
+            if (CuriosCompat.isLoaded()) {
+                dataProviders.add(CuriosCompat::createDataProvider);
             }
-        });
-    }
-
-    public void registerBrewingRecipes(RegisterBrewingRecipesEvent event) {
-        brewingRecipes.forEach(recipe -> recipe.accept(event));
-    }
-
-    public void brewingRecipeDisplay(String uidPath, Supplier<ItemStack> ingredient, Supplier<ItemStack> input, Supplier<ItemStack> output) {
-        brewingRecipeDisplayVariants(uidPath, () -> List.of(ingredient.get()), () -> List.of(input.get()), output);
-    }
-
-    public void brewingRecipeDisplayVariants(String uidPath, Supplier<List<ItemStack>> ingredients, Supplier<List<ItemStack>> inputs, Supplier<ItemStack> output) {
-        brewingRecipeDisplays.add(new BrewingRecipeDisplay(uidPath, ingredients, inputs, output));
-    }
-
-    public List<BrewingRecipeDisplay> getBrewingRecipeDisplays() {
-        return List.copyOf(brewingRecipeDisplays);
+        }
     }
 
     private static void addTranslation(Map<String, String> translations, String key, String value) {
@@ -347,6 +347,16 @@ public class RegisterCore {
                 s.isEmpty() ? s : Character.toUpperCase(s.charAt(0)) + s.substring(1)).collect(Collectors.joining(" "));
     }
 
+    public void modifyEntityAttribute(List<EntityType<? extends LivingEntity>> livingTypes, BiConsumer<EntityType<? extends LivingEntity>, Holder<Attribute>> adder) {
+        livingAttributes.forEach((attribute, entities) -> {
+            for (EntityType<? extends LivingEntity> entityType : livingTypes) {
+                if (entities.test(entityType)) {
+                    adder.accept(entityType, attribute);
+                }
+            }
+        });
+    }
+
     public static abstract class Builder {
         protected final RegisterCore registerCore;
         protected final String name;
@@ -356,32 +366,6 @@ public class RegisterCore {
             this.name = name;
         }
 
+
     }
-
-    public record BrewingRecipeDisplay(
-            String uidPath,
-            Supplier<List<ItemStack>> ingredientSupplier,
-            Supplier<List<ItemStack>> inputSupplier,
-            Supplier<ItemStack> outputSupplier
-    ) {
-        public List<ItemStack> ingredients() {
-            return copyStacks(ingredientSupplier.get());
-        }
-
-        public List<ItemStack> inputs() {
-            return copyStacks(inputSupplier.get());
-        }
-
-        public ItemStack output() {
-            return outputSupplier.get().copy();
-        }
-
-        private static List<ItemStack> copyStacks(List<ItemStack> stacks) {
-            return stacks.stream()
-                    .filter(stack -> !stack.isEmpty())
-                    .map(ItemStack::copy)
-                    .toList();
-        }
-    }
-
 }

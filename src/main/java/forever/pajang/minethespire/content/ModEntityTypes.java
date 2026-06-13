@@ -17,17 +17,17 @@ public final class ModEntityTypes {
     public static final DeferredHolder<EntityType<?>, EntityType<BouncingFlaskProjectile>> BOUNCING_FLASK =
             REG.entity("bouncing_flask", BouncingFlaskProjectile::new, MobCategory.MISC,
                     b -> b.sized(0.25F, 0.25F).clientTrackingRange(8).updateInterval(1));
-    public static final DeferredHolder<EntityType<?>, EntityType<LightningChargeBallEntity>> LIGHTNING_CHARGE_BALL =
-            REG.entity("lightning_charge_ball", LightningChargeBallEntity::new, MobCategory.MISC,
+    public static final DeferredHolder<EntityType<?>, EntityType<LightningOrbEntity>> LIGHTNING_CHARGE_BALL =
+            REG.entity("lightning_charge_ball", LightningOrbEntity::new, MobCategory.MISC,
                     b -> b.sized(CHARGE_BALL_SIZE, CHARGE_BALL_SIZE).clientTrackingRange(8).updateInterval(1));
-    public static final DeferredHolder<EntityType<?>, EntityType<FrostChargeBallEntity>> FROST_CHARGE_BALL =
-            REG.entity("frost_charge_ball", FrostChargeBallEntity::new, MobCategory.MISC,
+    public static final DeferredHolder<EntityType<?>, EntityType<FrostOrbEntity>> FROST_CHARGE_BALL =
+            REG.entity("frost_charge_ball", FrostOrbEntity::new, MobCategory.MISC,
                     b -> b.sized(CHARGE_BALL_SIZE, CHARGE_BALL_SIZE).clientTrackingRange(8).updateInterval(1));
-    public static final DeferredHolder<EntityType<?>, EntityType<DarkChargeBallEntity>> DARK_CHARGE_BALL =
-            REG.entity("dark_charge_ball", DarkChargeBallEntity::new, MobCategory.MISC,
+    public static final DeferredHolder<EntityType<?>, EntityType<DarkOrbEntity>> DARK_CHARGE_BALL =
+            REG.entity("dark_charge_ball", DarkOrbEntity::new, MobCategory.MISC,
                     b -> b.sized(CHARGE_BALL_SIZE, CHARGE_BALL_SIZE).clientTrackingRange(8).updateInterval(1));
-    public static final DeferredHolder<EntityType<?>, EntityType<PlasmaChargeBallEntity>> PLASMA_CHARGE_BALL =
-            REG.entity("plasma_charge_ball", PlasmaChargeBallEntity::new, MobCategory.MISC,
+    public static final DeferredHolder<EntityType<?>, EntityType<PlasmaOrbEntity>> PLASMA_CHARGE_BALL =
+            REG.entity("plasma_charge_ball", PlasmaOrbEntity::new, MobCategory.MISC,
                     b -> b.sized(CHARGE_BALL_SIZE, CHARGE_BALL_SIZE).clientTrackingRange(8).updateInterval(1));
 
     public static void register() {

@@ -1,6 +1,6 @@
 package forever.pajang.minethespire.content.item;
 
-import forever.pajang.minethespire.impl.ChargeBallManager;
+import forever.pajang.minethespire.content.specials.OrbManager;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -33,6 +33,6 @@ public class LightningChargeBallItem extends Item {
     }
 
     protected boolean tryCreateChargeBall(Player player) {
-        return ChargeBallManager.get(player).tryCreateLightning();
+        return OrbManager.get(player).tryCreateLightning();
     }
 }

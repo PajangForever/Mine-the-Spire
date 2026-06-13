@@ -1,6 +1,6 @@
 package forever.pajang.minethespire.content.item;
 
-import forever.pajang.minethespire.impl.BlockingValueHandler;
+import forever.pajang.minethespire.content.specials.BlockingValueHandler;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;

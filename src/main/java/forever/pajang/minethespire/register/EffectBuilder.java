@@ -1,17 +1,37 @@
 package forever.pajang.minethespire.register;
 
 import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
 import net.neoforged.neoforge.registries.DeferredHolder;
+import snownee.jade.addon.vanilla.StatusEffectsProvider;
 
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 public final class EffectBuilder<T extends MobEffect> extends RegisterCore.Builder {
-    private final Supplier<T> constructor;
     private String en = null;
+    private int color;
+    private MobEffectCategory sentiment = MobEffectCategory.NEUTRAL;
+    private BiFunction<MobEffectCategory, Integer, T> constructor;
 
-    EffectBuilder(RegisterCore registerCore, String name, Supplier<T> constructor) {
+    EffectBuilder(RegisterCore registerCore, String name, BiFunction<MobEffectCategory, Integer, T> constructor) {
         super(registerCore, name);
         this.constructor = constructor;
+    }
+
+    public EffectBuilder<T> isBeneficial() {
+        sentiment = MobEffectCategory.BENEFICIAL;
+        return this;
+    }
+
+    public EffectBuilder<T> isHarmful() {
+        sentiment = MobEffectCategory.HARMFUL;
+        return this;
+    }
+
+    public EffectBuilder<T> color(int color) {
+        this.color = color;
+        return this;
     }
 
     public EffectBuilder<T> en(String en) {
@@ -20,7 +40,7 @@ public final class EffectBuilder<T extends MobEffect> extends RegisterCore.Build
     }
 
     public DeferredHolder<MobEffect, T> register() {
-        DeferredHolder<MobEffect, T> effect = registerCore.effects.register(name, constructor);
+        DeferredHolder<MobEffect, T> effect = registerCore.effects.register(name, () -> constructor.apply(sentiment, color));
         if (registerCore.runningDataGen()) {
             String display = this.en == null ? RegisterCore.getDisplayTitle(this.name) : this.en;
             registerCore.deferredLang.put(() -> effect.get().getDescriptionId(), display);

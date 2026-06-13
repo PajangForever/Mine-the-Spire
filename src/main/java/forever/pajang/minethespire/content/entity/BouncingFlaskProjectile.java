@@ -3,7 +3,7 @@ package forever.pajang.minethespire.content.entity;
 import forever.pajang.minethespire.content.ModEffects;
 import forever.pajang.minethespire.content.ModEntityTypes;
 import forever.pajang.minethespire.content.ModItems;
-import forever.pajang.minethespire.impl.CombatState;
+import forever.pajang.minethespire.content.specials.CombatState;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
