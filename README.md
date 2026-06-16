@@ -1,4 +1,4 @@
 
-This mod is still in development
+Mine-the-Spire
 =======
-No specific features or playable functions, but welcome to have a look.
+A mod for Minecraft, adding funny features from Slay the Spire
