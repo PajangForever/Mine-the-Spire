@@ -4,6 +4,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import forever.pajang.minethespire.MineTheSpire;
 import forever.pajang.minethespire.command.CombatStateCmd;
 import forever.pajang.minethespire.command.MindBloomForceClearCmd;
+import forever.pajang.minethespire.command.OrbsCmd;
 import forever.pajang.minethespire.compat.curios.CuriosCompat;
 import forever.pajang.minethespire.content.ModEffects;
 import forever.pajang.minethespire.content.effect.FairyBlessingEffect;
@@ -62,6 +63,7 @@ public final class EventListeners {
         LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal("mts");
         CombatStateCmd.register(root);
         MindBloomForceClearCmd.register(root);
+        OrbsCmd.register(root);
         event.getDispatcher().register(root);
 
     }

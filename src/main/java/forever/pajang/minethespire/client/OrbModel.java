@@ -12,12 +12,12 @@ import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 
-public class ChargeBallModel extends EntityModel<ChargeBallRenderState> {
-    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(MineTheSpire.id("charge_ball"), "main");
+public class OrbModel extends EntityModel<OrbRenderState> {
+    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(MineTheSpire.id("orb"), "main");
     private final ModelPart in;
     private final ModelPart out;
 
-    public ChargeBallModel(ModelPart root) {
+    public OrbModel(ModelPart root) {
         super(root, RenderTypes::entityTranslucent);
         this.in = root.getChild("in");
         this.out = root.getChild("out");
@@ -38,7 +38,7 @@ public class ChargeBallModel extends EntityModel<ChargeBallRenderState> {
     }
 
     @Override
-    public void setupAnim(ChargeBallRenderState state) {
+    public void setupAnim(OrbRenderState state) {
         super.setupAnim(state);
         float rotation = state.ageInTicks * 8.0F * ((float) Math.PI / 180.0F);
         this.in.yRot = -rotation;

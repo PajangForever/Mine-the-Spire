@@ -3,6 +3,7 @@ package forever.pajang.minethespire.content.item;
 import forever.pajang.minethespire.compat.curios.ModCuriosSlot;
 import forever.pajang.minethespire.content.ModAttributes;
 import forever.pajang.minethespire.content.ModEffects;
+import forever.pajang.minethespire.content.specials.OrbType;
 import forever.pajang.minethespire.impl.ActivatableStatesAttribute;
 import forever.pajang.minethespire.content.specials.OrbManager;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -55,11 +56,11 @@ public class OriginalRelicItem extends RelicItem {
             return false;
         }
 
-        if (orbManager.getCount() > 0) {
+        if (orbManager.getOrbCount() > 0) {
             return false;
         }
 
-        return orbManager.tryCreateLightning();
+        return orbManager.tryChannel(OrbType.Lightning);
     }
 
     @Override

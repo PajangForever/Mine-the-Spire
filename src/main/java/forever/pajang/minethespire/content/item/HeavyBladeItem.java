@@ -30,11 +30,11 @@ public class HeavyBladeItem extends Item {
     public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay tooltipDisplay, Consumer<Component> tooltipAdder, TooltipFlag flag) {
         super.appendHoverText(stack, context, tooltipDisplay, tooltipAdder, flag);
 
-        tooltipAdder.accept(Component.translatable("tooltip.minethespire.heavy_blade.extra_prefix").withStyle(ChatFormatting.DARK_BLUE)
-                .append(Component.translatable("tooltip.minethespire.heavy_blade.strength").withStyle(ChatFormatting.DARK_RED))
-                .append(Component.translatable("tooltip.minethespire.heavy_blade.extra_suffix").withStyle(ChatFormatting.DARK_BLUE)));
-        tooltipAdder.accept(Component.literal("+" + formatBonus(getStrengthBonus(context.player()))).withStyle(ChatFormatting.DARK_BLUE)
-                .append(Component.translatable("tooltip.minethespire.heavy_blade.attack_damage").withStyle(ChatFormatting.DARK_BLUE)));
+        tooltipAdder.accept(Component.translatable("tooltip.minethespire.heavy_blade.extra_prefix").withStyle(ChatFormatting.BLUE)
+                .append(Component.translatable("tooltip.minethespire.heavy_blade.strength").withStyle(ChatFormatting.BLUE))
+                .append(Component.translatable("tooltip.minethespire.heavy_blade.extra_suffix").withStyle(ChatFormatting.BLUE)));
+        tooltipAdder.accept(Component.literal("+" + formatBonus(getStrengthBonus(context.player()))).withStyle(ChatFormatting.GREEN)
+                .append(Component.translatable("tooltip.minethespire.heavy_blade.attack_damage").withStyle(ChatFormatting.GREEN)));
     }
 
     public static void tickStrengthModifier(LivingEntity holder) {

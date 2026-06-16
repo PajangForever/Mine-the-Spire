@@ -48,18 +48,4 @@ public final class OrbSequence extends Sequence<UUID> {
         addElement(uuid);
     }
 
-//    public void encode(RegistryFriendlyByteBuf buf) {
-//        buf.writeVarInt(size());
-//        forEach(buf::writeUUID);
-//    }
-//
-//    public static OrbSequence decode(RegistryFriendlyByteBuf buf) {
-//        int size = buf.readVarInt();
-//        java.util.ArrayList<UUID> ids = new java.util.ArrayList<>(size);
-//        for (int i = 0; i < size; i++) {
-//            ids.add(buf.readUUID());
-//        }
-//        return new OrbSequence(ids);
-
-//    }
 }

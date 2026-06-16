@@ -81,8 +81,8 @@ public final class ModPotions {
         String name = "fairy_potion";
         REG.itemModel(name, g -> {
             Identifier texture = REG.id("item/" + name);
-            Identifier id = ModelTemplates.FLAT_ITEM.create(texture, TextureMapping.layer0(new Material(texture)), g.modelOutput);
-            g.itemModelOutput.register(REG.id(name), new ClientItem(ItemModelUtils.plainModel(id), ClientItem.Properties.DEFAULT));
+            Identifier id = ModelTemplates.FLAT_ITEM.create(texture, TextureMapping.layer0(new Material(texture)), g.get().modelOutput);
+            g.get().itemModelOutput.register(REG.id(name), new ClientItem(ItemModelUtils.plainModel(id), ClientItem.Properties.DEFAULT));
         });
     }
 

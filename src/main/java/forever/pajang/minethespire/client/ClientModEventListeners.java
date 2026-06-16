@@ -21,15 +21,15 @@ public final class ClientModEventListeners {
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(ModEntityTypes.DARK_SHURIKEN_PROJECTILE.get(), DarkShurikenProjectileRenderer::new);
         event.registerEntityRenderer(ModEntityTypes.BOUNCING_FLASK.get(), ThrownItemRenderer::new);
-        event.registerEntityRenderer(ModEntityTypes.LIGHTNING_CHARGE_BALL.get(), ChargeBallRenderer::new);
-        event.registerEntityRenderer(ModEntityTypes.FROST_CHARGE_BALL.get(), ChargeBallRenderer::new);
-        event.registerEntityRenderer(ModEntityTypes.DARK_CHARGE_BALL.get(), ChargeBallRenderer::new);
-        event.registerEntityRenderer(ModEntityTypes.PLASMA_CHARGE_BALL.get(), ChargeBallRenderer::new);
+        event.registerEntityRenderer(ModEntityTypes.LIGHTNING_CHARGE_BALL.get(), OrbRenderer::new);
+        event.registerEntityRenderer(ModEntityTypes.FROST_CHARGE_BALL.get(), OrbRenderer::new);
+        event.registerEntityRenderer(ModEntityTypes.DARK_CHARGE_BALL.get(), OrbRenderer::new);
+        event.registerEntityRenderer(ModEntityTypes.PLASMA_CHARGE_BALL.get(), OrbRenderer::new);
     }
 
     @SubscribeEvent
     public static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
-        event.registerLayerDefinition(ChargeBallRenderer.LAYER_LOCATION, ChargeBallModel::createBodyLayer);
+        event.registerLayerDefinition(OrbRenderer.LAYER_LOCATION, OrbModel::createBodyLayer);
     }
 
     @SubscribeEvent

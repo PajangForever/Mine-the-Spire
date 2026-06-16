@@ -41,7 +41,7 @@ public class DualcastItem extends Item {
         }
 
         if (!level.isClientSide()) {
-            if (!OrbManager.get(player).tryDualcast()) {
+            if (!OrbManager.get(player).dualcastFirst()) {
                 level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.DISPENSER_FAIL, SoundSource.PLAYERS, 0.45F, 1.0F);
                 return InteractionResult.FAIL;
             }

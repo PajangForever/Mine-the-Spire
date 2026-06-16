@@ -1,9 +1,8 @@
 package forever.pajang.minethespire.content.entity;
 
-import forever.pajang.minethespire.MineTheSpire;
 import forever.pajang.minethespire.content.ModAttributes;
 import forever.pajang.minethespire.content.specials.OrbManager;
-import net.minecraft.core.component.DataComponents;
+import forever.pajang.minethespire.content.specials.OrbType;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -13,36 +12,27 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityReference;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Optional;
-import java.util.UUID;
 
 public abstract class OrbEntity extends Entity {
-    private static final EntityDataAccessor<Boolean> ACTIVATED = SynchedEntityData.defineId(OrbEntity.class, EntityDataSerializers.BOOLEAN);
-    private static final EntityDataAccessor<Boolean> SLOT_EXEMPT = SynchedEntityData.defineId(OrbEntity.class, EntityDataSerializers.BOOLEAN);
-    private static final double ORBIT_RADIUS = 1.0D;
-    private static final Vec3 WORLD_UP = new Vec3(0.0D, 1.0D, 0.0D);
     private static final double OWNER_MAX_DISTANCE = 48.0D;
-    private static final int ACTIVATED_MAX_LIFETIME = 10 * 20;
-
-    private UUID ownerUuid;
-    private boolean removedFromOwnerManager;
-    private long birthGameTime;
-    private int activatedTicks;
+    private static final int EVOKED_MAX_LIFETIME = 10 * 20;
+    private static final EntityDataAccessor<Integer> EVOKE_TICKS = SynchedEntityData.defineId(OrbEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Optional<EntityReference<LivingEntity>>> OWNER = SynchedEntityData.defineId(OrbEntity.class, EntityDataSerializers.OPTIONAL_LIVING_ENTITY_REFERENCE);
+    private static final EntityDataAccessor<Optional<EntityReference<LivingEntity>>> TARGET = SynchedEntityData.defineId(OrbEntity.class, EntityDataSerializers.OPTIONAL_LIVING_ENTITY_REFERENCE);
 
     protected OrbEntity(EntityType<? extends OrbEntity> entityType, Level level) {
         super(entityType, level);
@@ -56,176 +46,144 @@ public abstract class OrbEntity extends Entity {
     }
 
     public void setOwner(LivingEntity owner) {
-        this.ownerUuid = owner.getUUID();
+        getEntityData().set(OWNER, Optional.of(EntityReference.of(owner)));
     }
 
-    public void setBirthGameTime(long birthGameTime) {
-        this.birthGameTime = birthGameTime;
+    public boolean isOwnedBy(LivingEntity entity) {
+        Optional<LivingEntity> opt = getOwner();
+        return opt.isPresent() && opt.get() == entity;
     }
 
-    public boolean isOwnedBy(LivingEntity owner) {
-        return ownerUuid != null && ownerUuid.equals(owner.getUUID());
+    protected Optional<LivingEntity> getOwner() {
+        return getEntityData().get(OWNER).map(reference -> EntityReference.getLivingEntity(reference, level()));
     }
 
-    public boolean isActivated() {
-        return entityData.get(ACTIVATED);
+    public boolean isEvoked() {
+        return getEvokedTicks() >= 0;
     }
 
-    public boolean countsTowardLimit() {
-        return !entityData.get(SLOT_EXEMPT);
+    public Optional<LivingEntity> getTarget() {
+        return getEntityData().get(TARGET)
+                .map(reference -> EntityReference.getLivingEntity(reference, level()));
     }
 
-    public void setSlotExempt(boolean slotExempt) {
-        entityData.set(SLOT_EXEMPT, slotExempt);
+    public void setTarget(LivingEntity target) {
+        getEntityData().set(TARGET, target == null ? Optional.empty() : Optional.of(EntityReference.of(target)));
     }
 
-    public Identifier getRenderTexture() {
-        return isActivated() ? activatedTexture() : idleTexture();
-    }
-
-    public ItemStack createRenderStack() {
-        ItemStack baseStack = baseRenderStack();
-        if (!isActivated()) {
-            return baseStack;
-        }
-        ItemStack activatedStack = baseStack.copy();
-        activatedStack.set(DataComponents.ITEM_MODEL, MineTheSpire.id(activatedModelPath()));
-        return activatedStack;
-    }
-
-    public Component getChargeText() {
-        return null;
-    }
+    public abstract OrbType getOrbType();
 
     public abstract OrbEntity createCopy(LivingEntity owner);
 
-    public final void applyScheduledEffectFromManager() {
-        if (!level().isClientSide() && !isRemoved() && !isActivated()) {
-            applyScheduledEffect();
-        }
-    }
+    public void passiveAction(ServerLevel serverLevel, LivingEntity owner){
+    };
 
-    public final void activateFromManager() {
-        if (!level().isClientSide() && !isRemoved() && !isActivated()) {
-            markActivated();
-            activateEffect();
-        }
-    }
+    public void evokeAction(ServerLevel serverLevel, LivingEntity owner) {
+        setEvokedTicks(0);
+    };
 
-    protected abstract void tickOwned(LivingEntity owner, OrbManager manager);
+    protected abstract Identifier normalTexture();
 
-    protected abstract void applyScheduledEffect();
-
-    protected abstract void activateEffect();
-
-    protected abstract ItemStack baseRenderStack();
-
-    protected abstract String activatedModelPath();
-
-    protected abstract Identifier idleTexture();
-
-    protected abstract Identifier activatedTexture();
-
-    @Override
-    protected void defineSynchedData(SynchedEntityData.Builder builder) {
-        builder.define(ACTIVATED, false);
-        builder.define(SLOT_EXEMPT, false);
-    }
+    protected abstract Identifier evokeTexture();
 
     @Override
     public void tick() {
         super.tick();
-        noPhysics = true;
-        setNoGravity(true);
+        Optional<LivingEntity> ownerOpt = getOwner();
+        if (!level().isClientSide()){
+            ServerLevel serverLevel = (ServerLevel) level();
+            if (ownerOpt.isEmpty() || isInvalid(ownerOpt.get())) {
+                dissipate();
+                return;
+            }
+            LivingEntity owner = ownerOpt.get();
+            if (isEvoked()) {
+                tickEvoked(serverLevel, owner);
+            } else {
+                tickNormal(serverLevel, owner);
+            }
+            setPos(position().add(getDeltaMovement()));
+        } else {
+            setPos(position().add(getDeltaMovement()));
+        }
+//        else {
+//            if (ownerOpt.isEmpty()) return;
+//            if (isEvoked()) {
+//                moveEvokedPath(OrbManager.get(ownerOpt.get()));
+//            } else {
+//                moveOrbit(OrbManager.get(ownerOpt.get()));
+//            }
+//        }
+//        setPos(position().add(getDeltaMovement()));
 
-        if (level().isClientSide()) {
+    }
+
+    protected void tickNormal(ServerLevel serverLevel, LivingEntity owner) {
+        OrbManager manager = OrbManager.get(owner);
+        if (!manager.containsOrb(this)) {
+            dissipate();
             return;
         }
+        moveOrbit(manager);
+        if (manager.getPassiveAction(this)) {
+            if (!isEvoked()) {
+                passiveAction(serverLevel, owner);
+            }
+        }
+    }
 
-        LivingEntity owner = getOwner();
+    protected void moveOrbit(OrbManager manager) {
+        Vec3 orbitPos = manager.getOrbOrbit(this);
+        setDeltaMovement(orbitPos.subtract(position()).scale(0.8d));
+    }
+
+    protected void tickEvoked(ServerLevel serverLevel, LivingEntity owner) {
+        setEvokedTicks(getEvokedTicks() + 1);
+        moveEvokedPath(OrbManager.get(owner));
+    }
+
+    protected void moveEvokedPath(OrbManager manager) {
+
+    }
+
+    protected boolean isInvalid(LivingEntity owner) {
+        if (isRemoved() || !isAlive()) {
+            return true;
+        }
         if (owner == null || owner.level() != level() || owner.isRemoved() || !owner.isAlive() || distanceToSqr(owner) > OWNER_MAX_DISTANCE * OWNER_MAX_DISTANCE) {
-            discard();
-            return;
+            return true;
+        }
+        if (isEvoked() && getEvokedTicks() > EVOKED_MAX_LIFETIME) {
+            return true;
         }
 
-        OrbManager manager = OrbManager.get(owner);
-        if (isActivated() && ++activatedTicks >= ACTIVATED_MAX_LIFETIME) {
-            discard();
-            return;
-        }
-        if (!isActivated() && !manager.containsEntity(this)) {
-            discard();
-            return;
-        }
-        if (!isRemoved()) {
-            tickOwned(owner, manager);
-        }
+        return false;
     }
 
-    protected void tickOrbit(LivingEntity owner) {
-        OrbManager manager = OrbManager.get(owner);
-        int count = Math.max(1, manager.getCount());
-        int index = manager.getIndex(this);
-        if (index < 0) {
-            index = Math.floorMod(getId(), count);
-        }
-        float orbitPhase = (index * Mth.TWO_PI / count) + tickCount * 0.08F;
-        double radius = ORBIT_RADIUS + 0.15D * Mth.sin((tickCount + getId()) * 0.07F);
-        Vec3 normal = owner.getLookAngle().normalize();
-        Vec3 right = normal.cross(WORLD_UP);
-        if (right.lengthSqr() < 1.0E-4D) {
-            right = Vec3.directionFromRotation(0.0F, owner.getYRot() + 90.0F);
-        }
-        else {
-            right = right.normalize();
-        }
-        Vec3 up = right.cross(normal).normalize();
-        Vec3 center = owner.position().add(0.0D, 1.05D, 0.0D);
-        Vec3 orbitOffset = right.scale(Mth.cos(orbitPhase) * radius).add(up.scale(Mth.sin(orbitPhase) * radius));
-        Vec3 targetPos = center.add(orbitOffset);
-        Vec3 movement = targetPos.subtract(position()).scale(0.5d);
-        move(MoverType.SELF, movement);
-//        setDeltaMovement(movement);
+    public float focusAdjusted(LivingEntity owner, float base) {
+        return Math.max(0.0F, base + (float) owner.getAttributeValue(ModAttributes.FOCUS));
     }
 
-    protected void markActivated() {
-        entityData.set(ACTIVATED, true);
-        activatedTicks = 0;
-        removeFromOwnerManager();
-    }
-
-    protected LivingEntity getOwner() {
-        if (ownerUuid == null) {
-            return null;
-        }
-
-        Entity entity = level().getEntityInAnyDimension(ownerUuid);
-        return entity instanceof LivingEntity living ? living : null;
-    }
-
-    protected boolean isOwnedEntity(Entity entity) {
-        return entity instanceof LivingEntity living && isOwnedBy(living);
-    }
-
-    protected float focusAdjustedAmount(LivingEntity owner, float baseAmount) {
-        return Math.max(0.0F, baseAmount + (float) owner.getAttributeValue(ModAttributes.FOCUS));
-    }
-
-    protected void dissipate(ServerLevel level) {
-        Vec3 pos = position().add(0.0D, getBbHeight() * 0.5D, 0.0D);
+    public void dissipate() {
+        if (level().isClientSide()) return;
+        ServerLevel level = (ServerLevel) level();
+        Vec3 pos = position();
         level.playSound(null, getX(), getY(), getZ(), SoundEvents.AMETHYST_BLOCK_BREAK, SoundSource.PLAYERS, 0.75F, 1.5F);
-        level.sendParticles(ParticleTypes.ELECTRIC_SPARK, pos.x, pos.y, pos.z, 40, 0.35D, 0.35D, 0.35D, 0.08D);
-        level.sendParticles(ParticleTypes.POOF, pos.x, pos.y, pos.z, 18, 0.25D, 0.25D, 0.25D, 0.01D);
+        level.sendParticles(ParticleTypes.WHITE_SMOKE, pos.x, pos.y, pos.z, 20, 0.35D, 0.35D, 0.35D, 0.08D);
+        discard();
+    }
+
+    public Identifier getRenderTexture() {
+        return isEvoked() ? evokeTexture() : normalTexture();
+    }
+
+    public Component getDisplayTag() {
+        return null;
     }
 
     @Override
     public InteractionResult interact(Player player, InteractionHand hand, Vec3 location) {
         return InteractionResult.PASS;
-    }
-
-    @Override
-    public boolean isPickable() {
-        return false;
     }
 
     @Override
@@ -240,16 +198,11 @@ public abstract class OrbEntity extends Entity {
 
     @Override
     public boolean skipAttackInteraction(Entity entity) {
-        return false;
+        return true;
     }
 
     @Override
     public boolean hurtServer(ServerLevel level, DamageSource damageSource, float damage) {
-        return false;
-    }
-
-    @Override
-    public boolean canBeCollidedWith(Entity entity) {
         return false;
     }
 
@@ -259,61 +212,52 @@ public abstract class OrbEntity extends Entity {
     }
 
     @Override
-    public boolean isPushable() {
-        return false;
-    }
-
-    @Override
-    public void remove(RemovalReason reason) {
-        removeFromOwnerManager();
-        super.remove(reason);
-    }
-
-    @Override
-    protected void readAdditionalSaveData(ValueInput input) {
-        Optional<String> owner = input.getString("Owner");
-        owner.ifPresent(value -> {
-            try {
-                ownerUuid = UUID.fromString(value);
-            }
-            catch (IllegalArgumentException ignored) {
-                ownerUuid = null;
-            }
+    public void onRemoval(RemovalReason reason) {
+        getOwner().ifPresent(owner -> {
+            OrbManager manager = OrbManager.get(owner);
+            manager.removeOrb(this);
         });
-        entityData.set(ACTIVATED, input.getBooleanOr("Activated", false));
-        entityData.set(SLOT_EXEMPT, input.getBooleanOr("SlotExempt", false));
-        birthGameTime = input.getLongOr("BirthGameTime", 0L);
-        activatedTicks = input.getIntOr("ActivatedTicks", 0);
-        readChargeBallSaveData(input);
+        super.onRemoval(reason);
     }
 
     @Override
-    protected void addAdditionalSaveData(ValueOutput output) {
-        if (ownerUuid != null) {
-            output.putString("Owner", ownerUuid.toString());
-        }
-        output.putBoolean("Activated", entityData.get(ACTIVATED));
-        output.putBoolean("SlotExempt", entityData.get(SLOT_EXEMPT));
-        output.putLong("BirthGameTime", birthGameTime);
-        output.putInt("ActivatedTicks", activatedTicks);
-        addChargeBallSaveData(output);
+    protected final void readAdditionalSaveData(ValueInput input) {
+        getEntityData().set(OWNER, Optional.ofNullable(EntityReference.read(input, "Owner")));
+        getEntityData().set(TARGET, Optional.ofNullable(EntityReference.read(input, "EvokedTarget")));
+        setEvokedTicks(input.getIntOr("EvokeTicks", -1));
+        readOrbSaveData(input);
     }
 
-    protected void readChargeBallSaveData(ValueInput input) {
+    @Override
+    protected final void addAdditionalSaveData(ValueOutput output) {
+        getEntityData().get(OWNER).ifPresent(reference -> EntityReference.store(reference, output, "Owner"));
+        getEntityData().get(TARGET).ifPresent(reference -> EntityReference.store(reference, output, "EvokedTarget"));
+        output.putInt("EvokeTicks", getEvokedTicks());
+        addOrbSaveData(output);
     }
 
-    protected void addChargeBallSaveData(ValueOutput output) {
+    @Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        builder.define(EVOKE_TICKS, -1);
+        builder.define(OWNER, Optional.empty());
+        builder.define(TARGET, Optional.empty());
+        syncOrbData(builder);
     }
 
-    private void removeFromOwnerManager() {
-        if (removedFromOwnerManager || level().isClientSide()) {
-            return;
-        }
+    public int getEvokedTicks() {
+        return getEntityData().get(EVOKE_TICKS);
+    }
 
-        LivingEntity owner = getOwner();
-        if (owner != null) {
-            OrbManager.get(owner).removeEntity(this);
-        }
-        removedFromOwnerManager = true;
+    public void setEvokedTicks(int ticks) {
+        getEntityData().set(EVOKE_TICKS, ticks);
+    }
+
+    protected void readOrbSaveData(ValueInput input) {
+    }
+
+    protected void addOrbSaveData(ValueOutput output) {
+    }
+
+    protected void syncOrbData(SynchedEntityData.Builder builder) {
     }
 }

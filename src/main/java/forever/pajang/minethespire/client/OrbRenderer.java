@@ -12,14 +12,14 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 
-public class ChargeBallRenderer extends EntityRenderer<OrbEntity, ChargeBallRenderState> {
-    public static final ModelLayerLocation LAYER_LOCATION = ChargeBallModel.LAYER_LOCATION;
+public class OrbRenderer extends EntityRenderer<OrbEntity, OrbRenderState> {
+    public static final ModelLayerLocation LAYER_LOCATION = OrbModel.LAYER_LOCATION;
 
-    private final ChargeBallModel model;
+    private final OrbModel model;
 
-    public ChargeBallRenderer(EntityRendererProvider.Context context) {
+    public OrbRenderer(EntityRendererProvider.Context context) {
         super(context);
-        this.model = new ChargeBallModel(context.bakeLayer(LAYER_LOCATION));
+        this.model = new OrbModel(context.bakeLayer(LAYER_LOCATION));
     }
 
     @Override
@@ -28,7 +28,7 @@ public class ChargeBallRenderer extends EntityRenderer<OrbEntity, ChargeBallRend
     }
 
     @Override
-    public void submit(ChargeBallRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
+    public void submit(OrbRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
         submitNodeCollector.submitModel(this.model, state, poseStack,
                 RenderTypes.breezeWind(state.texture, this.xOffset(state.ageInTicks) % 1.0F, 0.0F),
                 state.lightCoords, OverlayTexture.NO_OVERLAY, state.outlineColor, null);
@@ -36,19 +36,19 @@ public class ChargeBallRenderer extends EntityRenderer<OrbEntity, ChargeBallRend
     }
 
     @Override
-    public ChargeBallRenderState createRenderState() {
-        return new ChargeBallRenderState();
+    public OrbRenderState createRenderState() {
+        return new OrbRenderState();
     }
 
     @Override
-    public void extractRenderState(OrbEntity entity, ChargeBallRenderState state, float partialTicks) {
+    public void extractRenderState(OrbEntity entity, OrbRenderState state, float partialTicks) {
         super.extractRenderState(entity, state, partialTicks);
         state.animationState.startIfStopped(entity.tickCount);
         state.texture = entity.getRenderTexture();
-        state.activated = entity.isActivated();
-        state.nameTag = entity.getChargeText();
+        state.activated = entity.isEvoked();
+        state.nameTag = entity.getDisplayTag();
         if (state.nameTag != null) {
-            state.nameTagAttachment = new Vec3(0.0D, entity.getBbHeight() + 0.35D, 0.0D);
+            state.nameTagAttachment = new Vec3(0.0D, entity.getBbHeight(), 0.0D);
         }
     }
 

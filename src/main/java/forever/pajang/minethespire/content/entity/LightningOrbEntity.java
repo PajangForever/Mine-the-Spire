@@ -3,45 +3,36 @@ package forever.pajang.minethespire.content.entity;
 import forever.pajang.minethespire.MineTheSpire;
 import forever.pajang.minethespire.content.ModDamageTypes;
 import forever.pajang.minethespire.content.ModEntityTypes;
-import forever.pajang.minethespire.content.ModItems;
-import forever.pajang.minethespire.content.specials.OrbManager;
 import forever.pajang.minethespire.content.specials.CombatState;
+import forever.pajang.minethespire.content.specials.OrbManager;
+import forever.pajang.minethespire.content.specials.OrbType;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MoverType;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.entity.EntityTypeTest;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.*;
 
-import java.util.UUID;
+import java.util.Optional;
 
 public class LightningOrbEntity extends OrbEntity {
-    private static final Identifier IDLE_TEXTURE = MineTheSpire.id("textures/entity/projectiles/lightning_charge_ball.png");
-    private static final Identifier ACTIVATED_TEXTURE = MineTheSpire.id("textures/entity/projectiles/lightning_charge_ball_activated.png");
-    private static final double LAUNCH_SPEED = 0.7D;
-    private static final float BEAM_DAMAGE = 3.0F;
-    private static final float LAUNCH_DAMAGE = 8.0F;
-    private static final int OUT_OF_COMBAT_LIFETIME_MIN = 15 * 20;
-    private static final int OUT_OF_COMBAT_LIFETIME_MAX = 25 * 20;
-    private static final double ENTITY_HIT_RADIUS = 0.55D;
+    private static final Identifier IDLE_TEXTURE = MineTheSpire.id("textures/entity/orbs/lightning.png");
+    private static final Identifier ACTIVATED_TEXTURE = MineTheSpire.id("textures/entity/orbs/lightning_evoked.png");
+    private static final double LAUNCH_SPEED = 0.7d;
+    private static final float PASSIVE_DAMAGE = 3.0F;
+    private static final float EVOKED_DAMAGE = 8.0F;
 
-    private int outOfCombatDespawnTicks = -1;
-    private boolean launching;
-    private boolean freeFlightLaunch;
-    private UUID launchTargetUuid;
-    private Vec3 launchDirection = Vec3.ZERO;
-
+    private int dissipateTicks = -1;
     public LightningOrbEntity(EntityType<? extends LightningOrbEntity> entityType, Level level) {
         super(entityType, level);
     }
@@ -51,206 +42,126 @@ public class LightningOrbEntity extends OrbEntity {
     }
 
     @Override
+    public OrbType getOrbType() {
+        return OrbType.Lightning;
+    }
+
+    @Override
+    protected void tickNormal(ServerLevel serverLevel, LivingEntity owner) {
+        super.tickNormal(serverLevel, owner);
+        boolean ownerInCombat = CombatState.isInCombat(owner);
+        if (ownerInCombat) {
+            dissipateTicks = -1;
+        } else {
+            if (dissipateTicks < 0) {
+                dissipateTicks = 400 + random.nextInt(200);
+            }
+            else {
+                dissipateTicks--;
+                if (dissipateTicks == 0) {
+                    dissipate();
+                }
+            }
+        }
+    }
+
+    @Override
     public OrbEntity createCopy(LivingEntity owner) {
         return new LightningOrbEntity(owner.level(), owner);
     }
 
     @Override
-    protected void tickOwned(LivingEntity owner, OrbManager manager) {
-        if (launching) {
-            tickLaunch(owner);
+    public void passiveAction(ServerLevel serverLevel, LivingEntity owner) {
+        if ( !CombatState.isInCombat(owner)) {
             return;
         }
-
-        tickOrbit(owner);
-
-        boolean ownerInCombat = CombatState.isInCombat(owner);
-        if (!ownerInCombat) {
-            manager.resetSchedule();
-            if (outOfCombatDespawnTicks < 0) {
-                outOfCombatDespawnTicks = randomOutOfCombatLifetime();
-            }
-            else if (--outOfCombatDespawnTicks <= 0) {
-                dissipate((ServerLevel) level());
-                discard();
-                return;
-            }
-        }
-        else {
-            outOfCombatDespawnTicks = -1;
-        }
-
-        manager.tickEntity(this);
+        getTarget().ifPresent(target -> damage(target, false));
     }
 
     @Override
-    protected void applyScheduledEffect() {
-        LivingEntity owner = getOwner();
-        if (owner == null || !CombatState.isInCombat(owner)) {
-            return;
+    public void evokeAction(ServerLevel serverLevel, LivingEntity owner) {
+        super.evokeAction(serverLevel, owner);
+        if (getTarget().isEmpty()) {
+            Vec3 flightVec = owner.getLookAngle().normalize();
+            setDeltaMovement(flightVec.scale(LAUNCH_SPEED));
         }
-        OrbManager.get(owner).getAttackTarget().ifPresent(target -> applyLightningDamage(target, focusAdjustedAmount(owner, BEAM_DAMAGE), false));
-    }
-
-    @Override
-    protected void activateEffect() {
-        activateLightningLaunch();
-    }
-
-    public void attackLightningTarget(LivingEntity target, boolean special) {
-        LivingEntity owner = getOwner();
-        float baseDamage = special ? LAUNCH_DAMAGE : BEAM_DAMAGE;
-        applyLightningDamage(target, owner == null ? baseDamage : focusAdjustedAmount(owner, baseDamage), special);
-    }
-
-    private void activateLightningLaunch() {
-        if (level().isClientSide() || isRemoved()) {
-            return;
-        }
-
-        LivingEntity owner = getOwner();
-        if (owner == null) {
-            discard();
-            return;
-        }
-
-        LivingEntity target = OrbManager.get(owner).getAttackTarget().orElse(null);
-        if (target == null) {
-            freeFlightLaunch = true;
-            launchTargetUuid = null;
-            launchDirection = owner.getLookAngle().normalize();
-        }
-        else {
-            freeFlightLaunch = false;
-            launchTargetUuid = target.getUUID();
-            launchDirection = Vec3.ZERO;
-            if (level() instanceof ServerLevel serverLevel) {
-                Vec3 from = position().add(0.0D, getBbHeight() * 0.5D, 0.0D);
-                Vec3 to = target.position().add(0.0D, target.getBbHeight() * 0.5D, 0.0D);
-                emitActivatedBeamParticles(serverLevel, from, to, 16);
-            }
-        }
-
-        if (launchDirection.lengthSqr() < 1.0E-4D) {
-            launchDirection = owner.getLookAngle().normalize();
-        }
-        if (launchDirection.lengthSqr() < 1.0E-4D) {
-            launchDirection = Vec3.directionFromRotation(0.0F, owner.getYRot());
-        }
-
-        launching = true;
         level().playSound(null, getX(), getY(), getZ(), SoundEvents.BEACON_ACTIVATE, SoundSource.PLAYERS, 0.9F, 1.4F);
     }
 
-    private void tickLaunch(LivingEntity owner) {
-        if (freeFlightLaunch) {
-            tickFreeFlightLaunch(owner);
-            return;
-        }
-
-        LivingEntity target = getLaunchTarget();
-        if (target == null) {
-            freeFlightLaunch = true;
-            launchTargetUuid = null;
-            launchDirection = getDeltaMovement().lengthSqr() < 1.0E-4D ? owner.getLookAngle().normalize() : getDeltaMovement().normalize();
-            tickFreeFlightLaunch(owner);
-            return;
-        }
-
-        Vec3 targetPos = target.position().add(0.0D, target.getBbHeight() * 0.5D, 0.0D);
-        Vec3 toTarget = targetPos.subtract(position());
-        if (toTarget.lengthSqr() <= 0.64D) {
-            applyLightningDamage(target, focusAdjustedAmount(owner, LAUNCH_DAMAGE), true);
-            finishLaunch();
-            return;
-        }
-
-        Vec3 movement = toTarget.normalize().scale(LAUNCH_SPEED);
-//        setDeltaMovement(movement);
-        move(MoverType.SELF, movement);
-        emitBeamParticles((ServerLevel) level(), position(), targetPos, 6);
-    }
-
-    private void tickFreeFlightLaunch(LivingEntity owner) {
-        noPhysics = false;
-        setNoGravity(true);
-
-        Vec3 direction = launchDirection.lengthSqr() < 1.0E-4D ? owner.getLookAngle().normalize() : launchDirection.normalize();
-        Vec3 movement = direction.scale(LAUNCH_SPEED);
-       // setDeltaMovement(movement);
-        move(MoverType.SELF, movement);
-        emitLightningTrailParticles();
-
-        LivingEntity hitEntity = findHitEntity(owner);
-        if (hitEntity != null) {
-            applyLightningDamage(hitEntity, focusAdjustedAmount(owner, LAUNCH_DAMAGE), true);
-            finishLaunch();
-            return;
-        }
-
-        if (horizontalCollision || verticalCollision) {
-            if (level() instanceof ServerLevel serverLevel) {
-                dissipate(serverLevel);
-            }
-            finishLaunch();
+    @Override
+    protected void tickEvoked(ServerLevel serverLevel, LivingEntity owner) {
+        super.tickEvoked(serverLevel, owner);
+        Optional<LivingEntity> targetOpt = getTarget();
+        HitResult result = ProjectileUtil.getHitResultOnMoveVector(this, e ->
+                targetOpt.map(entity -> e == entity).orElseGet(() -> e.canBeHitByProjectile() && e != owner));
+        emitEvokedPathParticles();
+        switch (result.getType()) {
+            case MISS -> {}
+            case ENTITY -> onEvokedHitEntity((EntityHitResult) result);
+            case BLOCK -> onEvokedHitBlock((BlockHitResult) result);
         }
     }
 
-    private LivingEntity findHitEntity(LivingEntity owner) {
-        AABB area = getBoundingBox().inflate(ENTITY_HIT_RADIUS);
-        return level().getEntities(EntityTypeTest.forClass(LivingEntity.class), area, entity -> entity != owner && !isOwnedEntity(entity) && entity.isAlive() && !entity.isRemoved())
-                .stream()
-                .findFirst()
-                .orElse(null);
+    @Override
+    protected void moveEvokedPath(OrbManager manager) {
+        super.moveEvokedPath(manager);
+        getTarget().ifPresent(target -> {
+            Vec3 movement = target.getEyePosition().subtract(position()).normalize().scale(LAUNCH_SPEED);
+            setDeltaMovement(movement);
+        });
     }
 
-    private LivingEntity getLaunchTarget() {
-        if (launchTargetUuid == null) {
-            return null;
-        }
-        Entity entity = level().getEntityInAnyDimension(launchTargetUuid);
-        return entity instanceof LivingEntity living && living.isAlive() && !living.isRemoved() ? living : null;
-    }
-
-    private void emitLightningTrailParticles() {
-        if (!(level() instanceof ServerLevel serverLevel)) {
-            return;
-        }
+    private void emitEvokedPathParticles() {
+        ServerLevel serverLevel = (ServerLevel) level();
         Vec3 pos = position().add(0.0D, getBbHeight() * 0.5D, 0.0D);
         serverLevel.sendParticles(ParticleTypes.ELECTRIC_SPARK, pos.x, pos.y, pos.z, 5, 0.07D, 0.07D, 0.07D, 0.02D);
-        serverLevel.sendParticles(ParticleTypes.END_ROD, pos.x, pos.y, pos.z, 2, 0.04D, 0.04D, 0.04D, 0.005D);
     }
 
-    private void finishLaunch() {
-        launching = false;
-        freeFlightLaunch = false;
-        launchTargetUuid = null;
-        launchDirection = Vec3.ZERO;
-//        setDeltaMovement(Vec3.ZERO);
-        discard();
+    private void onEvokedHitBlock(BlockHitResult result) {
+        BlockState state = level().getBlockState(result.getBlockPos());
+//        if (state.is(BlockTags.MOSS_REPLACEABLE)) {
+//            level().destroyBlock(result.getBlockPos(), true);
+//        }
+        onEvokeFinish();
     }
 
-    private void applyLightningDamage(LivingEntity target, float damage, boolean special) {
+    private void onEvokedHitEntity(EntityHitResult result) {
+        Entity entity = result.getEntity();
+        damage(entity, true);
+        onEvokeFinish();
+    }
+
+    private void damage(Entity target, boolean evoked) {
         if (!(level() instanceof ServerLevel serverLevel)) {
             return;
         }
 
-        Vec3 from = position().add(0.0D, getBbHeight() * 0.5D, 0.0D);
-        Vec3 to = target.position().add(0.0D, target.getBbHeight() * 0.5D, 0.0D);
-        if (special) {
-            emitActivatedBeamParticles(serverLevel, from, to, 32);
+        Vec3 from = position();
+        Vec3 to = target.getEyePosition();
+        if (evoked) emitEvokedAttackParticles(serverLevel, from, to, 32);
+        else emitPassiveAttackParticles(serverLevel, from, to, 16);
+        Optional<LivingEntity> owner = getOwner();
+        DamageSource source;
+        float damage;
+        if (owner.isPresent()) {
+            source = level().damageSources().source(ModDamageTypes.ORB_LIGHTNING, this, owner.get());
+            damage = focusAdjusted(owner.get(), evoked ? EVOKED_DAMAGE :PASSIVE_DAMAGE);
+        } else {
+            source = level().damageSources().source(ModDamageTypes.ORB_LIGHTNING, this);
+            damage = evoked ? EVOKED_DAMAGE : PASSIVE_DAMAGE;
         }
-        else {
-            emitBeamParticles(serverLevel, from, to, 16);
-        }
-        DamageSource source = ModDamageTypes.chargeBallLightning(level(), this, getOwner());
-        target.hurt(source, damage);
+        target.hurtServer(serverLevel , source, damage);
         level().playSound(null, target.getX(), target.getY(), target.getZ(),
-                special ? SoundEvents.LIGHTNING_BOLT_THUNDER : SoundEvents.LIGHTNING_BOLT_IMPACT,
-                SoundSource.PLAYERS, special ? 0.85F : 0.45F, special ? 1.65F : 1.9F);
+                evoked ? SoundEvents.LIGHTNING_BOLT_THUNDER : SoundEvents.LIGHTNING_BOLT_IMPACT,
+                SoundSource.PLAYERS, evoked ? 0.85F : 0.45F, evoked ? 1.65F : 1.9F);
     }
 
-    private static void emitBeamParticles(ServerLevel level, Vec3 from, Vec3 to, int steps) {
+    private void onEvokeFinish() {
+        setDeltaMovement(Vec3.ZERO);
+        dissipate();
+    }
+
+    private static void emitPassiveAttackParticles(ServerLevel level, Vec3 from, Vec3 to, int steps) {
         Vec3 delta = to.subtract(from);
         for (int i = 0; i <= steps; i++) {
             Vec3 point = from.add(delta.scale((double) i / steps));
@@ -261,11 +172,10 @@ public class LightningOrbEntity extends OrbEntity {
         }
     }
 
-    private static void emitActivatedBeamParticles(ServerLevel level, Vec3 from, Vec3 to, int steps) {
+    private static void emitEvokedAttackParticles(ServerLevel level, Vec3 from, Vec3 to, int steps) {
         Vec3 delta = to.subtract(from);
         for (int i = 0; i <= steps; i++) {
             Vec3 point = from.add(delta.scale((double) i / steps));
-            level.sendParticles(ParticleTypes.FIREWORK, point.x, point.y, point.z, 3, 0.04D, 0.04D, 0.04D, 0.02D);
             level.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, point.x, point.y, point.z, 1, 0.025D, 0.025D, 0.025D, 0.0D);
             if (i % 2 == 0) {
                 level.sendParticles(ParticleTypes.END_ROD, point.x, point.y, point.z, 2, 0.02D, 0.02D, 0.02D, 0.0D);
@@ -274,59 +184,22 @@ public class LightningOrbEntity extends OrbEntity {
     }
 
     @Override
-    protected ItemStack baseRenderStack() {
-        return ModItems.LIGHTNING_CHARGE_BALL.get().getDefaultInstance();
-    }
-
-    @Override
-    protected String activatedModelPath() {
-        return "lightning_charge_ball_activated";
-    }
-
-    @Override
-    protected Identifier idleTexture() {
+    protected Identifier normalTexture() {
         return IDLE_TEXTURE;
     }
 
     @Override
-    protected Identifier activatedTexture() {
+    protected Identifier evokeTexture() {
         return ACTIVATED_TEXTURE;
     }
 
     @Override
-    protected void readChargeBallSaveData(ValueInput input) {
-        outOfCombatDespawnTicks = input.getIntOr("OutOfCombatDespawnTicks", -1);
-        launching = input.getBooleanOr("Launching", false);
-        freeFlightLaunch = input.getBooleanOr("FreeFlightLaunch", false);
-        launchDirection = new Vec3(
-                input.getDoubleOr("LaunchDirectionX", 0.0D),
-                input.getDoubleOr("LaunchDirectionY", 0.0D),
-                input.getDoubleOr("LaunchDirectionZ", 0.0D)
-        );
-        input.getString("LaunchTarget").ifPresent(value -> {
-            try {
-                launchTargetUuid = UUID.fromString(value);
-            }
-            catch (IllegalArgumentException ignored) {
-                launchTargetUuid = null;
-            }
-        });
+    protected void readOrbSaveData(ValueInput input) {
+        dissipateTicks = input.getIntOr("DissipateTicks", -1);
     }
 
     @Override
-    protected void addChargeBallSaveData(ValueOutput output) {
-        output.putInt("OutOfCombatDespawnTicks", outOfCombatDespawnTicks);
-        output.putBoolean("Launching", launching);
-        output.putBoolean("FreeFlightLaunch", freeFlightLaunch);
-        output.putDouble("LaunchDirectionX", launchDirection.x);
-        output.putDouble("LaunchDirectionY", launchDirection.y);
-        output.putDouble("LaunchDirectionZ", launchDirection.z);
-        if (launchTargetUuid != null) {
-            output.putString("LaunchTarget", launchTargetUuid.toString());
-        }
-    }
-
-    private int randomOutOfCombatLifetime() {
-        return OUT_OF_COMBAT_LIFETIME_MIN + random.nextInt(OUT_OF_COMBAT_LIFETIME_MAX - OUT_OF_COMBAT_LIFETIME_MIN + 1);
+    protected void addOrbSaveData(ValueOutput output) {
+        output.putInt("DissipateTicks", dissipateTicks);
     }
 }

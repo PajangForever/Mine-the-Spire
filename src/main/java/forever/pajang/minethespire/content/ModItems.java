@@ -99,22 +99,22 @@ public final class ModItems {
             .en("Spirit")
             .register();
 
-    public static final DeferredItem<? extends Item> LIGHTNING_CHARGE_BALL = REG.item("lightning_charge_ball", LightningChargeBallItem::new)
+    public static final DeferredItem<? extends Item> LIGHTNING_CHARGE_BALL = REG.item("lightning_charge_ball", LightningOrbItem::new)
             .properties(p -> p.stacksTo(16).rarity(Rarity.UNCOMMON))
             .defaultModel().en("Lightning Charge Ball")
             .register();
 
-    public static final DeferredItem<? extends Item> FROST_CHARGE_BALL = REG.item("frost_charge_ball", FrostChargeBallItem::new)
+    public static final DeferredItem<? extends Item> FROST_CHARGE_BALL = REG.item("frost_charge_ball", FrostOrbItem::new)
             .properties(p -> p.stacksTo(16).rarity(Rarity.UNCOMMON))
             .defaultModel().en("Frost Charge Ball")
             .register();
 
-    public static final DeferredItem<? extends Item> DARK_CHARGE_BALL = REG.item("dark_charge_ball", DarkChargeBallItem::new)
+    public static final DeferredItem<? extends Item> DARK_CHARGE_BALL = REG.item("dark_charge_ball", DarkOrbItem::new)
             .properties(p -> p.stacksTo(16).rarity(Rarity.UNCOMMON))
             .defaultModel().en("Dark Charge Ball")
             .register();
 
-    public static final DeferredItem<? extends Item> PLASMA_CHARGE_BALL = REG.item("plasma_charge_ball", PlasmaChargeBallItem::new)
+    public static final DeferredItem<? extends Item> PLASMA_CHARGE_BALL = REG.item("plasma_charge_ball", PlasmaOrbItem::new)
             .properties(p -> p.stacksTo(16).rarity(Rarity.UNCOMMON))
             .defaultModel().en("Plasma Charge Ball")
             .register();

@@ -3,6 +3,8 @@ package forever.pajang.minethespire.register;
 import forever.pajang.minethespire.MineTheSpire;
 import forever.pajang.minethespire.compat.curios.CuriosCompat;
 import forever.pajang.minethespire.compat.curios.CuriosSlotBuilder;
+import it.unimi.dsi.fastutil.Pair;
+import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.ModelProvider;
@@ -12,6 +14,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeProvider;
+import net.minecraft.data.tags.DamageTypeTagsProvider;
 import net.minecraft.data.tags.EnchantmentTagsProvider;
 import net.minecraft.data.tags.EntityTypeTagsProvider;
 import net.minecraft.data.tags.TagAppender;
@@ -21,6 +24,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Unit;
+import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.effect.MobEffect;
@@ -41,11 +45,13 @@ import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.attachment.IAttachmentHolder;
 import net.neoforged.neoforge.common.data.ItemTagsProvider;
 import net.neoforged.neoforge.common.data.LanguageProvider;
+import net.neoforged.neoforge.common.data.internal.NeoForgeDamageTypeTagsProvider;
 import net.neoforged.neoforge.data.loading.DatagenModLoader;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -70,32 +76,30 @@ public class RegisterCore {
     final RegistrySetBuilder registrySetBuilder = new RegistrySetBuilder();
 
     private final boolean runningDataGen = DatagenModLoader.isRunningDataGen();
-    protected final Set<BiFunction<PackOutput, CompletableFuture<HolderLookup.Provider>, ? extends DataProvider>> dataProviders = new HashSet<>();
-    protected final Map<String, CreativeModeTab.Builder> namedGroups = new HashMap<>();
-    protected final Map<String, Set<Supplier<? extends ItemLike>>> groupItems = new HashMap<>();
-    protected final Map<String, Set<Supplier<ItemStack>>> groupStacks = new HashMap<>();
+    protected final Set<BiFunction<PackOutput, CompletableFuture<HolderLookup.Provider>, ? extends DataProvider>> dataProviders = new ReferenceOpenHashSet<>();
+    protected final Map<String, CreativeModeTab.Builder> namedGroups = new Object2ReferenceOpenHashMap<>();
+    protected final Map<String, Set<Supplier<? extends ItemLike>>> groupItems = new Object2ReferenceOpenHashMap<>();
+    protected final Map<String, Set<Supplier<ItemStack>>> groupStacks = new Object2ReferenceOpenHashMap<>();
     protected CreativeModeTab.Builder currentGroup;
     protected String currentGroupName;
-    protected final Map<String, String> lang = new HashMap<>();
-    protected final Map<Supplier<String>, String> deferredLang = new HashMap<>();
+    protected final Map<String, String> lang = new Object2ObjectOpenHashMap<>();
+    protected final Map<Supplier<String>, String> deferredLang = new Reference2ObjectOpenHashMap<>();
+    protected final Map<DeferredHolder<Attribute, Attribute>, Predicate<EntityType<? extends LivingEntity>>> livingAttributes = new Reference2ReferenceOpenHashMap<>();
+    protected final Set<Consumer<Supplier<ItemModelGenerators>>> itemModels = new ReferenceOpenHashSet<>();
+    protected final Set<BiConsumer<HolderGetter<Item>, RecipeOutput>> itemRecipes = new ReferenceOpenHashSet<>();
+    protected final Map<ResourceKey<Enchantment>, Function<EnchantmentBuilder.LookupGetter, Enchantment>> enchantments = new Object2ReferenceOpenHashMap<>();
+    protected final Set<LootTableBuilder> lootTables = new ReferenceOpenHashSet<>();
+    protected final Set<LootModifierBuilder> lootModifiers = new ReferenceOpenHashSet<>();
+    protected final Map<ResourceKey<DamageType>, Pair<Supplier<DamageType>, TagKey<DamageType>[]>> damageTypes = new Object2ReferenceOpenHashMap<>();
+    protected final Set<Supplier<? extends Item>> registeredItems = new ReferenceOpenHashSet<>();
+    protected final Set<CuriosSlotBuilder> curiosSlots = new ReferenceOpenHashSet<>();
 
-    protected final Map<DeferredHolder<Attribute, Attribute>, Predicate<EntityType<? extends LivingEntity>>> livingAttributes = new LinkedHashMap<>();
+    protected final List<Consumer<PotionBrewing.Builder>> brewingRecipes = new ReferenceArrayList<>();
 
-    protected final Set<Consumer<Supplier<ItemModelGenerators>>> itemModels = new HashSet<>();
-    protected final Set<BiConsumer<HolderGetter<Item>, RecipeOutput>> itemRecipes = new LinkedHashSet<>();
-    protected final Map<ResourceKey<Enchantment>, Function<EnchantmentBuilder.LookupGetter, Enchantment>> enchantments = new HashMap<>();
-    protected final Set<LootTableBuilder> lootTables = new LinkedHashSet<>();
-    protected final Set<LootModifierBuilder> lootModifiers = new LinkedHashSet<>();
-    protected final Set<Supplier<? extends Item>> registeredItems = new LinkedHashSet<>();
+    protected final Map<TagKey<Item>, Set<DeferredItem<? extends Item>>> itemTags = new Object2ReferenceOpenHashMap<>();
+    protected final Map<TagKey<Enchantment>, Set<ResourceKey<Enchantment>>> enchantmentTags = new Object2ReferenceOpenHashMap<>();
+    protected final Map<TagKey<EntityType<?>>, Set<EntityType<?>>> entityTypeTags = new Object2ReferenceOpenHashMap<>();
 
-    protected final Set<CuriosSlotBuilder> curiosSlots = new LinkedHashSet<>();
-
-    protected final List<Consumer<PotionBrewing.Builder>> brewingRecipes = new ArrayList<>();
-
-    protected final Map<TagKey<Item>, Set<DeferredItem<? extends Item>>> itemTags = new HashMap<>();
-
-    protected final Map<TagKey<Enchantment>, Set<ResourceKey<Enchantment>>> enchantmentTags = new HashMap<>();
-    protected final Map<TagKey<EntityType<?>>, Set<EntityType<?>>> entityTypeTags = new HashMap<>();
     protected RegisterCore(String modid) {
         this.modid = modid;
         this.groups = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, modid);
@@ -173,9 +177,9 @@ public class RegisterCore {
         return new ItemBuilder<>(this, path, constructor);
     }
 
-    public Identifier itemModel(String path, Consumer<ItemModelGenerators> model) {
+    public Identifier itemModel(String path, Consumer<Supplier<ItemModelGenerators>> model) {
         Identifier id = id("item/" + path);
-        itemModels.add(gen -> model.accept(gen.get()));
+        itemModels.add(model::accept);
         return id;
     }
 
@@ -210,6 +214,12 @@ public class RegisterCore {
 
     public LootModifierBuilder lootModifier(String name) {
         return new LootModifierBuilder(this, name);
+    }
+
+    public ResourceKey<DamageType> damageType(String path, Supplier<DamageType> damageType, TagKey<DamageType>... tags) {
+        ResourceKey<DamageType> key = ResourceKey.create(Registries.DAMAGE_TYPE, id(path));
+        damageTypes.put(key, new ReferenceReferenceImmutablePair<>(damageType,tags));
+        return key;
     }
 
     public CuriosSlotBuilder curios(String name) {
@@ -273,6 +283,10 @@ public class RegisterCore {
                     enchantments.forEach((key, factory) ->
                             ctx.register(key, factory.apply(ctx::lookup))));
 
+            registrySetBuilder.add(Registries.DAMAGE_TYPE, ctx ->
+                    damageTypes.forEach((key, pair) ->
+                            ctx.register(key, pair.left().get())));
+
             dataProviders.add((out, _) -> new LanguageProvider(out, modid, "en_us") {
                 @Override
                 protected void addTranslations() {
@@ -326,6 +340,19 @@ public class RegisterCore {
                     enchantmentTags.forEach((key, entries) -> {
                         TagAppender<ResourceKey<Enchantment>, Enchantment> tagAppender = tag(key);
                         entries.forEach(tagAppender::addOptional);
+                    });
+                }
+            });
+            dataProviders.add((out, lookup) -> new DamageTypeTagsProvider(out, lookup, modid) {
+                @Override
+                protected void addTags(HolderLookup.Provider lookup) {
+                    damageTypes.forEach((key, pair) -> {
+                        TagKey<DamageType>[] tags = pair.right();
+                        if (tags != null) {
+                            for (TagKey<DamageType> tag : tags) {
+                                tag(tag).addOptional(key);
+                            }
+                        }
                     });
                 }
             });

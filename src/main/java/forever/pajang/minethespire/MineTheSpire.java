@@ -31,6 +31,8 @@ public class MineTheSpire {
         ModAttributes.register();
         ModDataComponents.register();
         ModEnchantments.register();
+        ModDamageTypes.register();
+        MiscRegister.register();
         ModCuriosSlot.register();
         modEventBus.addListener(ModNetworking::register);
         modEventBus.register(EventListeners.OnModBus.class);
