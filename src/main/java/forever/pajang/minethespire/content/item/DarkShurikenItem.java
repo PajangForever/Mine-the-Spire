@@ -7,10 +7,13 @@ import forever.pajang.minethespire.content.entity.ModProjectile;
 import forever.pajang.minethespire.mixin.client.GameRendererAccessor;
 import forever.pajang.minethespire.network.DarkShurikenChargePayload;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -22,17 +25,33 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
+import java.util.function.Consumer;
+
+import static forever.pajang.minethespire.MineTheSpire.REG;
+
 public class DarkShurikenItem extends Item {
+    static Component BENEFIT = REG.text().type("tooltip").info("dark_shuriken", "benefit").en("Fully Enchant all your equipments").register();
+    static Component HARM = REG.text().type("tooltip").info("dark_shuriken", "harm").en("You can no longer heal").register();
+
     public static final int MIND_BLOOM_CHARGE_TICKS = 20;
     public static int CLIENT_TICK_CHARGED = 0;
     public static boolean CLIENT_CHARGING = false;
 
     public DarkShurikenItem(Properties properties) {
         super(properties);
+    }
+
+    @Override
+    public void appendHoverText(ItemStack itemStack, TooltipContext context, TooltipDisplay display, Consumer<Component> builder, TooltipFlag tooltipFlag) {
+        super.appendHoverText(itemStack, context, display, builder, tooltipFlag);
+        builder.accept(BENEFIT.copy().withStyle(ChatFormatting.GREEN));
+        builder.accept(HARM.copy().withStyle(ChatFormatting.RED));
     }
 
     @Override

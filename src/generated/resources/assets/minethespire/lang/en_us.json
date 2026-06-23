@@ -97,6 +97,10 @@
   "potion.potency.7": "VIII",
   "potion.potency.8": "IX",
   "potion.potency.9": "X",
+  "tooltip.minethespire.bouncing_flask.tip": "Apply Venin III 3 times",
+  "tooltip.minethespire.dark_shuriken.benefit": "Fully Enchant all your equipments",
+  "tooltip.minethespire.dark_shuriken.harm": "You can no longer heal",
   "tooltip.minethespire.heavy_blade.attack_damage": " Attack Damage",
-  "tooltip.minethespire.heavy_blade.extra_strength_tooltip": "Strength Affect this weapon 3 times: "
+  "tooltip.minethespire.heavy_blade.extra_strength_tooltip": "Strength Affect this weapon 3 times: ",
+  "tooltip.minethespire.pain_strick.tip": "On a full-charged attack, apply Vulnerable"
 }

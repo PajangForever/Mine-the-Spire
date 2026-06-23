@@ -18,8 +18,8 @@ import java.util.function.Consumer;
 import static forever.pajang.minethespire.MineTheSpire.REG;
 
 public class HeavyBladeItem extends Item {
-    static Component EXTRA = REG.text("tooltip.minethespire.heavy_blade.extra_strength_tooltip").en("Strength Affect this weapon 3 times: ").register();
-    static Component DAMAGE = REG.text("tooltip.minethespire.heavy_blade.attack_damage").en(" Attack Damage").register();
+    static Component EXTRA = REG.text().type("tooltip").info("heavy_blade", "extra_strength_tooltip").en("Strength Affect this weapon 3 times: ").register();
+    static Component DAMAGE = REG.text().type("tooltip").info("heavy_blade", "attack_damage").en(" Attack Damage").register();
     private static final double DAMAGE_PER_STRENGTH_LEVEL = 6.0D;
 
     public HeavyBladeItem(Properties properties) {
