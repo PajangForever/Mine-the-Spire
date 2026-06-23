@@ -28,6 +28,7 @@ public class MineTheSpire {
         ModEntityTypes.register();
         ModEffects.register();
         ModPotions.register();
+        ModItems.TodoItems.register();
         ModAttachments.register();
         ModAttributes.register();
         ModDataComponents.register();

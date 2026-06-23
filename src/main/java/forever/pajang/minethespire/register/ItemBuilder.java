@@ -63,6 +63,10 @@ public class ItemBuilder<T extends Item> extends RegisterCore.Builder {
         return flatModel(registerCore.id("item/" + name));
     }
 
+    public ItemBuilder<T> tempModel() {
+        return flatModel(Identifier.withDefaultNamespace("item/tropical_fish"));
+    }
+
     public ItemBuilder<T> recipe(Function<Supplier<T>, BiConsumer<HolderGetter<Item>, RecipeOutput>> recipeGen) {
         Function<Supplier<T>, BiConsumer<HolderGetter<Item>, RecipeOutput>> previous = this.recipeGen;
         this.recipeGen = item -> {

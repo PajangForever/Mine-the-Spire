@@ -127,6 +127,183 @@ public final class ModItems {
     public static final DeferredItem<? extends Item> PAIN_STRIKE = REG.item("pain_strike", PainStrickItem::new)
             .defaultModel().register();
 
+    public static class TodoItems{
+        //todo: add relics
+        public static final DeferredItem<? extends RelicItem> AKABEKO = REG.item("akabeko", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> ANCHOR = REG.item("anchor", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> BAG_OF_MARBLES = REG.item("bag_of_marbles", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> BAG_OF_PREPARATION = REG.item("bag_of_perparation", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> BRONZE_SCALES = REG.item("bronze_scales", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> BLOOD_VIAL = REG.item("blood_vial", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> CENTENNIAL_PUZZLE = REG.item("centennial_puzzle", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> DATA_DISK = REG.item("data_disk", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> HAPPY_FLOWER = REG.item("happy_flower", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> LANTERN = REG.item("lantern", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> MEAL_TICKET = REG.item("meal_ticket", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> NUNCHAKU = REG.item("nunchaku", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> ODDLY_SMOOTH_STONE = REG.item("oddly_smooth_stone", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> PEN_NIB = REG.item("pen_nib", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> RED_SKULL = REG.item("red_skull", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> SNECKO_SKULL = REG.item("snecko_skull", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> THE_BOOT = REG.item("the_boot", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> TOY_ORNITHOPTER = REG.item("toy_ornithopter", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> VAJRA = REG.item("vajra", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> GOLD_PLATED_CABLES = REG.item("gold_plated_cables", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> GREMLIN_HORN = REG.item("gremlin_horn", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> HORN_CLEAT = REG.item("horn_cleat", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> KUNAI = REG.item("kunai", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> LETTER_OPENER = REG.item("letter_opener", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> MEAT_ON_THE_BONE = REG.item("meat_on_the_bone", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> MERCURY_HOURGLASS = REG.item("mercury_hourglass", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> NINJA_SCROLL = REG.item("ninja_scroll", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> ORNAMENTAL_FAN = REG.item("ornamental_fan", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> PANTOGRAPH = REG.item("pantograph", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> SELF_FORMING_CLAY = REG.item("self_forming_clay", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> SHURIKEN = REG.item("shuriken", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> SYMBIOTIC_VIRUS = REG.item("symbiotic_virus", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> CALIPERS = REG.item("calipers", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> CAPTAINS_WHEEL = REG.item("captains_wheel", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> CHAMPION_BELT = REG.item("champion_belt", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> EMOTION_CHIP = REG.item("emotion_chip", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> FOSSILIZED_HELIX = REG.item("fossilized_helix", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> GINGER = REG.item("ginger", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> INCENSE_BURNER = REG.item("incense_burner", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> STONE_CALENDAR = REG.item("stone_calendar", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> THE_SPECIMEN = REG.item("the_specimen", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> THREAD_AND_NEEDLE = REG.item("thread_and_needle", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> TORII = REG.item("torii", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> TUNGSTEN_ROD = REG.item("tungsten_rod", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> TURNIP = REG.item("turnip", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> BLACK_BLOOD = REG.item("black_blood", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> FROZEN_CORE = REG.item("frozen_core", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> INSERTER = REG.item("inserter", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> NUCLEAR_BATTERY = REG.item("nuclear_battery", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> PHILOSOPHERS_STONE = REG.item("philosophers_stone", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> RING_OF_THE_SERPENT = REG.item("ring_of_the_serpent", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> RUNIC_CUBE = REG.item("runic_cube", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> SNECKO_EYE = REG.item("snecko_eye", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> BRIMSTONE = REG.item("brimstone", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> CHEMICAL_X = REG.item("chemical_x", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> RUNIC_CAPACITOR = REG.item("runic_capacitor", RelicItem::new)
+                .tempModel().register();
+
+        public static final DeferredItem<? extends RelicItem> TWISTED_FUNNEL = REG.item("twisted_funnel", RelicItem::new)
+                .tempModel().register();
+
+        public static void register() {
+        }
+    }
+
     public static void register() {
     }
 

@@ -1,11 +1,11 @@
 {
   "values": [
     {
-      "id": "minethespire:orb_dark",
+      "id": "minethespire:orb_lightning",
       "required": false
     },
     {
-      "id": "minethespire:orb_lightning",
+      "id": "minethespire:orb_dark",
       "required": false
     }
   ]
