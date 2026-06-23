@@ -1,8 +1,10 @@
 {
+  "attribute.minethespire.activatable_states": "状态标志位",
   "attribute.minethespire.activate": "激活：",
   "attribute.minethespire.blocking_value": "格挡值",
   "attribute.minethespire.blocking_value_change_rate": "格挡值变化率",
   "attribute.minethespire.focus": "集中",
+  "attribute.minethespire.invalid": "Invalid Operation! ",
   "attribute.minethespire.max_charge_ball": "最大充能球数量",
   "attribute.minethespire.orb_attack_range": "充能球攻击范围",
   "attribute.minethespire.orb_passive_speed": "充能球被动触发速度",
@@ -30,11 +32,11 @@
   "effect.minethespire.venin": "蛇毒",
   "effect.minethespire.vulnerable": "易伤",
   "entity.minethespire.bouncing_flask": "弹跳药瓶",
-  "entity.minethespire.dark_charge_ball": "黑暗充能球",
+  "entity.minethespire.dark_orb": "黑暗充能球",
   "entity.minethespire.dark_shuriken_projectile": "黑暗手里剑",
-  "entity.minethespire.frost_charge_ball": "冰霜充能球",
-  "entity.minethespire.lightning_charge_ball": "闪电充能球",
-  "entity.minethespire.plasma_charge_ball": "等离子充能球",
+  "entity.minethespire.frost_orb": "冰霜充能球",
+  "entity.minethespire.lightning_orb": "闪电充能球",
+  "entity.minethespire.plasma_orb": "等离子充能球",
   "group.minethespire.minethespire": "我的尖塔",
   "item.minecraft.lingering_potion.effect.barricade": "滞留型壁垒药水",
   "item.minecraft.lingering_potion.effect.blocking": "滞留型格挡药水",
@@ -96,7 +98,5 @@
   "potion.potency.8": "IX",
   "potion.potency.9": "X",
   "tooltip.minethespire.heavy_blade.attack_damage": " 攻击伤害",
-  "tooltip.minethespire.heavy_blade.extra_prefix": "额外 ",
-  "tooltip.minethespire.heavy_blade.extra_suffix": "加成：",
-  "tooltip.minethespire.heavy_blade.strength": "力量"
+  "tooltip.minethespire.heavy_blade.extra_strength_tooltip": "力量在这个武器上发挥3倍效果："
 }

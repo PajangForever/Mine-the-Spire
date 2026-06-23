@@ -10,16 +10,18 @@ import forever.pajang.minethespire.content.ModEffects;
 import forever.pajang.minethespire.content.effect.FairyBlessingEffect;
 import forever.pajang.minethespire.content.effect.MindBloomEffect;
 import forever.pajang.minethespire.content.effect.VeninEffect;
+import forever.pajang.minethespire.content.effect.VulnerableEffect;
 import forever.pajang.minethespire.content.item.DarkShurikenItem;
 import forever.pajang.minethespire.content.item.HeavyBladeItem;
 import forever.pajang.minethespire.content.item.LizardTailItem;
 import forever.pajang.minethespire.content.specials.BlockingValueHandler;
 import forever.pajang.minethespire.content.specials.OrbManager;
 import forever.pajang.minethespire.content.specials.CombatState;
-import forever.pajang.minethespire.register.RegisterCore;
+import it.unimi.dsi.fastutil.floats.FloatConsumer;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.Holder;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
@@ -108,8 +110,10 @@ public final class EventListeners {
 
     @SubscribeEvent
     public static void onLivingIncomingDamage(LivingIncomingDamageEvent event) {
-        CombatState.onHurt(event.getEntity(), event.getSource());
-        PainStrikeHandler.onLivingIncomingDamage(event);
+        LivingEntity target = event.getEntity();
+        DamageSource source = event.getSource();
+        CombatState.onHurt(target, source);
+        VulnerableEffect.boostDamage(target, event::getAmount, event::setAmount);
     }
 
     @SubscribeEvent
@@ -166,7 +170,7 @@ public final class EventListeners {
             CombatState.tickEntity(living);
             OrbManager.get(living).tick();
             BlockingValueHandler.tick(living);
-            HeavyBladeItem.tickStrengthModifier(living);
+//            HeavyBladeItem.tickStrengthModifier(living);
         }
     }
 

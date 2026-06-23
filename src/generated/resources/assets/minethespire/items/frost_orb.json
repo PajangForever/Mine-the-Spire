@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "minethespire:item/frost_charge_ball"
+    "model": "minethespire:item/frost_orb"
   }
 }

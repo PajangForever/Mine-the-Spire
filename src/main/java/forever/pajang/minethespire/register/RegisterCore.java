@@ -3,6 +3,7 @@ package forever.pajang.minethespire.register;
 import forever.pajang.minethespire.MineTheSpire;
 import forever.pajang.minethespire.compat.curios.CuriosCompat;
 import forever.pajang.minethespire.compat.curios.CuriosSlotBuilder;
+import forever.pajang.minethespire.content.ModItems;
 import it.unimi.dsi.fastutil.Pair;
 import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.client.data.models.BlockModelGenerators;

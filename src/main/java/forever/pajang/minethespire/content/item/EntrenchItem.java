@@ -35,7 +35,8 @@ public class EntrenchItem extends Item {
         double x = player.getX();
         double y = player.getY() + player.getBbHeight() * 0.5D;
         double z = player.getZ();
-        level.playSound(null, x, player.getY(), z, SoundEvents.BEACON_POWER_SELECT, SoundSource.PLAYERS, 0.8F, 0.75F);
+        level.playSound(null, x, player.getY(), z, SoundEvents.SHIELD_BLOCK, SoundSource.PLAYERS, 0.8F, 0.75F);
+        level.playSound(null, x, player.getY(), z, SoundEvents.ANVIL_LAND, SoundSource.PLAYERS, 0.2F, 0.2F);
         level.sendParticles(ParticleTypes.END_ROD, x, y, z, 24, 0.45D, player.getBbHeight() * 0.35D, 0.45D, 0.03D);
         level.sendParticles(ParticleTypes.POOF, x, y, z, 18, 0.35D, player.getBbHeight() * 0.25D, 0.35D, 0.01D);
     }

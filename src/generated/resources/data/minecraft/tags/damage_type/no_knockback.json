@@ -1,11 +1,11 @@
 {
   "values": [
     {
-      "id": "minethespire:orb_dark",
+      "id": "minethespire:bouncing_hit",
       "required": false
     },
     {
-      "id": "minethespire:bouncing_hit",
+      "id": "minethespire:orb_dark",
       "required": false
     },
     {

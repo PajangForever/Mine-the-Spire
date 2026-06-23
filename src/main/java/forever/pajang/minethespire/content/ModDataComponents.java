@@ -17,7 +17,7 @@ public final class ModDataComponents {
 //    public static final Supplier<DataComponentType<ItemStackInnateTracker>> INNATE_TRACKER = REG.dataComponent("innate_tracker",
 //                builder -> builder.persistent(ItemStackInnateTracker.CODEC.codec()));
 
-    public static final Supplier<DataComponentType<Integer>> EXTRA_ENERGY = REG.dataComponent("extra_energy",
+    public static final Supplier<DataComponentType<Integer>> SKILL_ITEM_CHARGE = REG.dataComponent("skill_item_charge",
             builder -> builder.persistent(Codec.INT).networkSynchronized(
                     StreamCodec.of(FriendlyByteBuf::writeVarInt, RegistryFriendlyByteBuf::readVarInt)));
 

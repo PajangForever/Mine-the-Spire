@@ -14,21 +14,13 @@ import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.food.FoodProperties;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.Consumable;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.SmithingTransformRecipe;
 import net.neoforged.neoforge.registries.DeferredItem;
 
-import java.util.Optional;
-
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
-import net.minecraft.data.recipes.RecipeUnlockAdvancementBuilder;
 
 public final class ModItems {
     private static final RegisterCore REG = MineTheSpire.REG;
@@ -99,25 +91,21 @@ public final class ModItems {
             .en("Spirit")
             .register();
 
-    public static final DeferredItem<? extends Item> LIGHTNING_CHARGE_BALL = REG.item("lightning_charge_ball", LightningOrbItem::new)
+    public static final DeferredItem<? extends Item> LIGHTNING_ORB = REG.item("lightning_orb", LightningOrbItem::new)
             .properties(p -> p.stacksTo(16).rarity(Rarity.UNCOMMON))
-            .defaultModel().en("Lightning Charge Ball")
-            .register();
+            .defaultModel().register();
 
-    public static final DeferredItem<? extends Item> FROST_CHARGE_BALL = REG.item("frost_charge_ball", FrostOrbItem::new)
+    public static final DeferredItem<? extends Item> FROST_ORB = REG.item("frost_orb", FrostOrbItem::new)
             .properties(p -> p.stacksTo(16).rarity(Rarity.UNCOMMON))
-            .defaultModel().en("Frost Charge Ball")
-            .register();
+            .defaultModel().register();
 
-    public static final DeferredItem<? extends Item> DARK_CHARGE_BALL = REG.item("dark_charge_ball", DarkOrbItem::new)
+    public static final DeferredItem<? extends Item> DARK_ORB = REG.item("dark_orb", DarkOrbItem::new)
             .properties(p -> p.stacksTo(16).rarity(Rarity.UNCOMMON))
-            .defaultModel().en("Dark Charge Ball")
-            .register();
+            .defaultModel().register();
 
-    public static final DeferredItem<? extends Item> PLASMA_CHARGE_BALL = REG.item("plasma_charge_ball", PlasmaOrbItem::new)
+    public static final DeferredItem<? extends Item> PLASMA_ORB = REG.item("plasma_orb", PlasmaOrbItem::new)
             .properties(p -> p.stacksTo(16).rarity(Rarity.UNCOMMON))
-            .defaultModel().en("Plasma Charge Ball")
-            .register();
+            .defaultModel().register();
 
     public static final DeferredItem<? extends Item> DUALCAST = REG.item("dualcast", DualcastItem::new)
             .properties(p -> p.stacksTo(1).rarity(Rarity.RARE)).defaultModel().register();
@@ -130,65 +118,16 @@ public final class ModItems {
 
     public static final DeferredItem<? extends Item> ENTRENCH = REG.item("entrench", EntrenchItem::new)
             .properties(p -> p.stacksTo(16).rarity(Rarity.UNCOMMON))
-            .flatModel(vanillaItemTexture("shield"))
-            .en("Entrench")
-            .register();
+            .defaultModel().register();
 
     public static final DeferredItem<? extends Item> HEAVY_BLADE = REG.item("heavy_blade", HeavyBladeItem::new)
             .properties(p -> p.stacksTo(1).rarity(Rarity.EPIC).sword(ToolMaterial.NETHERITE, 13.0F, -3.75F))
-            .flatModel(MineTheSpire.id("item/heavy_blade"))
-            .en("Heavy Blade")
-            .register();
+            .defaultModel().register();
 
-    static {
-        REG.text("tooltip.minethespire.heavy_blade.extra_prefix").en("Extra ").register();
-        REG.text("tooltip.minethespire.heavy_blade.strength").en("Strength").register();
-        REG.text("tooltip.minethespire.heavy_blade.extra_suffix").en(" Bonus:").register();
-        REG.text("tooltip.minethespire.heavy_blade.attack_damage").en(" Attack Damage").register();
-    }
-
-    public static final DeferredItem<? extends Item> PAIN_STRIKE = painStrike(
-            "pain_strike", "iron_axe", Items.IRON_AXE, ToolMaterial.IRON, 7.0F, -3.28F, "Pain Strike", false
-    );
+    public static final DeferredItem<? extends Item> PAIN_STRIKE = REG.item("pain_strike", PainStrickItem::new)
+            .defaultModel().register();
 
     public static void register() {
-    }
-
-    public static boolean isPainStrike(Item item) {
-        return item == PAIN_STRIKE.get();
-    }
-
-    private static DeferredItem<? extends Item> painStrike(
-            String name,
-            String baseTexture,
-            Item baseAxe,
-            net.minecraft.world.item.ToolMaterial material,
-            float attackDamageBaseline,
-            float attackSpeedBaseline,
-            String en,
-            boolean fireResistant
-    ) {
-        return REG.item(name, p -> new AxeItem(material, attackDamageBaseline, attackSpeedBaseline, fireResistant ? p.fireResistant() : p))
-                .recipe(item -> (items, output) -> {
-                    ResourceKey<Recipe<?>> recipeId = ResourceKey.create(Registries.RECIPE, MineTheSpire.id(name + "_smithing"));
-                    RecipeUnlockAdvancementBuilder advancements = new RecipeUnlockAdvancementBuilder();
-                    advancements.unlockedBy("has_" + baseTexture, InventoryChangeTrigger.TriggerInstance.hasItems(baseAxe));
-                    SmithingTransformRecipe recipe = new SmithingTransformRecipe(
-                            new Recipe.CommonInfo(true),
-                            Optional.empty(),
-                            Ingredient.of(baseAxe),
-                            Optional.of(Ingredient.of(Items.ROTTEN_FLESH)),
-                            new ItemStackTemplate(item.get())
-                    );
-                    output.accept(recipeId, recipe, advancements.build(output, recipeId, RecipeCategory.COMBAT));
-                })
-                .flatModel(MineTheSpire.id("item/" + name))
-                .en(en)
-                .register();
-    }
-
-    private static Identifier vanillaItemTexture(String textureName) {
-        return Identifier.withDefaultNamespace("item/" + textureName);
     }
 
 }

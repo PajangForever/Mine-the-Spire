@@ -23,6 +23,7 @@ public class MineTheSpire {
     public static final RegisterCore REG = RegisterCore.create(MODID);
 
     public MineTheSpire(IEventBus modEventBus, ModContainer modContainer) {
+        REG.setGroup(MODID).icon(ModItems.LIGHTNING_ORB::toStack);
         ModItems.register();
         ModEntityTypes.register();
         ModEffects.register();
