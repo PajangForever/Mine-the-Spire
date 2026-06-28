@@ -1,28 +1,15 @@
 package forever.pajang.minethespire.content.specials;
 
 import forever.pajang.minethespire.content.ModAttributes;
+import it.unimi.dsi.fastutil.floats.FloatConsumer;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.LivingEntity;
-import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+
+import java.util.function.Supplier;
 
 public final class BlockingValueHandler {
     private BlockingValueHandler() {
-    }
-
-    public static float absorbDamage(LivingEntity entity, float damage) {
-        if (damage <= 0.0F || entity.level().isClientSide()) {
-            return damage;
-        }
-
-        double blockingValue = getBlockingValue(entity);
-        if (blockingValue <= 0.0D) {
-            return damage;
-        }
-
-        float absorbed = (float)Math.min(damage, blockingValue);
-        float remaining = damage - absorbed;
-        setBlockingValue(entity, blockingValue - absorbed);
-        return remaining;
     }
 
     public static void grant(LivingEntity entity, float amount) {
@@ -67,10 +54,23 @@ public final class BlockingValueHandler {
         setBlockingValue(entity, blockingValue + changeRate);
     }
 
-    public static float onDamage(LivingEntity entity, LivingDamageEvent.Pre event) {
-        float remaining = absorbDamage(entity, event.getNewDamage());
-        event.setNewDamage(remaining);
-        return remaining;
+    public static void absorbDamage(LivingEntity entity, DamageSource source, Supplier<Float> getter, FloatConsumer setter) {
+        float remaining;
+        float damage = getter.get();
+        if (damage <= 0.0F || entity.level().isClientSide()) {
+            remaining = damage;
+        } else {
+            double blockingValue = getBlockingValue(entity);
+            if (blockingValue <= 0.0D) {
+                remaining = damage;
+            } else {
+                float absorbed = (float) Math.min(damage, blockingValue);
+                float remaining1 = damage - absorbed;
+                setBlockingValue(entity, blockingValue - absorbed);
+                remaining = remaining1;
+            }
+        }
+        setter.accept(remaining);
     }
 
     private static double getBlockingValue(LivingEntity entity) {

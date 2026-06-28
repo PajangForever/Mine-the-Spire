@@ -6,6 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import forever.pajang.minethespire.ConfigTheSpire;
 import forever.pajang.minethespire.content.ModAttachments;
 import forever.pajang.minethespire.content.item.OriginalRelicItem;
+import forever.pajang.minethespire.content.item.RelicItem;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -141,6 +142,7 @@ public class CombatState {
     protected void onEnterCombat() {
         OriginalRelicItem.ringOfTheSnakeBoostSpeed(owner);
         OriginalRelicItem.crackedCoreSummonFirstBall(owner);
+        RelicItem.akabekoApplyVigor(owner);
         markDirty();
     }
 

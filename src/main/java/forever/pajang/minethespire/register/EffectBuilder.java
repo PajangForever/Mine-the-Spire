@@ -13,6 +13,7 @@ public final class EffectBuilder<T extends MobEffect> extends RegisterCore.Build
     private int color;
     private MobEffectCategory sentiment = MobEffectCategory.NEUTRAL;
     private BiFunction<MobEffectCategory, Integer, T> constructor;
+    private boolean renderLevel = false;
 
     EffectBuilder(RegisterCore registerCore, String name, BiFunction<MobEffectCategory, Integer, T> constructor) {
         super(registerCore, name);
@@ -34,6 +35,11 @@ public final class EffectBuilder<T extends MobEffect> extends RegisterCore.Build
         return this;
     }
 
+    public EffectBuilder<T> renderLevel() {
+        this.renderLevel = true;
+        return this;
+    }
+
     public EffectBuilder<T> en(String en) {
         this.en = en;
         return this;
@@ -41,6 +47,9 @@ public final class EffectBuilder<T extends MobEffect> extends RegisterCore.Build
 
     public DeferredHolder<MobEffect, T> register() {
         DeferredHolder<MobEffect, T> effect = registerCore.effects.register(name, () -> constructor.apply(sentiment, color));
+        if (renderLevel) {
+            registerCore.renderEffectLevels.add(effect);
+        }
         if (registerCore.runningDataGen()) {
             String display = this.en == null ? RegisterCore.getDisplayTitle(this.name) : this.en;
             registerCore.deferredLang.put(() -> effect.get().getDescriptionId(), display);

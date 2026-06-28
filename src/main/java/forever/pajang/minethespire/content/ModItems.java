@@ -7,7 +7,6 @@ import forever.pajang.minethespire.register.RegisterCore;
 import net.minecraft.advancements.criterion.InventoryChangeTrigger;
 import net.minecraft.core.Holder;
 import net.minecraft.data.recipes.RecipeCategory;
-import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EquipmentSlotGroup;
@@ -75,7 +74,7 @@ public final class ModItems {
                     Consumable.builder()
                             .animation(ItemUseAnimation.EAT)
                             .sound(SoundEvents.GENERIC_EAT)
-                            .onConsume(new ApplyStatusEffectsConsumeEffect(new MobEffectInstance(ModEffects.NO_ENTITY, 5 * 60 * 20), 1.0F))
+                            .onConsume(new ApplyStatusEffectsConsumeEffect(new MobEffectInstance(ModEffects.INTANGIBLE, 5 * 60 * 20), 1.0F))
                             .build()))
             .recipe(item -> (items, output) -> {
                 ShapedRecipeBuilder builder = ShapedRecipeBuilder.shaped(items, RecipeCategory.MISC, item.get())
@@ -127,34 +126,38 @@ public final class ModItems {
     public static final DeferredItem<? extends Item> PAIN_STRIKE = REG.item("pain_strike", PainStrickItem::new)
             .defaultModel().register();
 
+    public static final DeferredItem<? extends RelicItem> AKABEKO = REG.item("akabeko", RelicItem::new)
+            .properties(p -> p.stacksTo(1).rarity(Rarity.UNCOMMON)
+                    .attributes(ActivatableStatesAttribute.modifyItem(ModAttributes.ACTIVATABLE_STATES, MineTheSpire.id("burning_blood_effect"), ModAttributes.State.AKABEKO.getIndex()).apply(ItemAttributeModifiers.builder()).build()))
+            .defaultModel().register();
+
+    public static final DeferredItem<? extends RelicItem> ANCHOR = REG.item("anchor", RelicItem::new)
+            .defaultModel().register();
+
+    public static final DeferredItem<? extends RelicItem> BAG_OF_MARBLES = REG.item("bag_of_marbles", RelicItem::new)
+            .defaultModel().register();
+
+    public static final DeferredItem<? extends RelicItem> BAG_OF_PREPARATION = REG.item("bag_of_perparation", RelicItem::new)
+            .defaultModel().register();
+
+    public static final DeferredItem<? extends RelicItem> BRONZE_SCALES = REG.item("bronze_scales", RelicItem::new)
+            .defaultModel().register();
+
+    public static final DeferredItem<? extends RelicItem> BLOOD_VIAL = REG.item("blood_vial", RelicItem::new)
+            .defaultModel().register();
+
+    public static final DeferredItem<? extends RelicItem> CENTENNIAL_PUZZLE = REG.item("centennial_puzzle", RelicItem::new)
+            .defaultModel().register();
+
+    public static final DeferredItem<? extends RelicItem> DATA_DISK = REG.item("data_disk", RelicItem::new)
+            .defaultModel().register();
+
+    public static final DeferredItem<? extends RelicItem> HAPPY_FLOWER = REG.item("happy_flower", RelicItem::new)
+            .defaultModel().register();
+
+
     public static class TodoItems{
         //todo: add relics
-        public static final DeferredItem<? extends RelicItem> AKABEKO = REG.item("akabeko", RelicItem::new)
-                .tempModel().register();
-
-        public static final DeferredItem<? extends RelicItem> ANCHOR = REG.item("anchor", RelicItem::new)
-                .tempModel().register();
-
-        public static final DeferredItem<? extends RelicItem> BAG_OF_MARBLES = REG.item("bag_of_marbles", RelicItem::new)
-                .tempModel().register();
-
-        public static final DeferredItem<? extends RelicItem> BAG_OF_PREPARATION = REG.item("bag_of_perparation", RelicItem::new)
-                .tempModel().register();
-
-        public static final DeferredItem<? extends RelicItem> BRONZE_SCALES = REG.item("bronze_scales", RelicItem::new)
-                .tempModel().register();
-
-        public static final DeferredItem<? extends RelicItem> BLOOD_VIAL = REG.item("blood_vial", RelicItem::new)
-                .tempModel().register();
-
-        public static final DeferredItem<? extends RelicItem> CENTENNIAL_PUZZLE = REG.item("centennial_puzzle", RelicItem::new)
-                .tempModel().register();
-
-        public static final DeferredItem<? extends RelicItem> DATA_DISK = REG.item("data_disk", RelicItem::new)
-                .tempModel().register();
-
-        public static final DeferredItem<? extends RelicItem> HAPPY_FLOWER = REG.item("happy_flower", RelicItem::new)
-                .tempModel().register();
 
         public static final DeferredItem<? extends RelicItem> LANTERN = REG.item("lantern", RelicItem::new)
                 .tempModel().register();

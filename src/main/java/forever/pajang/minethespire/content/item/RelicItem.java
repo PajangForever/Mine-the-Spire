@@ -3,11 +3,15 @@ package forever.pajang.minethespire.content.item;
 import forever.pajang.minethespire.MineTheSpire;
 import forever.pajang.minethespire.compat.curios.CuriosCompat;
 import forever.pajang.minethespire.compat.curios.ModCuriosSlot;
+import forever.pajang.minethespire.content.ModAttributes;
+import forever.pajang.minethespire.content.ModEffects;
+import forever.pajang.minethespire.impl.ActivatableStatesAttribute;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -17,9 +21,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.util.Lazy;
 import org.jetbrains.annotations.Nullable;
-import net.minecraft.core.Holder;
-import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 
 import java.util.Collection;
 import java.util.Set;
@@ -102,8 +103,11 @@ public class RelicItem extends Item {
         }
     }
 
-    @FunctionalInterface
-    public interface AttributeModifierAdder {
-        void addModifier(Holder<Attribute> attribute, AttributeModifier modifier, String... slot);
+    public static void akabekoApplyVigor(LivingEntity entity) {
+        if (entity.level().isClientSide()) return;
+        if (ActivatableStatesAttribute.getBoolean(ModAttributes.State.AKABEKO.getIndex(), entity.getAttributeValue(ModAttributes.ACTIVATABLE_STATES))) {
+            entity.addEffect(new MobEffectInstance(ModEffects.VIGOR, -1, 7));
+        }
     }
+
 }

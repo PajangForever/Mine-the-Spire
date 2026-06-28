@@ -3,7 +3,6 @@ package forever.pajang.minethespire.register;
 import forever.pajang.minethespire.MineTheSpire;
 import forever.pajang.minethespire.compat.curios.CuriosCompat;
 import forever.pajang.minethespire.compat.curios.CuriosSlotBuilder;
-import forever.pajang.minethespire.content.ModItems;
 import it.unimi.dsi.fastutil.Pair;
 import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.client.data.models.BlockModelGenerators;
@@ -46,13 +45,11 @@ import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.attachment.IAttachmentHolder;
 import net.neoforged.neoforge.common.data.ItemTagsProvider;
 import net.neoforged.neoforge.common.data.LanguageProvider;
-import net.neoforged.neoforge.common.data.internal.NeoForgeDamageTypeTagsProvider;
 import net.neoforged.neoforge.data.loading.DatagenModLoader;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
-import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -88,6 +85,7 @@ public class RegisterCore {
     protected final Map<DeferredHolder<Attribute, Attribute>, Predicate<EntityType<? extends LivingEntity>>> livingAttributes = new Reference2ReferenceOpenHashMap<>();
     protected final Set<Consumer<Supplier<ItemModelGenerators>>> itemModels = new ReferenceOpenHashSet<>();
     protected final Set<BiConsumer<HolderGetter<Item>, RecipeOutput>> itemRecipes = new ReferenceOpenHashSet<>();
+    protected final Set<Holder<MobEffect>> renderEffectLevels = new ReferenceOpenHashSet<>();
     protected final Map<ResourceKey<Enchantment>, Function<EnchantmentBuilder.LookupGetter, Enchantment>> enchantments = new Object2ReferenceOpenHashMap<>();
     protected final Set<LootTableBuilder> lootTables = new ReferenceOpenHashSet<>();
     protected final Set<LootModifierBuilder> lootModifiers = new ReferenceOpenHashSet<>();
@@ -241,6 +239,10 @@ public class RegisterCore {
             builderConsumer.accept(builder);
             return builder.build();
         });
+    }
+
+    public Holder<MobEffect>[] getRenderEffectLevels() {
+        return renderEffectLevels.toArray(Holder[]::new);
     }
 
     public Set<Supplier<? extends Item>> getRegisteredItems() {

@@ -6,23 +6,16 @@ import forever.pajang.minethespire.command.CombatStateCmd;
 import forever.pajang.minethespire.command.MindBloomForceClearCmd;
 import forever.pajang.minethespire.command.OrbsCmd;
 import forever.pajang.minethespire.compat.curios.CuriosCompat;
-import forever.pajang.minethespire.content.ModEffects;
-import forever.pajang.minethespire.content.effect.FairyBlessingEffect;
-import forever.pajang.minethespire.content.effect.MindBloomEffect;
-import forever.pajang.minethespire.content.effect.VeninEffect;
-import forever.pajang.minethespire.content.effect.VulnerableEffect;
+import forever.pajang.minethespire.content.effect.*;
 import forever.pajang.minethespire.content.item.DarkShurikenItem;
-import forever.pajang.minethespire.content.item.HeavyBladeItem;
 import forever.pajang.minethespire.content.item.LizardTailItem;
 import forever.pajang.minethespire.content.specials.BlockingValueHandler;
 import forever.pajang.minethespire.content.specials.OrbManager;
 import forever.pajang.minethespire.content.specials.CombatState;
-import it.unimi.dsi.fastutil.floats.FloatConsumer;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.Holder;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -98,22 +91,20 @@ public final class EventListeners {
     }
 
     @SubscribeEvent
-    public static void onLivingDamagePre(LivingDamageEvent.Pre event) {
-        if (event.getEntity().hasEffect(ModEffects.NO_ENTITY)
-                && !event.getSource().is(DamageTypes.GENERIC_KILL)
-                && !event.getSource().is(DamageTypes.FELL_OUT_OF_WORLD)
-                && event.getNewDamage() > 1.0F) {
-            event.setNewDamage(1.0F);
-        }
-        BlockingValueHandler.onDamage(event.getEntity(), event);
-    }
-
-    @SubscribeEvent
     public static void onLivingIncomingDamage(LivingIncomingDamageEvent event) {
         LivingEntity target = event.getEntity();
         DamageSource source = event.getSource();
         CombatState.onHurt(target, source);
-        VulnerableEffect.boostDamage(target, event::getAmount, event::setAmount);
+        VigorEffect.tryRemoveVigorOnAttack(source);
+        IntangibleEffect.reduceDamage(target, source, event::getAmount, event::setAmount);
+    }
+
+    @SubscribeEvent
+    public static void onLivingDamagePre(LivingDamageEvent.Pre event) {
+        LivingEntity entity = event.getEntity();
+        DamageSource source = event.getSource();
+        VulnerableEffect.boostDamage(entity, event::getNewDamage, event::setNewDamage);
+        BlockingValueHandler.absorbDamage(entity, source, event::getNewDamage, event::setNewDamage);
     }
 
     @SubscribeEvent

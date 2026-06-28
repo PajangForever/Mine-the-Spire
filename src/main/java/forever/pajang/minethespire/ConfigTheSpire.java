@@ -20,9 +20,9 @@ public class ConfigTheSpire {
     public static final ModConfigSpec.BooleanValue SHOW_COMBAT_STATE = CLIENT
             .translation(ID_COMBAT_STATE).define("combat_state", false);
 
-    public static final ModConfigSpec.IntValue MAX_COMBAT_TICKS = COMMON
+    public static final ModConfigSpec.IntValue MAX_COMBAT_TICKS = SERVER
             .translation(ID_MAX_COMBAT_TICKS).defineInRange("max_combat_ticks", 300, 1, Integer.MAX_VALUE);
-    public static final ModConfigSpec.IntValue QUICK_EXIT_COMBAT_TICKS = COMMON
+    public static final ModConfigSpec.IntValue QUICK_EXIT_COMBAT_TICKS = SERVER
             .translation(ID_QUICK_EXIT_COMBAT_TICKS).comment("After all hostiles are gone, remaining Combat Ticks will decrease to this value.")
             .defineInRange("quick_exist_combat_ticks", 60, 1, Integer.MAX_VALUE);
 

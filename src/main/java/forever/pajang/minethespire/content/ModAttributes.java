@@ -18,6 +18,7 @@ public final class ModAttributes {
             .setState(State.RING_OF_THE_SNAKE.getIndex(), stateLang().info("ring_of_the_snake").en("When entered combat, boost Movement Speed by 30%").color(0x00cf00).register())
             .setState(State.CRACKED_CORE.getIndex(), stateLang().info("cracked_core").en("When entered combat, summon a lightning charge ball").color(0x00cfff).register())
             .setState(State.LIZARD_TAIL.getIndex(), stateLang().info("lizard_tail").en("When you would die, heal to 50% of your Max Health instead").color(0xffaa00).register())
+            .setState(State.AKABEKO.getIndex(), stateLang().info("akabeko").en("When entered combat, obtain Vigor 8").color(0xFFCB48).register())
             .attachToAll().register();
 
     public static final DeferredHolder<Attribute, Attribute> BLOCKING_VALUE = REG.attribute("blocking_value")
@@ -47,6 +48,7 @@ public final class ModAttributes {
         RING_OF_THE_SNAKE(1),
         CRACKED_CORE(2),
         LIZARD_TAIL(3),
+        AKABEKO(4)
         ;
 
         private final int index;
