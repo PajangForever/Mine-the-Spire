@@ -3,15 +3,11 @@ package forever.pajang.minethespire.content.item;
 import forever.pajang.minethespire.MineTheSpire;
 import forever.pajang.minethespire.compat.curios.CuriosCompat;
 import forever.pajang.minethespire.compat.curios.ModCuriosSlot;
-import forever.pajang.minethespire.content.ModAttributes;
-import forever.pajang.minethespire.content.ModEffects;
-import forever.pajang.minethespire.impl.ActivatableStatesAttribute;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -100,13 +96,6 @@ public class RelicItem extends Item {
                 }
             }
             return false;
-        }
-    }
-
-    public static void akabekoApplyVigor(LivingEntity entity) {
-        if (entity.level().isClientSide()) return;
-        if (ActivatableStatesAttribute.getBoolean(ModAttributes.State.AKABEKO.getIndex(), entity.getAttributeValue(ModAttributes.ACTIVATABLE_STATES))) {
-            entity.addEffect(new MobEffectInstance(ModEffects.VIGOR, -1, 7));
         }
     }
 

@@ -5,8 +5,9 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import forever.pajang.minethespire.ConfigTheSpire;
 import forever.pajang.minethespire.content.ModAttachments;
+import forever.pajang.minethespire.content.ModAttributes;
+import forever.pajang.minethespire.content.item.AkabekoItem;
 import forever.pajang.minethespire.content.item.OriginalRelicItem;
-import forever.pajang.minethespire.content.item.RelicItem;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -62,7 +63,10 @@ public class CombatState {
     public void addHostile(LivingEntity target) {
         if (target != null && isValid(target)) {
             updateCombatTicks(getMaxTicks());
-            hostiles.add(target.getUUID());
+            boolean added = hostiles.add(target.getUUID());
+            if (added){
+                onEntityAddHostile(target);
+            }
         }
     }
 
@@ -142,14 +146,20 @@ public class CombatState {
     protected void onEnterCombat() {
         OriginalRelicItem.ringOfTheSnakeBoostSpeed(owner);
         OriginalRelicItem.crackedCoreSummonFirstBall(owner);
-        RelicItem.akabekoApplyVigor(owner);
+        ModAttributes.Impl.applyPreparedBlocking(owner);
+        ModAttributes.Impl.bloodVialHeal(owner);
         markDirty();
     }
 
     protected void onExitCombat() {
+        AkabekoItem.checkAttributeAndApplyVigor(owner);
         OriginalRelicItem.burningBloodHeal(owner);
         hostiles.clear();
         markDirty();
+    }
+
+    protected void onEntityAddHostile(LivingEntity target) {
+        ModAttributes.Impl.applyBagOfMarbles(owner, target);
     }
 
     protected void onHostilesExtinct() {

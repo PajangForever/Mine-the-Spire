@@ -20,7 +20,7 @@ public class VulnerableEffect extends MobEffect {
             return;
         }
 
-        float multiplier = 1.0F + 0.5F * (effect.getAmplifier() + 1);
+        float multiplier = 1.0F + 0.25F * (effect.getAmplifier() + 1);
         setter.accept(getter.get() * multiplier);
     }
 }

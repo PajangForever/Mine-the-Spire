@@ -2,11 +2,11 @@ package forever.pajang.minethespire.content.item;
 
 import forever.pajang.minethespire.compat.curios.ModCuriosSlot;
 import forever.pajang.minethespire.content.ModAttributes;
-import forever.pajang.minethespire.content.ModEffects;
 import forever.pajang.minethespire.content.specials.OrbType;
 import forever.pajang.minethespire.impl.ActivatableStatesAttribute;
 import forever.pajang.minethespire.content.specials.OrbManager;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 
@@ -27,7 +27,7 @@ public class OriginalRelicItem extends RelicItem {
             return false;
         }
 //        boolean found = ModItems.BURNING_BLOOD.get().tryFindAnyFromCuriosOrEquipment(owner);
-        AttributeInstance attribute = owner.getAttribute(ModAttributes.ACTIVATABLE_STATES);
+        AttributeInstance attribute = owner.getAttribute(ModAttributes.FLAGS_GROUP_0);
         if (attribute != null && ActivatableStatesAttribute.getBoolean(ModAttributes.State.BURNING_BLOOD.getIndex(), attribute.getValue())) {
             owner.heal(HEAL_AMOUNT);
             return true;
@@ -38,9 +38,9 @@ public class OriginalRelicItem extends RelicItem {
         if (owner.level().isClientSide()) {
             return false;
         }
-        AttributeInstance attribute = owner.getAttribute(ModAttributes.ACTIVATABLE_STATES);
+        AttributeInstance attribute = owner.getAttribute(ModAttributes.FLAGS_GROUP_0);
         if (attribute != null && ActivatableStatesAttribute.getBoolean(ModAttributes.State.RING_OF_THE_SNAKE.getIndex(), attribute.getValue())) {
-            owner.addEffect(new MobEffectInstance(ModEffects.SERPENT_SPEED, SPEED_DURATION_TICKS, 0, false, true, true));
+            owner.addEffect(new MobEffectInstance(MobEffects.SPEED, SPEED_DURATION_TICKS, 1, false, true, true));
             return true;
         } else return false;
     }
@@ -51,7 +51,7 @@ public class OriginalRelicItem extends RelicItem {
             return false;
         }
 
-        AttributeInstance attribute = owner.getAttribute(ModAttributes.ACTIVATABLE_STATES);
+        AttributeInstance attribute = owner.getAttribute(ModAttributes.FLAGS_GROUP_0);
         if (attribute == null || !ActivatableStatesAttribute.getBoolean(ModAttributes.State.CRACKED_CORE.getIndex(), attribute.getValue())) {
             return false;
         }

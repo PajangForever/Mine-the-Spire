@@ -33,7 +33,7 @@ public class PainStrickItem extends Item {
     public void hurtEnemy(ItemStack stack, LivingEntity victim, LivingEntity attacker) {
         if (!stack.is(this)) return;
         if (attacker instanceof Player player && player.getAttackStrengthScale(0.5F) < 0.9F) return;
-        victim.addEffect(new MobEffectInstance(ModEffects.VULNERABLE, 80, 0), attacker);
+        victim.addEffect(new MobEffectInstance(ModEffects.VULNERABLE, 80, 1), attacker);
     }
 
 

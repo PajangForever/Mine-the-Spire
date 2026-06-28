@@ -6,6 +6,7 @@ import forever.pajang.minethespire.command.CombatStateCmd;
 import forever.pajang.minethespire.command.MindBloomForceClearCmd;
 import forever.pajang.minethespire.command.OrbsCmd;
 import forever.pajang.minethespire.compat.curios.CuriosCompat;
+import forever.pajang.minethespire.content.ModAttributes;
 import forever.pajang.minethespire.content.effect.*;
 import forever.pajang.minethespire.content.item.DarkShurikenItem;
 import forever.pajang.minethespire.content.item.LizardTailItem;
@@ -95,7 +96,9 @@ public final class EventListeners {
         LivingEntity target = event.getEntity();
         DamageSource source = event.getSource();
         CombatState.onHurt(target, source);
+        ModAttributes.Impl.centennialPuzzleBoostSpeed(target);
         VigorEffect.tryRemoveVigorOnAttack(source);
+        ModAttributes.Impl.thornsDamage(target, source);
         IntangibleEffect.reduceDamage(target, source, event::getAmount, event::setAmount);
     }
 

@@ -6,6 +6,7 @@ import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 
+@Deprecated
 public class SerpentSpeedEffect extends MobEffect {
     public SerpentSpeedEffect(MobEffectCategory category, int color) {
         super(category, color);

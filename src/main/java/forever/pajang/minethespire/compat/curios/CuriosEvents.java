@@ -1,11 +1,13 @@
 package forever.pajang.minethespire.compat.curios;
 
 import forever.pajang.minethespire.MineTheSpire;
+import forever.pajang.minethespire.content.item.AkabekoItem;
 import forever.pajang.minethespire.content.item.RelicItem;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
@@ -18,6 +20,7 @@ import top.theillusivec4.curios.api.CuriosCapability;
 import top.theillusivec4.curios.api.CuriosDataComponents;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.common.slot.SlotTypePredicate;
+import top.theillusivec4.curios.api.event.CurioChangeEvent;
 import top.theillusivec4.curios.api.type.capability.ICurio;
 
 public class CuriosEvents {
@@ -25,6 +28,13 @@ public class CuriosEvents {
     @SubscribeEvent
     public static void onServerStarted(ServerStartedEvent event) {
         MineTheSpire.LOGGER.info("Mod Curios is loaded. Most features are enabled.");
+    }
+
+    @SubscribeEvent
+    public static void onCuriosChanged(CurioChangeEvent.Item event) {
+        LivingEntity entity = event.getEntity();
+        ItemStack to = event.getTo();
+        AkabekoItem.checkStackAndApplyVigor(entity, to);
     }
 
     public static final class ModBusEvent {

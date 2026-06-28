@@ -28,7 +28,7 @@ public final class ModPotions {
             .effect(ModEffects.FAIRY_BLESSING, 8 * 60 * 20).addNormal(ModPotions::createBottledFairyStack)
             .en("Bottled Fairy").register();
     public static final DeferredHolder<Potion, Potion> BLOCKING = REG.potion("blocking")
-            .effect(ModEffects.QUICK_BLOCK, 5).brewStart(Items.COPPER_INGOT).addNormal()
+            .effect(ModEffects.QUICK_BLOCK, 5, 19).brewStart(Items.COPPER_INGOT).addNormal()
             .en("Potion of Blocking").register();
     public static final DeferredHolder<Potion, Potion> BARRICADE = REG.potion("barricade")
             .effect(ModEffects.BARRICADE, 8 * 60 * 20).brewStart(Items.SHIELD).addNormal()
@@ -49,13 +49,13 @@ public final class ModPotions {
             .effect(ModEffects.FOCUS_BOOST, 3 * 60 * 20, 1).brewFrom(FOCUS, Items.GLOWSTONE_DUST).addNormal()
             .en("Potion of Focus").register();
     public static final DeferredHolder<Potion, Potion> VULNERABLE = REG.potion("vulnerable")
-            .effect(ModEffects.VULNERABLE, 3 * 60 * 20).brewStart(Items.ROTTEN_FLESH).addSplash().addLingering()
+            .effect(ModEffects.VULNERABLE, 3 * 60 * 20, 1).brewStart(Items.ROTTEN_FLESH).addSplash().addLingering()
             .en("Potion of Vulnerable").register();
     public static final DeferredHolder<Potion, Potion> LONG_VULNERABLE = REG.potion("long_vulnerable")
-            .effect(ModEffects.VULNERABLE, 8 * 60 * 20).brewFrom(VULNERABLE, Items.REDSTONE).addSplash().addLingering()
+            .effect(ModEffects.VULNERABLE, 8 * 60 * 20, 1).brewFrom(VULNERABLE, Items.REDSTONE).addSplash().addLingering()
             .en("Potion of Vulnerable").register();
     public static final DeferredHolder<Potion, Potion> STRONG_VULNERABLE = REG.potion("strong_vulnerable")
-            .effect(ModEffects.VULNERABLE, 3 * 60 * 20, 1).brewFrom(VULNERABLE, Items.GLOWSTONE_DUST).addSplash().addLingering()
+            .effect(ModEffects.VULNERABLE, 3 * 60 * 20, 2).brewFrom(VULNERABLE, Items.GLOWSTONE_DUST).addSplash().addLingering()
             .en("Potion of Vulnerable").register();
 
     static {
@@ -63,6 +63,17 @@ public final class ModPotions {
         potency(7, "VIII");
         potency(8, "IX");
         potency(9, "X");
+        potency(10, "XI");
+        potency(11, "XII");
+        potency(12, "XIII");
+        potency(13, "XIV");
+        potency(14, "XV");
+        potency(15, "XVI");
+        potency(16, "XVII");
+        potency(17, "XVIII");
+        potency(18, "XIX");
+        potency(19, "XX");
+        potency(20, "XXI");
     }
 
     public static void register() {

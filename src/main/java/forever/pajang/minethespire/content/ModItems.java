@@ -26,7 +26,7 @@ public final class ModItems {
 
     public static final DeferredItem<? extends RelicItem> LIZARD_TAIL = REG.item("lizard_tail", LizardTailItem::new)
             .properties(p -> p.stacksTo(1).rarity(Rarity.UNCOMMON)
-                    .attributes(ActivatableStatesAttribute.modifyItem(ModAttributes.ACTIVATABLE_STATES, MineTheSpire.id("lizard_tail_protection"), ModAttributes.State.LIZARD_TAIL.getIndex()).apply(ItemAttributeModifiers.builder()).build()))
+                    .attributes(ActivatableStatesAttribute.modifyItem(ModAttributes.FLAGS_GROUP_0, MineTheSpire.id("lizard_tail_protection"), ModAttributes.State.LIZARD_TAIL.getIndex()).apply(ItemAttributeModifiers.builder()).build()))
             .defaultModel().register();
 
     public static final DeferredItem<? extends RelicItem> MANGO = REG.item("mango", RelicItem::new)
@@ -46,17 +46,17 @@ public final class ModItems {
 
     public static final DeferredItem<? extends OriginalRelicItem> BURNING_BLOOD = REG.item("burning_blood", OriginalRelicItem::new)
             .properties(p -> p.stacksTo(1).rarity(Rarity.RARE)
-                    .attributes(ActivatableStatesAttribute.modifyItem(ModAttributes.ACTIVATABLE_STATES, MineTheSpire.id("burning_blood_effect"), ModAttributes.State.BURNING_BLOOD.getIndex()).apply(ItemAttributeModifiers.builder()).build()))
+                    .attributes(ActivatableStatesAttribute.modifyItem(ModAttributes.FLAGS_GROUP_0, MineTheSpire.id("burning_blood_effect"), ModAttributes.State.BURNING_BLOOD.getIndex()).apply(ItemAttributeModifiers.builder()).build()))
             .defaultModel().register();
 
     public static final DeferredItem<? extends OriginalRelicItem> RING_OF_THE_SNAKE = REG.item("ring_of_the_snake", OriginalRelicItem::new)
             .properties(p -> p.stacksTo(1).rarity(Rarity.RARE)
-                    .attributes(ActivatableStatesAttribute.modifyItem(ModAttributes.ACTIVATABLE_STATES, MineTheSpire.id("ring_of_the_snake_effect"), ModAttributes.State.RING_OF_THE_SNAKE.getIndex()).apply(ItemAttributeModifiers.builder()).build()))
+                    .attributes(ActivatableStatesAttribute.modifyItem(ModAttributes.FLAGS_GROUP_0, MineTheSpire.id("ring_of_the_snake_effect"), ModAttributes.State.RING_OF_THE_SNAKE.getIndex()).apply(ItemAttributeModifiers.builder()).build()))
             .defaultModel().register();
 
     public static final DeferredItem<? extends OriginalRelicItem> CRACKED_CORE = REG.item("cracked_core", OriginalRelicItem::new)
             .properties(p -> p.stacksTo(1).rarity(Rarity.RARE)
-                    .attributes(ActivatableStatesAttribute.modifyItem(ModAttributes.ACTIVATABLE_STATES, MineTheSpire.id("cracked_core_effect"), ModAttributes.State.CRACKED_CORE.getIndex()).apply(ItemAttributeModifiers.builder()
+                    .attributes(ActivatableStatesAttribute.modifyItem(ModAttributes.FLAGS_GROUP_0, MineTheSpire.id("cracked_core_effect"), ModAttributes.State.CRACKED_CORE.getIndex()).apply(ItemAttributeModifiers.builder()
                     .add(ModAttributes.MAX_ORB, new AttributeModifier(MineTheSpire.id("cracked_core_add_max_balls"), 2.0, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.ANY)).build()))
             .defaultModel().register();
 
@@ -126,33 +126,59 @@ public final class ModItems {
     public static final DeferredItem<? extends Item> PAIN_STRIKE = REG.item("pain_strike", PainStrickItem::new)
             .defaultModel().register();
 
-    public static final DeferredItem<? extends RelicItem> AKABEKO = REG.item("akabeko", RelicItem::new)
+    public static final DeferredItem<? extends AkabekoItem> AKABEKO = REG.item("akabeko", AkabekoItem::new)
             .properties(p -> p.stacksTo(1).rarity(Rarity.UNCOMMON)
-                    .attributes(ActivatableStatesAttribute.modifyItem(ModAttributes.ACTIVATABLE_STATES, MineTheSpire.id("burning_blood_effect"), ModAttributes.State.AKABEKO.getIndex()).apply(ItemAttributeModifiers.builder()).build()))
+                    .attributes(ActivatableStatesAttribute.modifyItem(ModAttributes.FLAGS_GROUP_0, MineTheSpire.id("akabeko"), ModAttributes.State.AKABEKO.getIndex()).apply(ItemAttributeModifiers.builder()).build()))
             .defaultModel().register();
 
     public static final DeferredItem<? extends RelicItem> ANCHOR = REG.item("anchor", RelicItem::new)
+            .properties(p -> p.stacksTo(1).rarity(Rarity.UNCOMMON)
+                    .attributes(ItemAttributeModifiers.builder().add(ModAttributes.PREPARED_BLOCKING, new AttributeModifier(MineTheSpire.id("anchor"), 30, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.ANY).build()))
+            .defaultModel().register();
+
+    public static final DeferredItem<? extends RelicItem> HORN_CLEAT = REG.item("horn_cleat", RelicItem::new)
+            .properties(p -> p.stacksTo(1).rarity(Rarity.UNCOMMON)
+                    .attributes(ItemAttributeModifiers.builder().add(ModAttributes.PREPARED_BLOCKING, new AttributeModifier(MineTheSpire.id("horn_cleat"), 40, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.ANY).build()))
+            .defaultModel().register();
+
+    public static final DeferredItem<? extends RelicItem> CAPTAINS_WHEEL = REG.item("captains_wheel", RelicItem::new)
+            .properties(p -> p.stacksTo(1).rarity(Rarity.UNCOMMON)
+                    .attributes(ItemAttributeModifiers.builder().add(ModAttributes.PREPARED_BLOCKING, new AttributeModifier(MineTheSpire.id("captains_wheel"), 50, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.ANY).build()))
             .defaultModel().register();
 
     public static final DeferredItem<? extends RelicItem> BAG_OF_MARBLES = REG.item("bag_of_marbles", RelicItem::new)
+            .properties(p -> p.stacksTo(1).rarity(Rarity.UNCOMMON)
+                    .attributes(ActivatableStatesAttribute.modifyItem(ModAttributes.FLAGS_GROUP_0, MineTheSpire.id("bag_of_marbles"), ModAttributes.State.BAG_OF_MARBLES.getIndex()).apply(ItemAttributeModifiers.builder()).build()))
             .defaultModel().register();
 
     public static final DeferredItem<? extends RelicItem> BAG_OF_PREPARATION = REG.item("bag_of_perparation", RelicItem::new)
+            .properties(p -> p.stacksTo(1).rarity(Rarity.UNCOMMON)
+                    .attributes(ItemAttributeModifiers.builder().add(Attributes.MOVEMENT_SPEED, new AttributeModifier(MineTheSpire.id("bag_of_preparation"), 0.4, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL), EquipmentSlotGroup.ANY).build()))
             .defaultModel().register();
 
     public static final DeferredItem<? extends RelicItem> BRONZE_SCALES = REG.item("bronze_scales", RelicItem::new)
+            .properties(p -> p.stacksTo(1).rarity(Rarity.UNCOMMON)
+                    .attributes(ItemAttributeModifiers.builder().add(ModAttributes.THORNS, new AttributeModifier(MineTheSpire.id("bronze_scales"), 3, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.ANY).build()))
             .defaultModel().register();
 
     public static final DeferredItem<? extends RelicItem> BLOOD_VIAL = REG.item("blood_vial", RelicItem::new)
+            .properties(p -> p.stacksTo(1).rarity(Rarity.UNCOMMON)
+                    .attributes(ActivatableStatesAttribute.modifyItem(ModAttributes.FLAGS_GROUP_0, MineTheSpire.id("bag_of_marbles"), ModAttributes.State.BLOOD_VIAL.getIndex()).apply(ItemAttributeModifiers.builder()).build()))
             .defaultModel().register();
 
     public static final DeferredItem<? extends RelicItem> CENTENNIAL_PUZZLE = REG.item("centennial_puzzle", RelicItem::new)
+            .properties(p -> p.stacksTo(1).rarity(Rarity.UNCOMMON)
+                    .attributes(ActivatableStatesAttribute.modifyItem(ModAttributes.FLAGS_GROUP_0, MineTheSpire.id("bag_of_marbles"), ModAttributes.State.CENTENNIAL_PUZZLE.getIndex()).apply(ItemAttributeModifiers.builder()).build()))
             .defaultModel().register();
 
     public static final DeferredItem<? extends RelicItem> DATA_DISK = REG.item("data_disk", RelicItem::new)
+            .properties(p -> p.stacksTo(1).rarity(Rarity.UNCOMMON)
+                    .attributes(ItemAttributeModifiers.builder().add(ModAttributes.FOCUS, new AttributeModifier(MineTheSpire.id("data_disk"), 1, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.ANY).build()))
             .defaultModel().register();
 
     public static final DeferredItem<? extends RelicItem> HAPPY_FLOWER = REG.item("happy_flower", RelicItem::new)
+            .properties(p -> p.stacksTo(1).rarity(Rarity.UNCOMMON)
+                    .attributes(ItemAttributeModifiers.builder().add(Attributes.ATTACK_SPEED, new AttributeModifier(MineTheSpire.id("data_disk"), 0.4, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL), EquipmentSlotGroup.ANY).build()))
             .defaultModel().register();
 
 
@@ -195,8 +221,6 @@ public final class ModItems {
         public static final DeferredItem<? extends RelicItem> GREMLIN_HORN = REG.item("gremlin_horn", RelicItem::new)
                 .tempModel().register();
 
-        public static final DeferredItem<? extends RelicItem> HORN_CLEAT = REG.item("horn_cleat", RelicItem::new)
-                .tempModel().register();
 
         public static final DeferredItem<? extends RelicItem> KUNAI = REG.item("kunai", RelicItem::new)
                 .tempModel().register();
@@ -229,9 +253,6 @@ public final class ModItems {
                 .tempModel().register();
 
         public static final DeferredItem<? extends RelicItem> CALIPERS = REG.item("calipers", RelicItem::new)
-                .tempModel().register();
-
-        public static final DeferredItem<? extends RelicItem> CAPTAINS_WHEEL = REG.item("captains_wheel", RelicItem::new)
                 .tempModel().register();
 
         public static final DeferredItem<? extends RelicItem> CHAMPION_BELT = REG.item("champion_belt", RelicItem::new)
