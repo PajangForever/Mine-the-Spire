@@ -57,7 +57,6 @@ public class CuriosEvents {
                             }
                         }
 
-
                     };
                 } else return () -> stack;
             }, RelicItem.RELICS.get().toArray(RelicItem[]::new));

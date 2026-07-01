@@ -24,40 +24,46 @@ import net.minecraft.data.recipes.ShapedRecipeBuilder;
 public final class ModItems {
     private static final RegisterCore REG = MineTheSpire.REG;
 
+    public static final DeferredItem<? extends OriginalRelicItem> DEFECT_MASK = REG.item("defect_mask", OriginalRelicItem::new)
+            .properties(p -> p.stacksTo(1).rarity(Rarity.RARE)
+                    .attributes(ActivatableStatesAttribute.modifyItem(ModAttributes.FLAGS_GROUP_0, MineTheSpire.id("defect_mask"), ModAttributes.State.CRACKED_CORE.getIndex()).apply(ItemAttributeModifiers.builder()
+                            .add(ModAttributes.MAX_ORB, new AttributeModifier(MineTheSpire.id("defect_mask"), 2.0, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.ANY)).build()))
+            .defaultModel().register();
+
     public static final DeferredItem<? extends RelicItem> LIZARD_TAIL = REG.item("lizard_tail", LizardTailItem::new)
             .properties(p -> p.stacksTo(1).rarity(Rarity.UNCOMMON)
-                    .attributes(ActivatableStatesAttribute.modifyItem(ModAttributes.FLAGS_GROUP_0, MineTheSpire.id("lizard_tail_protection"), ModAttributes.State.LIZARD_TAIL.getIndex()).apply(ItemAttributeModifiers.builder()).build()))
+                    .attributes(ActivatableStatesAttribute.modifyItem(ModAttributes.FLAGS_GROUP_0, MineTheSpire.id("lizard_tail"), ModAttributes.State.LIZARD_TAIL.getIndex()).apply(ItemAttributeModifiers.builder()).build()))
             .defaultModel().register();
 
     public static final DeferredItem<? extends RelicItem> MANGO = REG.item("mango", RelicItem::new)
             .properties(p -> p.stacksTo(1).rarity(Rarity.RARE).attributes(ItemAttributeModifiers.builder()
-                    .add(Attributes.MAX_HEALTH, new AttributeModifier(MineTheSpire.id("mango_add_max_health"), 14.0, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.ANY).build()))
+                    .add(Attributes.MAX_HEALTH, new AttributeModifier(MineTheSpire.id("mango"), 14.0, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.ANY).build()))
             .defaultModel().register();
 
     public static final DeferredItem<? extends RelicItem> PEAR = REG.item("pear", RelicItem::new)
             .properties(p -> p.stacksTo(1).rarity(Rarity.UNCOMMON).attributes(ItemAttributeModifiers.builder()
-                    .add(Attributes.MAX_HEALTH, new AttributeModifier(MineTheSpire.id("pear_add_max_health"), 10.0, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.ANY).build()))
+                    .add(Attributes.MAX_HEALTH, new AttributeModifier(MineTheSpire.id("pear"), 10.0, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.ANY).build()))
             .defaultModel().register();
 
     public static final DeferredItem<? extends RelicItem> STRAWBERRY = REG.item("strawberry", RelicItem::new)
             .properties(p -> p.stacksTo(1).rarity(Rarity.COMMON).attributes(ItemAttributeModifiers.builder()
-                    .add(Attributes.MAX_HEALTH, new AttributeModifier(MineTheSpire.id("strawberry_add_max_health"), 7.0, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.ANY).build()))
+                    .add(Attributes.MAX_HEALTH, new AttributeModifier(MineTheSpire.id("strawberry"), 7.0, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.ANY).build()))
             .defaultModel().register();
 
     public static final DeferredItem<? extends OriginalRelicItem> BURNING_BLOOD = REG.item("burning_blood", OriginalRelicItem::new)
             .properties(p -> p.stacksTo(1).rarity(Rarity.RARE)
-                    .attributes(ActivatableStatesAttribute.modifyItem(ModAttributes.FLAGS_GROUP_0, MineTheSpire.id("burning_blood_effect"), ModAttributes.State.BURNING_BLOOD.getIndex()).apply(ItemAttributeModifiers.builder()).build()))
+                    .attributes(ActivatableStatesAttribute.modifyItem(ModAttributes.FLAGS_GROUP_0, MineTheSpire.id("burning_blood"), ModAttributes.State.BURNING_BLOOD.getIndex()).apply(ItemAttributeModifiers.builder()).build()))
             .defaultModel().register();
 
     public static final DeferredItem<? extends OriginalRelicItem> RING_OF_THE_SNAKE = REG.item("ring_of_the_snake", OriginalRelicItem::new)
             .properties(p -> p.stacksTo(1).rarity(Rarity.RARE)
-                    .attributes(ActivatableStatesAttribute.modifyItem(ModAttributes.FLAGS_GROUP_0, MineTheSpire.id("ring_of_the_snake_effect"), ModAttributes.State.RING_OF_THE_SNAKE.getIndex()).apply(ItemAttributeModifiers.builder()).build()))
+                    .attributes(ActivatableStatesAttribute.modifyItem(ModAttributes.FLAGS_GROUP_0, MineTheSpire.id("ring_of_the_snake"), ModAttributes.State.RING_OF_THE_SNAKE.getIndex()).apply(ItemAttributeModifiers.builder()).build()))
             .defaultModel().register();
 
     public static final DeferredItem<? extends OriginalRelicItem> CRACKED_CORE = REG.item("cracked_core", OriginalRelicItem::new)
             .properties(p -> p.stacksTo(1).rarity(Rarity.RARE)
-                    .attributes(ActivatableStatesAttribute.modifyItem(ModAttributes.FLAGS_GROUP_0, MineTheSpire.id("cracked_core_effect"), ModAttributes.State.CRACKED_CORE.getIndex()).apply(ItemAttributeModifiers.builder()
-                    .add(ModAttributes.MAX_ORB, new AttributeModifier(MineTheSpire.id("cracked_core_add_max_balls"), 2.0, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.ANY)).build()))
+                    .attributes(ActivatableStatesAttribute.modifyItem(ModAttributes.FLAGS_GROUP_0, MineTheSpire.id("cracked_core"), ModAttributes.State.CRACKED_CORE.getIndex()).apply(ItemAttributeModifiers.builder()
+                    .add(ModAttributes.MAX_ORB, new AttributeModifier(MineTheSpire.id("cracked_core"), 2.0, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.ANY)).build()))
             .defaultModel().register();
 
     public static final DeferredItem<? extends Item> DARK_SHURIKEN = REG.item("dark_shuriken", DarkShurikenItem::new)

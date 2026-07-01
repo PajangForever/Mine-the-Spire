@@ -1,6 +1,5 @@
 package forever.pajang.minethespire.compat.curios;
 
-import forever.pajang.minethespire.MineTheSpire;
 import forever.pajang.minethespire.content.item.RelicItem;
 import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.resources.Identifier;
@@ -48,6 +47,12 @@ public final class CuriosCompat {
             NeoForge.EVENT_BUS.register(CuriosEvents.class);
             modEventBus.register(CuriosEvents.ModBusEvent.class);
             NeoForge.EVENT_BUS.register(PatchForCurios.class);
+        }
+    }
+
+    public static void registerClientEventsIfLoaded(IEventBus modEventBus) {
+        if (isLoaded()) {
+            modEventBus.register(CuriosClient.Events.class);
         }
     }
 
