@@ -24,7 +24,9 @@ public final class CuriosClient {
 
     public static class Events{
         @SubscribeEvent
-        public static void registerRenderers (FMLClientSetupEvent event){
+        public static void registerRenderers(FMLClientSetupEvent event){
+            ICurioRenderer.register(ModItems.IRONCLAD_MASK.asItem(), MaskRenderer::new);
+            ICurioRenderer.register(ModItems.SILENT_MASK.asItem(), MaskRenderer::new);
             ICurioRenderer.register(ModItems.DEFECT_MASK.asItem(), MaskRenderer::new);
         }
     }

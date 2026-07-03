@@ -24,6 +24,16 @@ import net.minecraft.data.recipes.ShapedRecipeBuilder;
 public final class ModItems {
     private static final RegisterCore REG = MineTheSpire.REG;
 
+    public static final DeferredItem<? extends OriginalRelicItem> IRONCLAD_MASK = REG.item("ironclad_mask", OriginalRelicItem::new)
+            .properties(p -> p.stacksTo(1).rarity(Rarity.RARE)
+                    .attributes(ActivatableStatesAttribute.modifyItem(ModAttributes.FLAGS_GROUP_0, MineTheSpire.id("ironclad_mask"), ModAttributes.State.BURNING_BLOOD.getIndex()).apply(ItemAttributeModifiers.builder()).build()))
+            .defaultModel().register();
+
+    public static final DeferredItem<? extends OriginalRelicItem> SILENT_MASK = REG.item("silent_mask", OriginalRelicItem::new)
+            .properties(p -> p.stacksTo(1).rarity(Rarity.RARE)
+                    .attributes(ActivatableStatesAttribute.modifyItem(ModAttributes.FLAGS_GROUP_0, MineTheSpire.id("silent_mask"), ModAttributes.State.RING_OF_THE_SNAKE.getIndex()).apply(ItemAttributeModifiers.builder()).build()))
+            .defaultModel().register();
+
     public static final DeferredItem<? extends OriginalRelicItem> DEFECT_MASK = REG.item("defect_mask", OriginalRelicItem::new)
             .properties(p -> p.stacksTo(1).rarity(Rarity.RARE)
                     .attributes(ActivatableStatesAttribute.modifyItem(ModAttributes.FLAGS_GROUP_0, MineTheSpire.id("defect_mask"), ModAttributes.State.CRACKED_CORE.getIndex()).apply(ItemAttributeModifiers.builder()

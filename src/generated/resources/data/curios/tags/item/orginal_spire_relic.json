@@ -1,8 +1,10 @@
 {
   "values": [
+    "minethespire:silent_mask",
     "minethespire:defect_mask",
+    "minethespire:burning_blood",
+    "minethespire:ironclad_mask",
     "minethespire:ring_of_the_snake",
-    "minethespire:cracked_core",
-    "minethespire:burning_blood"
+    "minethespire:cracked_core"
   ]
 }
