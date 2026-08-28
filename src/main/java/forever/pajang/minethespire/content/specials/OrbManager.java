@@ -14,6 +14,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
@@ -108,7 +109,12 @@ public final class OrbManager {
         if (owner == null) {
             return 0;
         }
-        return Math.max(0, Mth.floor(owner.getAttributeValue(ModAttributes.MAX_ORB)));
+        AttributeMap attributes = owner.getAttributes();
+        if (!attributes.hasAttribute(ModAttributes.MAX_ORB)) return 0;
+        else {
+            double value = attributes.getValue(ModAttributes.MAX_ORB);
+            return Math.max(0, Mth.floor(value));
+        }
     }
 
     public void removeOrb(OrbEntity orb) {
